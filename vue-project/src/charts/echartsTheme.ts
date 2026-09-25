@@ -8,7 +8,7 @@
  */
 import { registerTheme, use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart, LineChart, MapChart, PieChart, TreemapChart } from 'echarts/charts'
+import { BarChart, LineChart, MapChart, PieChart, SankeyChart, TreemapChart } from 'echarts/charts'
 import {
   DatasetComponent,
   GridComponent,
@@ -26,6 +26,7 @@ use([
   LineChart,
   PieChart,
   TreemapChart,
+  SankeyChart,
   MapChart,
   DatasetComponent,
   GridComponent,
