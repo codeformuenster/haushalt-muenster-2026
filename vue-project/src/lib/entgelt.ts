@@ -9,7 +9,7 @@ function pruefeStufen(tarifStufe: number, besoldungsStufe: number) {
 }
 
 function beamtenGruppe(key: string) {
-  return key.slice(8).replace('_LG2E1', '').replace('_LG2E2', '').replace('A9Z', 'A9')
+  return key.slice('Beamte_'.length).replace('_LG2E1', '').replace('_LG2E2', '').replace('A9Z', 'A9')
 }
 
 function naechsteBesoldungsstufe(gruppe: string, gewuenscht: number) {
