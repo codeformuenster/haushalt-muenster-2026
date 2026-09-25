@@ -1,0 +1,341 @@
+LfdNr,Produktgruppe,Amt,Ausschuss,Empfaenger,Verwendungszweck_Zielsetzung,Zuschuss_2026_EUR,davon_Personalkosten_2026_EUR,davon_Overhead_2026_EUR,davon_sonstigeKosten_2026_EUR,Zuschuss_2027_EUR,davon_Personalkosten_2027_EUR,davon_Overhead_2027_EUR,davon_sonstigeKosten_2027_EUR,verpflichtend_freiwillig,zeitliche_Befristung
+1,0102,33,AWFLD,"unterschiedliche Empfänger/innen, welche erst im Laufe des HH-Jahres bekannt werden (Antragsverfahren)",Zuschüsse für Begegnungen und Projekte zur Förderung der Beziehungen zu den Partnerstädten.,46000.0,0.0,0.0,46000.0,46000.0,0.0,0.0,46000.0,freiwillig,jährlich
+2,0102,33,AWFLD,"unterschiedliche Empfänger/innen, welche erst im Laufe des HH-Jahres bekannt werden (Antragsverfahren)",Zuschüsse des Integrationsrates für Projekte und Kooperationen,29440.0,0.0,0.0,29440.0,29440.0,0.0,0.0,29440.0,freiwillig,jährlich
+3,0102,33,AWFLD,Stiftung Siverdes,Fortführung der Ehrenamtskarte,35000.0,0.0,0.0,35000.0,35000.0,0.0,0.0,35000.0,freiwillig,31.12.2028
+4,0103,OB,AWFLD,privates Unternehmen als Organisator des Stadtfestes,Zuschuss Stadtfest,80000.0,0.0,0.0,80000.0,80000.0,0.0,0.0,80000.0,freiwillig,31.12.2028
+5,0104,17,AGL,Beratungsstelle Frauen helfen Frauen e. V.,"Beratung und Therapie für Frauen, bes. Essstörungen und Dissoziativer Identitätsstörung Frauen",193760.0,176428.0,0.0,17332.0,196480.0,179148.0,0.0,17332.0,dem Grunde nach,31.12.2028
+6,0104,17,AGL,Beratungsstelle Beratung und Therapie e. V.,Verbesserung der psychischen und sozialen Notlage von Frauen,187460.0,170889.0,0.0,16571.0,190070.0,173498.0,0.0,16572.0,dem Grunde nach,31.12.2028
+7,0104,17,AGL,Beratungsstelle Frauen-Notruf Münster e.V.,Beratung und Unterstützung von Frauen und Mädchen bei sexualisierter Gewalt,162790.0,148514.0,0.0,14276.0,164750.0,150474.0,0.0,14276.0,dem Grunde nach,31.12.2028
+8,0104,17,AGL,Frauen und Mädchen Selbstverteidigung und Sport e.V. Münster,Hilfe bei Selbstbehauptung und Selbstverteidigung für Frauen und Mädchen,103270.0,91075.0,0.0,12195.0,105090.0,92895.0,0.0,12195.0,freiwillig,31.12.2032
+9,0104,17,AGL,Frauen und neue Medien e. V.,Förderung von Kompetenz und Sachverständnis für Frauen und Mädchen mit digitalen Kommunikationstechnologien,42250.0,38617.0,0.0,3633.0,43020.0,39387.0,0.0,3633.0,freiwillig,31.12.2032
+10,0104,17,AGL,Kompanera / BerufsWege e.V.,Förderung der gleichberechtigten Berufsbildung und -tätigkeit von Frauen*,141400.0,127632.0,0.0,13768.0,143950.0,130183.0,0.0,13767.0,freiwillig,31.12.2032
+11,0104,17,AGL,LiVas e. V.,"Unterstützung lesbische, bisexuelle und queere Frauen*, Inter*,Trans* und non-binäre Menschen",17450.0,15950.0,0.0,1500.0,17760.0,16260.0,0.0,1500.0,freiwillig,31.12.2030
+12,0104,17,AGL,KCM Schwulenzentrum Münster e. V.,Ergreifung v. Initiativen und Maßnahmen für homo/bisexuelle Männer,16100.0,0.0,0.0,16100.0,16100.0,0.0,0.0,16100.0,freiwillig,31.12.2030
+13,0104,17,AGL,profamilia Münster,Ergreifung v. Initiativen und Maßnahmen sowie Beratung für TI*Personen,34890.0,31890.0,0.0,3000.0,35530.0,32530.0,0.0,3000.0,freiwillig,31.12.2028
+14,0104,17,AGL,Fachstelle für Sexualität und Gesundheit – Aidshilfe Münster e.V. - Regenbogenfamilien,Ergreifung v. Initiativen und Maßnahmen sowie Beratung für Regenbogenfamilien,11630.0,10630.0,0.0,1000.0,11840.0,10840.0,0.0,1000.0,freiwillig,31.12.2028
+15,0104,17,AGL,Fachstelle für Sexualität und Gesundheit – Aidshilfe Münster e.V. Trans- und Interberatung,Entwicklung und Durchführung von Fortbildungs- und Sensibilisierungsangeboten zu den Themen Trans*- und Inter*geschlechtlichkeit,23260.0,21260.0,0.0,2000.0,23690.0,21690.0,0.0,2000.0,freiwillig,31.12.2028
+16,0104,17,AGL,TIMS e. V. - Trans- und Interberatung,Ergreifung v. Initiativen und Maßnahmen für die Trans*- und Inter*-Peerberatung,23260.0,21260.0,0.0,2000.0,23690.0,21690.0,0.0,2000.0,freiwillig,31.12.2028
+17,0104,17,AGL,TIMS e. V. - Selbsthilfe,Regelförderung für den Verein Trans*-Inter*- Münster,34400.0,0.0,0.0,34400.0,34400.0,0.0,0.0,34400.0,freiwillig,31.12.2028
+18,0104,17,AGL,Move & Meet e.V.,"Mobile Sport-, Bildungs- und Freizeitangebote für Frauen und Mädchen mit und ohne Migrations- und Fluchterfahrung",73880.0,66880.0,0.0,7000.0,72170.0,65170.0,0.0,7000.0,freiwillig,31.12.2028
+19,0104,17,AGL,Caritasverband für die Stadt Münster e.V.,Täterarbeit im Rahmen der Krisen- und Gewaltberatung für Männer,57510.0,52010.0,0.0,5500.0,58550.0,53050.0,0.0,5500.0,dem Grunde nach,31.12.2028
+20,0104,17,AGL,AWO Fachstelle Jugendarbeit und Sexualpädagogik,Projekt Vielfalt,40000.0,36000.0,0.0,4000.0,40000.0,36000.0,0.0,4000.0,freiwillig,31.12.2028
+21,0104,17,AGL,Beratungsstelle des Trägers Frauenhaus und Beratung e.V.,Fachberatung zum Thema Häusliche Gewalt für Frauen,191150.0,163035.0,0.0,28115.0,193450.0,165335.0,0.0,28115.0,dem Grunde nach,31.12.2030
+22,0104,17,AGL,Fachberatungsstelle bei Häuslicher Gewalt und Stalking des SKF,Fachberatung zum Thema Häusliche Gewalt,53830.0,38930.0,0.0,14900.0,54610.0,39710.0,0.0,14900.0,dem Grunde nach,31.12.2032
+23,0104,17,AGL,ca. 20 Projektträgerinnen / Gruppen aus dem Bereich Frauenorganisationen,"Projekte, Fachtagungen, Aktionen",20000.0,0.0,0.0,20000.0,20000.0,0.0,0.0,20000.0,freiwillig,31.12.2028
+24,0104,17,AGL,ca. 5 Projektträger/ Gruppen aus dem Bereich LSBTI*,"Projekte, Fachtagungen, Aktionen",6235.0,0.0,0.0,6235.0,6235.0,0.0,0.0,6235.0,freiwillig,31.12.2028
+25,0104,17,AGL,ca. 5 Projektträger/ Gruppen aus dem Bereich Männerorganisationen,"Projekte, Fachtagungen, Aktionen",6235.0,0.0,0.0,6235.0,6235.0,0.0,0.0,6235.0,freiwillig,31.12.2028
+26,0108,10,APSO,Betriebssportgemeinschaft Stadt Münster e. V.,Förderung des Betriebssports,4350.0,0.0,0.0,4350.0,4350.0,0.0,0.0,4350.0,freiwillig,31.12.2030
+27,0113,10,APSO,Alexianer Textilpflege GmbH,Mitarbeitendenzuschuss Essen,61000.0,0.0,0.0,61000.0,62000.0,0.0,0.0,62000.0,freiwillig,31.12.2030
+28,0113,10,APSO,Aramark GmbH,Mitarbeitendenzuschuss Essen,41000.0,0.0,0.0,41000.0,42000.0,0.0,0.0,42000.0,freiwillig,31.12.2030
+29,0116,36,ACI,Haus der Familie Münster Katholisches Bildungsforum im Stadtdekanat Münster e.V.,Qualifizierung Kulturmittlerin,23295.0,9605.0,0.0,13690.0,23487.0,9797.0,0.0,13690.0,freiwillig,31.12.2027
+30,0116,36,ACI,Haus der Familie Münster Katholisches Bildungsforum im Stadtdekanat Münster e.V.,Qualifizierung Kulturmittler,30730.0,13560.0,0.0,17170.0,31001.0,13831.0,0.0,17170.0,freiwillig,31.12.2027
+31,0116,36,ACI,"Vereine, Träger, Initiativen",Unterstützung von Vereinen und Gruppierungen im Bereich Migration/Integration,26700.0,0.0,0.0,26700.0,26700.0,0.0,0.0,26700.0,freiwillig,31.12.2030
+32,0116,36,ACI,"Vereine, Träger, Initiativen","Veranstaltungen ""Wochen gegen Rassismus""",5800.0,0.0,0.0,5800.0,5800.0,0.0,0.0,5800.0,freiwillig,31.12.2030
+33,0116,36,ACI,"Vereine, Träger, Initiativen",Einzelprojekte,8532.0,0.0,0.0,8532.0,8532.0,0.0,0.0,8532.0,freiwillig,31.12.2030
+34,0116,36,ACI,Träger (Wohlfahrt) im Kommunalen Integrationsmanagement NRW (KIM),Zuschuss für Kosten im Case Management,58200.0,0.0,0.0,58200.0,58200.0,0.0,0.0,58200.0,freiwillig,jährlich
+35,0116,36,ACI,Initiative Antidiskriminierungsstelle,"(1,25 VZÄ) politischer Beschluss",0.0,0.0,0.0,0.0,125000.0,125000.0,0.0,0.0,freiwillig,31.12.2030
+36,0116,36,ACI,Iriba-Brunnen e.V.,Zuschuss zu Miete und Sachkosten,9220.0,0.0,0.0,9220.0,9220.0,0.0,0.0,9220.0,freiwillig,31.12.2027
+37,0201,32,APSO,"Vereine, Veranstalter",Zuschüsse Sicherheitsmaßnahmen,30000.0,0.0,0.0,30000.0,30000.0,0.0,0.0,30000.0,freiwillig,31.12.2030
+38,0203,32,APSO,ISG Bahnhofsviertel e.V.,Kooperationsprojekt zwischen Fahrradkontolldienst und ISG,26000.0,26000.0,0.0,0.0,26000.0,26000.0,0.0,0.0,freiwillig,30.06.2028
+39,0209,37,APSO,Musikkorps der Freiwilligen Feuerwehr Münster,Zuschuss Instrumentengeld,2500.0,0.0,0.0,2500.0,2500.0,0.0,0.0,2500.0,freiwillig,31.12.2032
+40,0209,37,APSO,Musikkorps der Freiwilligen Feuerwehr Münster,Dirigentenzuschuss,1010.0,1010.0,0.0,0.0,1010.0,1010.0,0.0,0.0,freiwillig,31.12.2032
+41,0209,37,APSO,Notfallbegleitung Münster,Betriebskostenzuschuss,5000.0,0.0,0.0,5000.0,5000.0,0.0,0.0,5000.0,freiwillig,31.12.2028
+42,0301,40,ASW,Bistum Münster,Papst-Johannes-Schule - Baukostenzuschuss,263200.0,0.0,0.0,263200.0,273800.0,0.0,0.0,273800.0,dem Grunde nach,31.12.2028
+43,0301,40,ASW,Bistum Münster,Papst-Johannes-Schule - Beschaffungskostenzuschuss,24000.0,0.0,0.0,24000.0,24000.0,0.0,0.0,24000.0,dem Grunde nach,31.12.2028
+44,0301,40,ASW,Bistum Münster,Papst-Johannes-Schule - Betriebskostenzuschuss,240000.0,0.0,0.0,240000.0,240000.0,0.0,0.0,240000.0,dem Grunde nach,31.12.2028
+45,0301,40,ASW,Schülervertretungen städtischer Schulen,Zuschüsse SV-Fahrten (auf Antrag),3610.0,0.0,0.0,3610.0,3610.0,0.0,0.0,3610.0,freiwillig,31.12.2028
+46,0301,40,ASW,Verkehrswacht Münster e. V.,Zuschuss Jugendverkehrsschule,17700.0,13000.0,0.0,4700.0,17900.0,13200.0,0.0,4700.0,dem Grunde nach,10 Jahre
+47,0301,40,ASW,Diverse Träger der freien Jugendhilfe,"Stationäre Schulsozialarbeit Freie Träger gemäß Kooperationsvereinbarung an Grundschulen, weiterführenden Schulen, Berufskollegs und Förderschulen (Indikatiorenbasierte Verteilung)",2800870.0,2665027.0,135843.0,0.0,2905800.0,2770835.0,134965.0,0.0,dem Grunde nach,Schuljahr
+48,0301,40,ASW,FAGA Münster,Projekt Bunte Schule,60000.0,51000.0,0.0,9000.0,44000.0,37400.0,0.0,6600.0,freiwillig,31.12.2030
+49,0301,40,ASW,Mensavereine der Gesamtschulen,Zuschuss Mittagsverpflegung (Personalkosten),375000.0,375000.0,0.0,0.0,375000.0,375000.0,0.0,0.0,dem Grunde nach,31.12.2028
+50,0301,40,ASW,Schulen,Musikalische Förderung im Gz-Bereich,2000.0,0.0,0.0,2000.0,2000.0,0.0,0.0,2000.0,freiwillig,31.12.2028
+51,0301,40,ASW,Diverse Träger der freien Jugendhilfe,Modellprojekt intensivpädagogische Förderung,287600.0,273220.0,14380.0,0.0,293000.0,278350.0,14650.0,0.0,dem Grunde nach,Schuljahr
+52,0301,40,ASW,Schulen der Stadt Münster,"Projekt ""Demokratie macht Schule""",15000.0,5000.0,5000.0,5000.0,15000.0,5000.0,5000.0,5000.0,freiwillig,31.12.2028
+53,0302,40,ASW,div. Schüler*innen bzw. Eltern / Sorgeberechtigte,Übernahme Eigenanteil Lernmittel,15000.0,0.0,0.0,15000.0,15000.0,0.0,0.0,15000.0,Höhe und Grund nach,31.12.2030
+54,0302,40,ASW,Lernen fördern e. V.,"Projekt ""Vertiefte Berufsorientierung""",30880.0,25000.0,0.0,5880.0,30880.0,25000.0,0.0,5880.0,dem Grunde nach,Schuljahr
+55,0302,40,ASW,Verschiedene Projektträger,"Kommunale Projektförderung ""Schule-Beruf""",339960.0,245000.0,0.0,94960.0,344060.0,249900.0,0.0,94160.0,dem Grunde nach,Schuljahr bzw. teilweise Haushaltsjahr
+56,0302,40,ASW,Schulen,Sozialfonds,24000.0,0.0,0.0,24000.0,24000.0,0.0,0.0,24000.0,freiwillig,31.12.2030
+57,0302,40,ASW,Stadtsportbund,Pädagogische Förderung mit dem Pferd,20000.0,0.0,0.0,20000.0,20000.0,0.0,0.0,20000.0,freiwillig,31.12.2028
+58,0302,40,ASW,Jugendausbildungszentrum (JAZ gGmbH) der Caritas Münster,Kofinanzierung der LWL-Jugendwerkstatt,0.0,0.0,0.0,0.0,120000.0,86000.0,20000.0,14000.0,freiwillig,31.12.2028
+59,0302,40,ASW,Lernen fördern e. V.,Kooperation in der Werkstattschule Münster,134950.0,114480.0,9850.0,10620.0,137350.0,116880.0,9850.0,10620.0,dem Grunde nach,31.12.2028
+60,0401,41,KA,Annette von Droste-Gesellschaft e.V.,Betrieb und Programm,3750.0,3375.0,0.0,375.0,3820.0,3438.0,0.0,382.0,freiwillig,31.12.2029
+61,0401,41,KA,Arbeitskreis Ostviertel e.V.,Betrieb des Bennohauses,24430.0,21987.0,0.0,2443.0,24870.0,22383.0,0.0,2487.0,freiwillig,31.12.2030
+62,0401,41,KA,Arbeitskreis Ostviertel e.V.,Personalkostenzuschuss,270240.0,243216.0,0.0,27024.0,275110.0,247599.0,0.0,27511.0,freiwillig,31.12.2030
+63,0401,41,KA,B-Side Kultur e.V.,Umsetzung des Projektes B-Side und Aufbau des Betriebes,220000.0,198000.0,0.0,22000.0,225000.0,202500.0,0.0,22500.0,freiwillig,31.12.2030
+64,0401,41,KA,Bürgerausschuss Münsterscher Karneval e.V.,Durchführung Rosenmontagszug,22440.0,0.0,0.0,22440.0,22440.0,0.0,0.0,22440.0,freiwillig,31.12.2030
+65,0401,41,KA,Bürgerverein für Mecklenbeck e.V.,Betrieb Hof Hesselmann,64850.0,58365.0,0.0,6485.0,66020.0,59418.0,0.0,6602.0,freiwillig,31.12.2032
+66,0401,41,KA,Bürgerverein für Mecklenbeck e.V.,Bauunterhaltung Hof Hesselmann,16560.0,14904.0,0.0,1656.0,16860.0,15174.0,0.0,1686.0,freiwillig,31.12.2032
+67,0401,41,KA,Charivari Puppentheater,Betrieb des Charivari Puppentheaters,40000.0,36000.0,0.0,4000.0,39970.0,35973.0,0.0,3997.0,freiwillig,31.12.2028
+68,0401,41,KA,Chorverband Münster Stadt und Land e.V.,Betrieb des Chorverbandes,4920.0,4428.0,0.0,492.0,5010.0,4509.0,0.0,501.0,freiwillig,31.12.2030
+69,0401,41,KA,De Bockwindmüel e.V.,Betrieb und Instandhaltung des Mühlenhof Freilichtmuseums,158080.0,142272.0,0.0,15808.0,128410.0,115569.0,0.0,12841.0,freiwillig,31.12.2030
+70,0401,41,KA,Die Linse - Verein zur Förderung kommunaler Filmarbeit e.V.,Betrieb und Kinoprogramm Cinema,34810.0,31329.0,0.0,3481.0,35440.0,31896.0,0.0,3544.0,freiwillig,31.12.2030
+71,0401,41,KA,echtzeit-Theater GbR,Durchführung Westwind-Festival,36000.0,0.0,0.0,36000.0,0.0,0.0,0.0,0.0,freiwillig,31.12.2026
+72,0401,41,KA,Filmwerkstatt Münster e.V.,Betrieb der Filmwerkstatt,98960.0,89064.0,0.0,9896.0,100880.0,90792.0,0.0,10088.0,freiwillig,31.12.2030
+73,0401,41,KA,Filmwerkstatt Münster e.V.,Durchführung Filmfestival Münster,24800.0,0.0,0.0,24800.0,24800.0,0.0,0.0,24800.0,freiwillig,31.12.2028
+74,0401,41,KA,Filmwerkstatt Münster e.V.,Durchführung LiFilm-Festival,12500.0,0.0,0.0,12500.0,12500.0,0.0,0.0,12500.0,freiwillig,31.12.2028
+75,0401,41,KA,Flurstücke e.V.,Programmzuschuss Festival Flurstücke,62500.0,0.0,0.0,62500.0,62500.0,0.0,0.0,62500.0,freiwillig,31.12.2028
+76,0401,41,KA,Förderverein Aktuelle Kunst e.V.,Atelierbetrieb,9810.0,8829.0,0.0,981.0,9990.0,8991.0,0.0,999.0,freiwillig,31.12.2028
+77,0401,41,KA,Friedrich-Hundt-Gesellschaft e.V.,Stärkung der Kunstform Fotografie / Programm,7500.0,0.0,0.0,7500.0,7500.0,0.0,0.0,7500.0,freiwillig,31.12.2029
+78,0401,41,KA,Gesellschaft für Christlich-Jüdische Zusammenarbeit Münster e.V.,Betrieb und Programm,12240.0,11016.0,0.0,1224.0,12460.0,11214.0,0.0,1246.0,freiwillig,31.12.2030
+79,0401,41,KA,Gesellschaft für Leprakunde e.V.,Betrieb Leprosenhaus,2710.0,2439.0,0.0,271.0,2760.0,2484.0,0.0,276.0,freiwillig,31.12.2032
+80,0401,41,KA,"Jüdische Gemeinde Münster, K.d.ö.R.",Programm Führungen durch die Synagoge,5850.0,0.0,0.0,5850.0,5850.0,0.0,0.0,5850.0,freiwillig,31.12.2028
+81,0401,41,KA,Jugendtheater-Werkstatt e.V.,Betrieb Cactus Junges Theater,66700.0,60030.0,0.0,6670.0,67900.0,61110.0,0.0,6790.0,freiwillig,31.12.2030
+82,0401,41,KA,Kreativ-Haus e.V.,Bertieb Jugendkunstschule,72660.0,65394.0,0.0,7266.0,73970.0,66573.0,0.0,7397.0,freiwillig,31.12.2029
+83,0401,41,KA,Kreativ-Haus e.V.,Betrieb des Kreativhauses,93650.0,84285.0,0.0,9365.0,95340.0,85806.0,0.0,9534.0,freiwillig,31.12.2029
+84,0401,41,KA,Kultur Kooperative Münster e.V.,Betrieb der KKM,6990.0,6291.0,0.0,699.0,7120.0,6408.0,0.0,712.0,freiwillig,31.12.2032
+85,0401,41,KA,Kuratorium Mehrzweckhalle Gelmer,Betrieb und Programm der Mehrzweckhalle Gelmer,11700.0,10530.0,0.0,1170.0,11910.0,10719.0,0.0,1191.0,freiwillig,31.12.2029
+86,0401,41,KA,medienforum münster e.V.,Berieb des Medienforums,43450.0,39105.0,0.0,4345.0,44230.0,39807.0,0.0,4423.0,freiwillig,31.12.2028
+87,0401,41,KA,moNOkultur Münster e.V.,Finanzierung Geschäftsführer*instelle,40800.0,40800.0,0.0,0.0,41600.0,41600.0,0.0,0.0,freiwillig,31.12.2027
+88,0401,41,KA,Soziokultur Achtermannstraße e.V.,Programm,41140.0,0.0,0.0,41140.0,41140.0,0.0,0.0,41140.0,freiwillig,31.12.2030
+89,0401,41,KA,Soziokultur Achtermannstraße e.V.,Bertrieb,91180.0,82062.0,0.0,9118.0,92830.0,83547.0,0.0,9283.0,freiwillig,31.12.2030
+90,0401,41,KA,Soziokultur Achtermannstraße e.V.,Personalkostenzuschuss Geschäftsführung,47000.0,47000.0,0.0,0.0,47850.0,47850.0,0.0,0.0,freiwillig,31.12.2028
+91,0401,41,KA,Stadtheimatbund Münster e.V.,Betrieb des Stadtheimatbundes / Torhaus,5960.0,5364.0,0.0,596.0,6070.0,5463.0,0.0,607.0,freiwillig,31.12.2028
+92,0401,41,KA,THEAMA e.V.,"Betrieb des Kammertheaters ""Der Kleine Bühnenboden""",32960.0,29664.0,0.0,3296.0,33550.0,30195.0,0.0,3355.0,freiwillig,31.12.2027
+93,0401,41,KA,Theater Titanick Münster/Leipzig GbR,Betrieb Theater Titanick,116520.0,104868.0,0.0,11652.0,81500.0,73350.0,0.0,8150.0,freiwillig,31.12.2028
+94,0401,41,KA,Theaterhaus Pumpenhaus gGmbH,Betrieb des Theaters im Pumpenhaus,644990.0,580491.0,0.0,64499.0,656600.0,590940.0,0.0,65660.0,freiwillig,31.12.2033
+95,0401,41,KA,Theaterhaus Pumpenhaus gGmbH,Sicherung des Probenbetriebes,70660.0,63594.0,0.0,7066.0,71940.0,64746.0,0.0,7194.0,freiwillig,31.12.2033
+96,0401,41,KA,Verein zur Förderung des Wolfgang Borchert Theaters e. V.,Betrieb des Wolfgang Borchert Theaters,440800.0,396720.0,0.0,44080.0,447560.0,402804.0,0.0,44756.0,freiwillig,31.12.2029
+97,0401,41,KA,Westfälischer Kunstverein,Betrieb und Jahresprogramm,33340.0,30006.0,0.0,3334.0,33940.0,30546.0,0.0,3394.0,freiwillig,31.12.2032
+98,0401,41,KA,Zukunftsmusik GbR,Betrieb Proberaumzentrum Am Hawerkamp,16000.0,14400.0,0.0,1600.0,16290.0,14661.0,0.0,1629.0,freiwillig,31.12.2028
+99,0401,41,KA,Zukunftswerkstatt Kreuzviertel e.V.,Betrieb der Zukunftswerkstatt im Kreuzviertel,14030.0,12627.0,0.0,1403.0,14280.0,12852.0,0.0,1428.0,freiwillig,31.12.2029
+100,0403,44,KA,Musikschule Wolbeck e.V.,Betriebskostenzuschuss Musikschul- arbeit in Wolbeck,241470.0,217320.0,0.0,24150.0,245510.0,220960.0,0.0,24550.0,freiwillig,31.12.2034
+101,0403,44,KA,Musikschule Roxel e.V.,Betriebskostenzuschuss Musikschul- arbeit in Roxel,274390.0,246950.0,0.0,27440.0,278990.0,251090.0,0.0,27900.0,freiwillig,31.12.2034
+102,0403,44,KA,Musikschule Nienberge e.V.,Betriebskostenzuschuss Musikschul- arbeit in Nienberge,351220.0,316100.0,0.0,35120.0,357110.0,321400.0,0.0,35710.0,freiwillig,31.12.2034
+103,0403,44,KA,Musikschule Albachten e.V.,Betriebskostenzuschuss Musikschul- arbeit in Albachten,230490.0,207440.0,0.0,23050.0,234370.0,210930.0,0.0,23440.0,freiwillig,31.12.2034
+104,0403,44,KA,"Regionalausschuss ""Jugend musiziert"" Münsterland","Regionalwettbewerb ""Jugend musiziert NRW"" in Münster",5090.0,5090.0,0.0,0.0,5190.0,5190.0,0.0,0.0,freiwillig,31.12.2030
+105,0404,42,KA,Freunde der Französischen Kultur e.V.,"Förderung des Projektes ""Französischer Bücherbus NRW""",380.0,0.0,0.0,380.0,380.0,0.0,0.0,380.0,freiwillig,31.12.2028
+106,0404,42,KA,"Stadtteilbücherei Münster-Hiltrup, St. Clemens","Betrieb der Stadtteilbücherei Münster-Hiltrup, St. Clemens",100600.0,0.0,0.0,100600.0,100600.0,0.0,0.0,100600.0,freiwillig,31.12.2028
+107,0404,42,KA,"Bücherei St. Michael, Münster- Gievenbeck","Betrieb der Stadtteilbücherei St. Michael, Münster- Gievenbeck",5650.0,0.0,0.0,5650.0,5650.0,0.0,0.0,5650.0,freiwillig,31.12.2028
+108,0404,42,KA,Bischöfliches Generalvikariat,Unterstützung der kirchlichen öffentlichen Büchereien bei der Beschaffung von Büchern und Medien,21000.0,0.0,0.0,21000.0,21000.0,0.0,0.0,21000.0,freiwillig,jährlich
+109,0406,47,KA,Institut für vergleichende Städtegeschichte gGmbH,Stärkung des Wissenschaftsstandorts Münster,23000.0,0.0,0.0,23000.0,23000.0,0.0,0.0,23000.0,freiwillig,31.12.2028
+110,0502,50,ASGAM,Gemeinnützige Gesellschaft zur Unterstützung Asylsuchender e.V.,"Flüchtlings- und Migrationsberatung, Ehrenamtskoordination",214650.0,197210.0,0.0,17440.0,218590.0,201150.0,0.0,17440.0,dem Grunde nach,31.12.2030
+111,0502,50,ASGAM,Gemeinnützige Gesellschaft zur Unterstützung Asylsuchender e.V.,Psychosoziale Flüchtlingshilfe,106800.0,97410.0,0.0,9390.0,108750.0,99360.0,0.0,9390.0,dem Grunde nach,31.12.2030
+112,0503,50,ASGAM,"Vereine, Verbände und Initiativen",Haupt- und ehrenamtliche Flüchtlingsberatung und -betreuung,19960.0,0.0,0.0,19960.0,19960.0,0.0,0.0,19960.0,dem Grunde nach,31.12.2028
+113,0503,50,ASGAM,Gemeindediakonie Hiltrup e.V.,Seniorenarbeit in Hiltrup und Amelsbüren,53940.0,44000.0,0.0,9940.0,54820.0,44880.0,0.0,9940.0,dem Grunde nach,31.12.2030
+114,0503,50,ASGAM,Alzheimer Gesellschaft Münster e.V.,"Beratung, Netzwerk- und Öffentlichkeitsarbeit zum Thema Demenz",31930.0,29930.0,0.0,2000.0,32530.0,30530.0,0.0,2000.0,dem Grunde nach,31.12.2032
+115,0503,50,ASGAM,PariSozial Münsterland gGmbH,Beratung für Menschen mit Hörbehinderung,129970.0,104970.0,0.0,25000.0,132070.0,107070.0,0.0,25000.0,dem Grunde nach,31.12.2031
+116,0503,50,ASGAM,Lebenshilfe Münster e.V.,Familienunterstützender Dienst (Beratung und Unterstützung sowie Freizeit),45550.0,38300.0,0.0,7250.0,46320.0,39070.0,0.0,7250.0,dem Grunde nach,31.12.2031
+117,0503,50,ASGAM,Bischöfliches Generalvikariat,Tilgung Darlehen Sonderkindergarten Arche,1810.0,0.0,0.0,1810.0,1810.0,0.0,0.0,1810.0,dem Grunde nach,31.12.2027
+118,0503,50,ASGAM,Alexianer Johannistift GmbH,"Treffpunkt ""An der Clemenskirche""",13010.0,11710.0,0.0,1300.0,13240.0,11940.0,0.0,1300.0,dem Grunde nach,31.12.2030
+119,0503,50,ASGAM,Kassenärztliche Vereinigung Westfalen- Lippe,Aufsuchende Krankenpflege Wohnungsloser,35100.0,0.0,0.0,35100.0,35100.0,0.0,0.0,35100.0,dem Grunde nach,31.12.2029
+120,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen",Sozialdienst Wohnungsnotfälle,20280.0,20280.0,0.0,0.0,20690.0,20690.0,0.0,0.0,dem Grunde nach,31.12.2033
+121,0503,50,ASGAM,Caritasverband für die Stadt Münster,Sozialdienst Wohnungsnotfälle,85365.0,81100.0,0.0,4265.0,86985.0,82720.0,0.0,4265.0,dem Grunde nach,31.12.2033
+122,0503,50,ASGAM,Diakonie Münster Beratungs- und BildungsCentrum gGmbH,Sozialdienst Wohnungsnotfälle,27030.0,27030.0,0.0,0.0,27570.0,27570.0,0.0,0.0,dem Grunde nach,31.12.2033
+123,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen",Beratung für Personen außerhalb des Hilfeplanverfahrens Sozialdienst Wohnungsnotfälle,42660.0,38580.0,0.0,4080.0,0.0,0.0,0.0,0.0,freiwillig,31.12.2026
+124,0503,50,ASGAM,Caritasverband für die Stadt Münster,Beratung für Personen außerhalb des Hilfeplanverfahrens Sozialdienst Wohnungsnotfälle,85350.0,77190.0,0.0,8160.0,0.0,0.0,0.0,0.0,freiwillig,31.12.2026
+125,0503,50,ASGAM,Dach überm Kopf e.V.,Wohnraumberatung und Unterstützung bei Wohnproblemen,78710.0,68990.0,0.0,9720.0,80090.0,70370.0,0.0,9720.0,dem Grunde nach,31.12.2029
+126,0503,50,ASGAM,Diakonie Münster - Stationäre Seniorendienste GmbH,Quartiersentwicklung Handorf,35630.0,31280.0,0.0,4350.0,43910.0,40560.0,0.0,3350.0,dem Grunde nach,31.12.2031
+127,0503,50,ASGAM,Telefonseelsorge Münster,Aus- und Fortbildung Ehrenamtlicher,51520.0,51520.0,0.0,0.0,52550.0,52550.0,0.0,0.0,dem Grunde nach,31.12.2033
+128,0503,50,ASGAM,Jüdische Gemeinde Münster,Sozialarbeit und Beratung,30570.0,26690.0,0.0,3880.0,31100.0,27220.0,0.0,3880.0,dem Grunde nach,31.12.2033
+129,0503,50,ASGAM,Caritasverband für die Stadt Münster,Bahnhofsmission,184400.0,134400.0,0.0,50000.0,187090.0,137090.0,0.0,50000.0,dem Grunde nach,31.12.2031
+130,0503,50,ASGAM,Chance e.V.,Institutioneller Zuschuss,205650.0,164440.0,0.0,41210.0,208940.0,167730.0,0.0,41210.0,dem Grunde nach,31.12.2031
+131,0503,50,ASGAM,Soziokultur Achtermannstraße e.V.,Sozialhilfeberatung,199820.0,178580.0,0.0,21240.0,203390.0,182150.0,0.0,21240.0,dem Grunde nach,31.12.2030
+132,0503,50,ASGAM,Hospizbewegung Münster e.V.,Hospizbewegung,51110.0,39760.0,0.0,11350.0,51910.0,40560.0,0.0,11350.0,dem Grunde nach,31.12.2032
+133,0503,50,ASGAM,Soziokultur Achtermannstraße e.V.,Arbeitslosenberatung,60420.0,54940.0,0.0,5480.0,61520.0,56040.0,0.0,5480.0,dem Grunde nach,31.12.2030
+134,0503,50,ASGAM,Caritasverband für die Stadt Münster,Sozialberatung Kinderhaus Brüningheide,78540.0,71630.0,0.0,6910.0,79970.0,73060.0,0.0,6910.0,dem Grunde nach,31.12.2029
+135,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen",Sozialarbeit im Stadtteil inkl. Hausbesuche über 75 Jahre,128070.0,106890.0,0.0,21180.0,130210.0,109030.0,0.0,21180.0,dem Grunde nach,31.12.2033
+136,0503,50,ASGAM,Caritasverband für die Stadt Münster,Sozialarbeit im Stadtteil inkl. Hausbesuche über 75 Jahre,339160.0,281760.0,0.0,57400.0,344800.0,287400.0,0.0,57400.0,dem Grunde nach,31.12.2033
+137,0503,50,ASGAM,Der Paritätische Münster,Selbsthilfekontaktstelle und Verbandsarbeit,218320.0,193910.0,0.0,24410.0,222200.0,197790.0,0.0,24410.0,dem Grunde nach,31.12.2033
+138,0503,50,ASGAM,Diakonie Münster Beratungs- und BildungsCentrum gGmbH,Sozialarbeit im Stadtteil inkl. Hausbesuche über 75 Jahre,141130.0,112720.0,0.0,28410.0,143620.0,114970.0,0.0,28640.0,dem Grunde nach,31.12.2033
+139,0503,50,ASGAM,DRK Kreisverband Münster e.V.,Sozialarbeit im Stadtteil inkl. Hausbesuche über 75 Jahre,106020.0,85840.0,0.0,20180.0,107740.0,87560.0,0.0,20180.0,dem Grunde nach,31.12.2033
+140,0503,50,ASGAM,Arbeitskreis International e.V.,Beratung und Begleitung zur Überwindung von Alltagsproblemen,49710.0,29280.0,0.0,20430.0,50300.0,29870.0,0.0,20430.0,freiwillig,31.12.2029
+141,0503,50,ASGAM,Kaktus Münster e.V.,"Beratung, Begleitung und Begegnungsangebote",54260.0,31420.0,0.0,22840.0,54890.0,32050.0,0.0,22840.0,freiwillig,31.12.2029
+142,0503,50,ASGAM,Begegnungsangebote für Seniorinnen und Senioren,Begegnungsstättenförderung gemäß Richtlinien,61430.0,0.0,0.0,61430.0,61430.0,0.0,0.0,61430.0,dem Grunde nach,31.12.2030
+143,0503,50,ASGAM,Frauenhaus und Beratung e.V.,ad-hoc Hotelkosten in Einzelfällen für von Gewalt betroffene Frauen und deren Kinder,2000.0,0.0,0.0,2000.0,2000.0,0.0,0.0,2000.0,freiwillig,31.12.2032
+144,0503,50,ASGAM,Verbraucherzentrale NRW,Schuldnerberatung,91340.0,82200.0,0.0,9130.0,95230.0,86100.0,0.0,9130.0,dem Grunde nach,31.12.2031
+145,0503,50,ASGAM,Verbraucherzentrale NRW,Verbraucherberatung,223430.0,201090.0,0.0,22340.0,230270.0,207930.0,0.0,22340.0,dem Grunde nach,31.12.2031
+146,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen",Schuldnerberatung,74220.0,67490.0,0.0,6730.0,75570.0,68840.0,0.0,6730.0,dem Grunde nach,31.12.2031
+147,0503,50,ASGAM,Caritasverband für die Stadt Münster,Schuldnerberatung,74220.0,67490.0,0.0,6730.0,75570.0,68840.0,0.0,6730.0,dem Grunde nach,31.12.2031
+148,0503,50,ASGAM,Diakonie Münster Beratungs- und BildungsCentrum gGmbH,Schuldnerberatung,74220.0,67490.0,0.0,6730.0,75570.0,68840.0,0.0,6730.0,dem Grunde nach,31.12.2031
+149,0503,50,ASGAM,Treffpunkt Waldsiedlung e.V.,"Büro- und Vereinsarbeit ""Treffpunkt Waldsiedlung"" sowie Mietkosten für das Objekt Bonnenkamp 73",55000.0,17830.0,0.0,37170.0,55360.0,18190.0,0.0,37170.0,dem Grunde nach,31.12.2028
+150,0503,50,ASGAM,Arbeitslose brauchen Medien e.V.,Gemeinnützige Vereinsarbeit,28980.0,19440.0,0.0,9540.0,30600.0,21020.0,0.0,9580.0,dem Grunde nach,31.12.2028
+151,0503,50,ASGAM,Internationaler Kulturverein Atrium e.V.,"Stromkosten ""Atrium"", Internationales Stadtteil- und Kulturzentrum",3600.0,0.0,0.0,3600.0,3600.0,0.0,0.0,3600.0,dem Grunde nach,31.12.2029
+152,0503,50,ASGAM,Caritasverband für die Stadt Münster,"Quartiersentwicklung Hiltrup-Ost: ""Emmerbach- Treff""",62780.0,40480.0,0.0,22300.0,76670.0,47890.0,0.0,28780.0,dem Grunde nach,31.12.2031
+153,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen","Service- und Kooperationsstelle ""Südviertelbüro""",28330.0,14400.0,0.0,13930.0,28620.0,14690.0,0.0,13930.0,dem Grunde nach,31.12.2030
+154,0503,50,ASGAM,Begegnungszentrum Kinderhaus e.V.,Integrationsarbeit vor Ort innerhalb des Maßnahmeprogramms Kinderhaus-Brüningheide,53770.0,50170.0,0.0,3600.0,54770.0,51170.0,0.0,3600.0,dem Grunde nach,31.12.2029
+155,0503,50,ASGAM,Kinderhauser Arbeitsloseninitiative KAI e.V.,"""Wir verstehen uns"" - Nachhilfe und Sprachkurse innerhalb des Maßnahmeprogramms Kinderhaus- Brüningheide",33410.0,33410.0,0.0,0.0,34080.0,34080.0,0.0,0.0,dem Grunde nach,31.12.2029
+156,0503,50,ASGAM,Internationaler Kulturverein ATRIUM e.V.,"""Kulturprojekte: Interkulturelle Veranstaltungsreihe ATRIUM e.V."" innerhalb des Maßnahmeprogramms Kinderhaus-Brüningheide",2000.0,0.0,0.0,2000.0,2000.0,0.0,0.0,2000.0,dem Grunde nach,31.12.2029
+157,0503,50,ASGAM,Diakonie Münster Beratungs- und BildungsCentrum gGmbH,Schuldnerberatung innerhalb des Maßnahmeprogramms Kinderhaus-Brüningheide,49110.0,45510.0,0.0,3600.0,50020.0,46420.0,0.0,3600.0,dem Grunde nach,31.12.2029
+158,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen",Leistungen der Betreuungsvereine für die städtische Betreuungsbehörde,55640.0,50180.0,0.0,5460.0,56640.0,51180.0,0.0,5460.0,dem Grunde nach,31.12.2032
+159,0503,50,ASGAM,Betreuungsverein Lebenshilfe Münster e.V.,Leistungen der Betreuungsvereine für die städtische Betreuungsbehörde,28430.0,25220.0,0.0,3210.0,28930.0,25720.0,0.0,3210.0,dem Grunde nach,31.12.2032
+160,0503,50,ASGAM,Caritasverband für die Stadt Münster,Leistungen der Betreuungsvereine für die städtische Betreuungsbehörde,55640.0,50180.0,0.0,5460.0,56640.0,51180.0,0.0,5460.0,dem Grunde nach,31.12.2032
+161,0503,50,ASGAM,Diakonisches Werk Münster e.V.,Leistungen der Betreuungsvereine für die städtische Betreuungsbehörde,55640.0,50180.0,0.0,5460.0,56640.0,51180.0,0.0,5460.0,dem Grunde nach,31.12.2032
+162,0503,50,ASGAM,Sozialdienst katholischer Frauen e.V.,Leistungen der Betreuungsvereine für die städtische Betreuungsbehörde,55640.0,50180.0,0.0,5460.0,56640.0,51180.0,0.0,5460.0,dem Grunde nach,31.12.2032
+163,0503,50,ASGAM,Guter Hirte Münster gGmbH,"Quartiersentwicklung Mauritz-Ost: ""Alte Apotheke""",39130.0,39130.0,0.0,0.0,39910.0,39910.0,0.0,0.0,dem Grunde nach,31.12.2030
+164,0503,50,ASGAM,Chance e.V.,Gewaltberatungs- und Deeskalationsprojekt,34530.0,29530.0,0.0,5000.0,35120.0,30120.0,0.0,5000.0,freiwillig,31.12.2032
+165,0503,50,ASGAM,draußen! e.V.,Unterstützung für hilfsbedürftige Mitbürger*innen,17070.0,15680.0,0.0,1390.0,17380.0,15990.0,0.0,1390.0,dem Grunde nach,31.12.2028
+166,0503,50,ASGAM,MuM-Mehrgenerationenhaus und Mütterzentrum e.V.,Begegnungs- und Beratungsangebot für alle Generationen und Menschen unterschiedlicher Herkunft und Mileus,110960.0,102460.0,0.0,8500.0,113010.0,104510.0,0.0,8500.0,dem Grunde nach,31.12.2030
+167,0503,50,ASGAM,Kirchengemeinde St. Marien und St. Josef,"Projekt ""FreiRaum""",11000.0,0.0,0.0,11000.0,11000.0,0.0,0.0,11000.0,dem Grunde nach,31.12.2028
+168,0503,50,ASGAM,Verein Bürgernetz e.V.,Seniorenportal,3300.0,0.0,0.0,3300.0,0.0,0.0,0.0,0.0,freiwillig,31.12.2026
+169,0503,50,ASGAM,AFAQ e.V.,niederschwellige Integrationsangebote,72570.0,42390.0,0.0,30180.0,66160.0,40160.0,0.0,26000.0,freiwillig,31.12.2028
+170,0503,50,ASGAM,Diakonie Münster Beratungs- und BildungsCentrum gGmbH,Quartiersentwicklung Rumphorst,126700.0,115700.0,0.0,11000.0,129010.0,118010.0,0.0,11000.0,dem Grunde nach,31.12.2031
+171,0503,50,ASGAM,Chance e.V.,"Fachberatungsstelle ""Opferhilfe""",37220.0,34020.0,0.0,3200.0,37900.0,34700.0,0.0,3200.0,freiwillig,31.12.2032
+172,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen","Begegnungszentrum ""Coerde mittendrin""",64090.0,48590.0,0.0,15500.0,65060.0,49560.0,0.0,15500.0,dem Grunde nach,31.12.2030
+173,0503,50,ASGAM,Caritasverband für die Stadt Münster,Quartiersentwicklung Aaseestadt und Pluggendorf,64540.0,52340.0,0.0,12200.0,65590.0,53390.0,0.0,12200.0,dem Grunde nach,31.12.2031
+174,0503,50,ASGAM,"Frauenhaus und Beratung e.V., Frauen helfen Frauen e.V., Beratung und Therapie für Frauen e.V.",Dolmetschergestützte Beratung,30000.0,0.0,0.0,30000.0,30000.0,0.0,0.0,30000.0,dem Grunde nach,31.12.2032
+175,0503,50,ASGAM,Stift Tilbeck,Technische Assistenz Tilbeck (TAT),22560.0,21060.0,0.0,1500.0,0.0,0.0,0.0,0.0,dem Grunde nach,31.12.2026
+176,0503,50,ASGAM,FranKo e. V.,Soziale Projekte in Coerde,15000.0,0.0,0.0,15000.0,15000.0,0.0,0.0,15000.0,dem Grunde nach,31.12.2030
+177,0503,50,ASGAM,"Arbeiterwohlfahrt, Unterbezirk Münsterland-Recklinghausen",Quartierstreff Berg Fidel,70710.0,48590.0,0.0,22120.0,71680.0,49560.0,0.0,22120.0,dem Grunde nach,31.12.2030
+178,0503,50,ASGAM,Ein Rucksack voll Hoffnung - für Münster e.V.,Koordination von Begegnungsangeboten und Sachspenden für Bedürftige,70030.0,25010.0,0.0,45020.0,71140.0,25510.0,0.0,45630.0,freiwillig,31.12.2028
+179,0503,50,ASGAM,Begegnungszentrum Kinderhaus e.V.,Stadtteilarbeit im Begegungszentrum Kinderhaus,120020.0,90290.0,0.0,29730.0,121830.0,92100.0,0.0,29730.0,dem Grunde nach,31.12.2029
+180,0503,50,ASGAM,Seniorentreff Hansahof e.V.,"Seniorenbegegnungsstätte ""Café Hansahof""",12960.0,0.0,0.0,12960.0,12960.0,0.0,0.0,12960.0,dem Grunde nach,31.12.2030
+181,0503,50,ASGAM,Altes Backhaus e.V.,"Seniorenbegegnungsstätte ""Altes Backhaus""",13080.0,0.0,0.0,13080.0,13080.0,0.0,0.0,13080.0,dem Grunde nach,31.12.2030
+182,0503,50,ASGAM,Arbeiterwohlfahrt Ortsverein Münster- Wolbeck,AWO-Begegnungsstätte Wolbeck,16400.0,0.0,0.0,16400.0,16400.0,0.0,0.0,16400.0,dem Grunde nach,31.12.2030
+183,0503,50,ASGAM,Bewohnertreff Südviertel e.V.,Bewohnertreff im Südviertel,14310.0,0.0,0.0,14310.0,14310.0,0.0,0.0,14310.0,dem Grunde nach,31.12.2030
+184,0503,50,ASGAM,Gehörlosenverein Münster 1913 e.V.,Mietkosten für das Kulturzentrum für Gehörlose,9420.0,0.0,0.0,9420.0,9420.0,0.0,0.0,9420.0,dem Grunde nach,31.12.2031
+185,0503,50,ASGAM,Deutscher Schwerhörigenbund Ortsverein Münster und Münsterland e.V.,Mietkosten für das Hörbehindertenzentrum,10700.0,0.0,0.0,10700.0,10700.0,0.0,0.0,10700.0,dem Grunde nach,31.12.2031
+186,0503,50,ASGAM,Arbeitsgemeinschaft Hospiz- und Palliativversorgung Münster e.V.,Netzwerkkoordination,15000.0,14200.0,0.0,800.0,15280.0,14480.0,0.0,800.0,dem Grunde nach,31.12.2028
+187,0503,50,ASGAM,Stadtsportbund Münster e.V.,Inklusion im und durch Sort,45000.0,25100.0,0.0,19900.0,45500.0,25600.0,0.0,19900.0,freiwillig,31.12.2028
+188,0503,50,ASGAM,Bischof-Hermann-Stiftung,Koordinierungsstelle für pflegebedürftige wohnungslose Menschen,0.0,0.0,0.0,0.0,38570.0,34070.0,0.0,4500.0,freiwillig,31.12.2029
+189,0601,51,AKJF,Träger von Kindertageseinrichtungen nach KiBiz,Betrieb von Kindertageseinrichtungen,151775336.0,0.0,0.0,0.0,152910192.0,0.0,0.0,0.0,Höhe und Grund nach,31.12.2028
+190,0601,51,AKJF,Träger von Kindertageseinrichtungen und Großtagespflegen nach KiBiz,Betrieb von Kindertageseinrichtungen Freiwillige Zuschüsse,9114979.0,0.0,0.0,0.0,9114979.0,0.0,0.0,0.0,Höhe und Grund nach,31.12.2028
+191,0601,51,AKJF,Träger von Kindertageseinrichtungen nach dem KiBiz & weitere Gruppen,Qualifizierung und Flexibilisierung in Kindertagesbetreuung,213500.0,0.0,0.0,0.0,213500.0,0.0,0.0,0.0,der Höhe nach,31.12.2028
+192,0601,51,AKJF,Jugendamtselternbeirat,Unterstützung Sachkosten Jugendamtselternbeirat,5000.0,0.0,0.0,5000.0,5000.0,0.0,0.0,5000.0,der Höhe nach,31.12.2028
+193,0601,51,AKJF,DAFFKE Münster ehemals Eltern helfen Eltern e. V.,Grundförderung,97385.0,87902.0,0.0,9483.0,99143.0,89662.0,0.0,9483.0,dem Grunde nach,31.12.2028
+194,0601,51,AKJF,Münsteraner Tageseltern e. V.,Grundförderung,14750.0,13314.0,0.0,1436.0,15016.0,13580.0,0.0,1436.0,dem Grunde nach,31.12.2028
+195,0601,51,AKJF,Glühwürmchen e.V.,Zuschuss: Schallschutzplatten als Lärmschutzmaßnahme,5700.0,0.0,0.0,5700.0,0.0,0.0,0.0,0.0,dem Grunde nach,31.12.2026
+196,0601,51,AKJF,Krullys e.V.,Zuschuss: neue Außentür der Kita,5000.0,0.0,0.0,5000.0,0.0,0.0,0.0,0.0,dem Grunde nach,31.12.2026
+197,0602,51,AKJF,Anerkannte freie Träger der Kinder- und Jugendhilfe in Münster,"Förderstruktur der offenen Kinder- u. Jugendarbeit, Betrieb der Einrichtungen (incl. Beschaffung von Materialien für die Einrichtungen nach Richtlinie)",3979041.0,3535520.0,0.0,443521.0,4046398.0,3609377.0,0.0,437021.0,dem Grunde nach,31.12.2031
+198,0602,51,AKJF,Träger der Kinder- und Jugendhilfe sowie angegliederte Initiativen und Gruppen,Ferienprogramme und ganztägige Ferienbetreuung,1789270.0,1615050.0,0.0,174220.0,1821571.0,1647351.0,0.0,174220.0,dem Grunde nach,31.12.2031
+199,0602,51,AKJF,Träger der Kinder- und Jugendhilfe sowie angegliederte Initiativen und Gruppen,Verbesserung der Inklusion von Kindern und Jugendlichen mit Behinderungen in Freizeit- und Ferienbetreuungsangeboten,121412.0,109592.0,0.0,11820.0,123604.0,111784.0,0.0,11820.0,dem Grunde nach,31.12.2031
+200,0602,51,AKJF,Träger der Kinder- und Jugendhilfe sowie angegliederte Initiativen und Gruppen,Reisen und Begegnungen,181481.0,163811.0,0.0,17670.0,184757.0,167087.0,0.0,17670.0,dem Grunde nach,31.12.2031
+201,0602,51,AKJF,Träger der Kinder- und Jugendhilfe sowie angegliederte Initiativen und Gruppen,Betrieb und Verwaltung,65995.0,59565.0,0.0,6430.0,67186.0,60756.0,0.0,6430.0,dem Grunde nach,31.12.2031
+202,0602,51,AKJF,Träger der Kinder- und Jugendhilfe sowie angegliederte Initiativen und Gruppen,"Weitere Positionen der ""Richtlinien zur Förderung der Kinder- und Jugendarbeit"" wie z. B. Offene Kinder- und Jugendveranstaltungen, Kurse und Workshops, Aus- und Fortbildung u. a.",162066.0,145786.0,0.0,16280.0,164982.0,148702.0,0.0,16280.0,dem Grunde nach,31.12.2031
+203,0602,51,AKJF,Diverse,"Maßnahmeprogramm Kinderhaus-Brüningheide (Projekte 6.04, 07, 08)",7867.0,7097.0,0.0,770.0,8009.0,7239.0,0.0,770.0,dem Grunde nach,31.12.2031
+204,0602,51,AKJF,Träger der Offenen Ganztagsschulen,Betrieb der Offenen Ganztagsschulen in Trägerschaft der freien Jugendhilfe,23132788.0,20115668.0,1969154.0,1047966.0,28226341.0,25209221.0,2008537.0,1008583.0,dem Grunde nach,31.12.2031
+205,0602,51,AKJF,"BDKJ Diözese Münster e.V., Sportjugend im SSB Münster, DGBJugend Münsterland","Finanzmittel für eine Geschäftsführung (1 VZÄ, EG 10 TVöD)",72300.0,72300.0,0.0,0.0,81200.0,81200.0,0.0,0.0,dem Grunde nach,31.12.2031
+206,0603,51,AKJF,Anerkannte freie Träger der Kinder- und Jugendhilfe in Münster,Förderstruktur der aufsuchenden Jugendsozialarbeit + soziale Gruppenarbeit,789279.0,697746.0,0.0,91533.0,804496.0,712963.0,0.0,91533.0,dem Grunde nach,31.12.2030
+207,0603,51,AKJF,Diverse freie Träger der Kinder- und Jugendhilfe in Münster,Freizeitpädagogische Angebote in Übergangseinrichtungen,150000.0,150000.0,0.0,0.0,150000.0,150000.0,0.0,0.0,dem Grunde nach,31.12.2030
+208,0603,51,AKJF,Diverse freie Träger der Kinder- und Jugendhilfe in Münster,Schulsozialarbeit gem. Kooperationsvereinbarung an Grundschulen (Indikatorenbasiert verteilt),961396.0,559596.0,300000.0,101800.0,1083896.0,682096.0,300000.0,101800.0,dem Grunde nach,31.12.2030
+209,0603,51,AKJF,Diverse freie Träger der Kinder- und Jugendhilfe in Münster,Förderinseln,890000.0,801000.0,0.0,89000.0,1009000.0,908100.0,0.0,100900.0,dem Grunde nach,31.12.2030
+210,0603,51,AKJF,Diverse freie Träger der Kinder- und Jugendhilfe in Münster,Schulsozialarbeit gem. Kooperationsvereinbarung an weiterführenden Schulen,167401.0,151101.0,0.0,16300.0,170423.0,154123.0,0.0,16300.0,dem Grunde nach,31.12.2028
+211,0603,51,AKJF,Caritasverband für die Stadt Münster e.V. / Jugendausbildungszentrum gGmbH,"Jugendhilfe an der Kompassschule (Förderschule) mit Primarstufe, Sekundarstufe u.Villa Interim",576376.0,518738.0,0.0,57638.0,586751.0,529113.0,0.0,57638.0,dem Grunde nach,31.12.2030
+212,0603,51,AKJF,Caritasverband für die Stadt Münster e.v./ Jugendausbildungszentrum gGmbH,Jugendberufshilfe für wohnungslose junge Menschen,4610.0,4149.0,0.0,461.0,4693.0,4232.0,0.0,461.0,dem Grunde nach,31.12.2030
+213,0603,51,AKJF,Boxzentrum Münster e.V.,"""Farid’s QualiFighting"" Verknüpfung von Sport (Boxen) und Lernhilfen",108332.0,97499.0,0.0,10833.0,110281.0,99253.0,0.0,11028.0,dem Grunde nach,31.12.2030
+214,0603,51,AKJF,Cactus Junges Theater (Jugendtheaterwerkstatt Münster e. V.),Beratung + Coaching junger Menschen hinsichtlich Ausbildung und sozialem Umfeld,56023.0,50573.0,0.0,5450.0,57034.0,51584.0,0.0,5450.0,dem Grunde nach,31.12.2028
+215,0603,51,AKJF,Outlaw gGmbH,FANport Münster,56097.0,53097.0,0.0,3000.0,57158.0,54158.0,0.0,3000.0,dem Grunde nach,31.12.2028
+216,0603,51,AKJF,SeHT Münster e. V.,a) Jugendsozialarbeit für junge Menschen mit / ohne Entwicklungsbesonderheiten / Behinderungen b) Kinder- und Jugendförderung mit zwei Schwerpunkten,244046.0,220286.0,0.0,23760.0,248452.0,224692.0,0.0,23760.0,dem Grunde nach,31.12.2028
+217,0603,51,AKJF,Verbund sozialtherapeutischer Einrichtungen e. V.,"""Track"" - Beratungsstelle für LSBTQ",70483.0,63623.0,0.0,6860.0,71756.0,64896.0,0.0,6860.0,dem Grunde nach,31.12.2028
+218,0603,51,AKJF,Verein für Mototherapie und Psychomotorische Entwicklungsförderung e.V.,Ganzheitliche psychomotorische Entwicklungsförderung an weiterführenden Schulen im Bildungsgang Hauptschule,57653.0,54363.0,0.0,3290.0,58741.0,55451.0,0.0,3290.0,dem Grunde nach,31.12.2028
+219,0603,51,AKJF,INDRO e.V.,"Angebote in der Drogenhilfe (incl. ""Drogentherapeutische Ambulanz"")",869346.0,796736.0,0.0,72610.0,885281.0,812671.0,0.0,72610.0,dem Grunde nach,31.12.2028
+220,0604,51,AKJF,Familienbildung Friedensstraße ehemals Anna Krückmann Haus,Familienbildung,72666.0,0.0,0.0,0.0,73991.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+221,0604,51,AKJF,Familienbildung Friedensstraße ehemals Anna Krückmann Haus,Sure Start Hiltrup-Eltern im Fokus präventiver Angebote,17605.0,0.0,0.0,0.0,17923.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+222,0604,51,AKJF,Familienbildung Friedensstraße ehemals Anna Krückmann Haus,Präventionsgruppe-Eltern im Fokus präventiver Angebote,9653.0,0.0,0.0,0.0,9828.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+223,0604,51,AKJF,Familienbildung Friedensstraße ehemals Anna Krückmann Haus,Sure Start Coerde II V/0279/2018-Eltern im Fokus präventiver Angebote,14548.0,0.0,0.0,0.0,14812.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+224,0604,51,AKJF,Familienbildung Friedensstraße ehemals Anna Krückmann Haus,Anna Krückmann Haus Sure Start Coerde Familien stärken -Eltern im Fokus präventiver Angebote,18394.0,0.0,0.0,0.0,18727.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+225,0604,51,AKJF,ASB e.V.,Familienbildung,44710.0,0.0,0.0,0.0,45525.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+226,0604,51,AKJF,Familienbildung Friedensstraße und Haus der Familie jeweils 50%,Wellcome,12295.0,0.0,0.0,0.0,12519.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+227,0604,51,AKJF,Ev. Familienbildungsstätte e.V.,Familienbildung,40953.0,0.0,0.0,0.0,41700.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+228,0604,51,AKJF,Haus der Familie,Familienbildung,116931.0,0.0,0.0,0.0,119064.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+229,0604,51,AKJF,Haus der Familie,Sure Start Gievenbeck-Eltern im Fokus präventiver Angebote,18394.0,0.0,0.0,0.0,18727.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+230,0604,51,AKJF,Haus der Familie,"Sure Start Kinderhaus,Eltern im Fokus präventiver Angebote",12367.0,0.0,0.0,0.0,12591.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+231,0604,51,AKJF,Haus der Familie,Sure Start Berg Fidel -Eltern im Fokus präventiver Angebote,17571.0,0.0,0.0,0.0,17889.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+232,0604,51,AKJF,Begegnungszentrum Kinderhaus e.V.,Mädchenarbeit im Begegnungszentrum Kinderhaus,3875.0,0.0,0.0,0.0,3875.0,0.0,0.0,0.0,dem Grunde nach,31.12.2031
+233,0604,51,AKJF,Beratungstelle Südviertel e.V.,Erziehungsberatung (40%/60% in PG 0605),204848.0,0.0,0.0,0.0,208585.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+234,0604,51,AKJF,Beratungstelle Südviertel e.V.,Jump -Eltern im Fokus präventiver Angebote,89688.0,0.0,0.0,0.0,91325.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+235,0604,51,AKJF,Beratungstelle Südviertel e.V.,Spieltreff-Ankergruppen,10331.0,0.0,0.0,0.0,10519.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+236,0604,51,AKJF,Beratungstelle Südviertel e.V.,Präv.grup.mindj.Schwang.jg.Mütter+Kind -Eltern im Fokus präventiver Angebote,14754.0,0.0,0.0,0.0,15023.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+237,0604,51,AKJF,Beratungstelle Südviertel e.V.,Rückenwind-Eltern im Fokus präventiver Angebote,81889.0,0.0,0.0,0.0,83383.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+238,0604,51,AKJF,Beratungstelle Südviertel e.V.,Familientreff- Viertelchen-Eltern im Fokus präventiver Angebote,38209.0,0.0,0.0,0.0,38899.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+239,0604,51,AKJF,Beratungstelle Südviertel e.V.,Aufwind-Eltern im Fokus präventiver Angebote,23148.0,0.0,0.0,0.0,23570.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+240,0604,51,AKJF,Beratungstelle Südviertel e.V.,Auryngruppen,27256.0,0.0,0.0,0.0,27753.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+241,0604,51,AKJF,"Caritas Verband Münster, Beratungsstelle Südviertel, Diakonie Münster, VSE","Ausbau Stadtteilkoordination Mitte, West, Ost",438550.0,0.0,0.0,0.0,445674.0,0.0,0.0,0.0,dem Grunde nach,31.12.2031
+242,0604,51,AKJF,Caritas,Erziehungsberatung (zu 60 % in PG 0605),333279.0,0.0,0.0,0.0,339359.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+243,0604,51,AKJF,Caritas,Präventionsangebot / alltagspräsente EB,14878.0,0.0,0.0,0.0,15149.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+244,0604,51,AKJF,Caritas,Familienpaten -Eltern im Fokus präventiver Angebote,12295.0,0.0,0.0,0.0,12519.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+245,0604,51,AKJF,Caritas,Starthilfe Etatbeschluss-Eltern im Fokus präventiver Angebote,87932.0,0.0,0.0,0.0,89536.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+246,0604,51,AKJF,Diakonie BBC,Erziehungsberatung (zu 60 % in PG 0605),244744.0,0.0,0.0,0.0,249208.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+247,0604,51,AKJF,Diakonie BBC,Mütter stärken - Kinder fördern,34246.0,0.0,0.0,0.0,34871.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+248,0604,51,AKJF,Haus der Familie,Bildungspiloten,22131.0,0.0,0.0,0.0,22534.0,0.0,0.0,0.0,dem Grunde nach,31.12.2030
+249,0604,51,AKJF,Der Kinderschutzbund,"Beratung und Hilfe im Aufgabenschwerpunkt ""Gewalt in der Familie"", Öffentlichkeitsarbeit, Weiterbildung von Mitarbeitenden (zu 40 % in PG 0605)",216911.0,0.0,0.0,0.0,219086.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+250,0604,51,AKJF,Der Kinderschutzbund,"Projekt ""Spürsinn. Mein Gefühl stimmt!""",22739.0,0.0,0.0,0.0,23150.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+251,0604,51,AKJF,Kinderschutzambulanz/ DRK,Ärztliche Kinderschutzambulanz (zu 80 % in PG 0605),83601.0,0.0,0.0,0.0,85126.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+252,0604,51,AKJF,Zartbitter,Beratungsstelle gegen sexualisierte Gewalt (zu 25 % in PG 0605) mit Sperrvermerk,284502.0,0.0,0.0,0.0,289636.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+253,0604,51,AKJF,AWO,Stadtteilbezogenes Begegnungsstättenangebot,145266.0,0.0,0.0,0.0,151028.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+254,0604,51,AKJF,AWO,Stadtteilbezogenes psychologisches Beratungsangebot (zu 50 % in PG 0605),33507.0,0.0,0.0,0.0,32557.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+255,0604,51,AKJF,Caritas,Beratungsangebot für Männer im Bereich sexualisierter Gewalt,80000.0,0.0,0.0,0.0,80000.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+256,0604,51,AKJF,"Caritas Verband Münster, Beratungsstelle Südviertel, Trialog, Diakonie Münster","Angebot ""Kinder im Blick"" (KiB)",26595.0,0.0,0.0,0.0,27080.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+257,0604,51,AKJF,Trialog,"Beratung bei Familienkrisen, Trennung und Scheidung",29600.0,0.0,0.0,0.0,29600.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+258,0604,51,AKJF,Trialog,"Beratung bei Familienkrisen, Trennung und Scheidung",212474.0,0.0,0.0,0.0,216346.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+259,0604,51,AKJF,EFL/Bistum Münster,"Ehe-, Familien- und Lebensberatung",41000.0,0.0,0.0,0.0,41000.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+260,0604,51,AKJF,M.U.M.- Mehrgenerationenhaus und Mütterzentrum Münster e.V.,Mini-Mum Hof Hesselman,22747.0,0.0,0.0,0.0,23162.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+261,0604,51,AKJF,M.U.M.- Mehrgenerationenhaus und Mütterzentrum Münster e.V.,"Mütterzentrum, Familiencafè,",43229.0,0.0,0.0,0.0,44017.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+262,0604,51,AKJF,St.Franziskus -Hospital GmbH Münster,Babylotsen,54365.0,0.0,0.0,0.0,55357.0,0.0,0.0,0.0,dem Grunde nach,31.12.2031
+263,0604,51,AKJF,UKM,Babylotsen,18945.0,0.0,0.0,0.0,19288.0,0.0,0.0,0.0,dem Grunde nach,31.12.2031
+264,0604,51,AKJF,Verein sozialintegrativer Projekte e. V.,Maßband,55330.0,0.0,0.0,0.0,57510.0,0.0,0.0,0.0,dem Grunde nach,31.12.2031
+265,0604,51,AKJF,Eichendorffschule in Angelmodde und an der Ludgerusschule in Hiltrup,Schulvorbereitung; die Schulerfolgschancen der Kinder deutscher und nicht deutscher Herkunft im Stadtteil Angelmodde/Hiltrup zu verbessern.,6147.0,0.0,0.0,0.0,6260.0,0.0,0.0,0.0,dem Grunde nach,31.12.2031
+266,0604,51,AKJF,Verband alleinerziehender Mütter und Väter Münster e. V.,"Beratung alleinerziehender Mütter und Väter, Kinderbetreuung in Notsituationen (zu 60 % in PG 0605)",45722.0,0.0,0.0,0.0,47695.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+267,0604,51,AKJF,M.U.M.- Mehrgenerationenhaus und Mütterzentrum Münster e.V.,"Mütterzentrum, Familiencafè,",10000.0,0.0,0.0,0.0,10000.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+268,0604,51,AKJF,M.U.M.- Mehrgenerationenhaus und Mütterzentrum Münster e.V.,Miete,42080.0,0.0,0.0,0.0,42080.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+269,0604,51,AKJF,M.U.M.- Mehrgenerationenhaus und Mütterzentrum Münster e.V.,Elterntalk,8000.0,0.0,0.0,0.0,8000.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+270,0604,51,AKJF,Caritas JAZ,Handwerker-Projekte Waldschule Kinderhaus:,22000.0,0.0,0.0,0.0,22000.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+271,0605,51,AKJF,Beratungstelle Südviertel e.V.,Erziehungsberatung (60%/ 40% in PG0604),307273.0,0.0,0.0,0.0,312878.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+272,0605,51,AKJF,Caritas,Erziehungsberatung (zu 40 % in PG 0604),499919.0,0.0,0.0,0.0,509038.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+273,0605,51,AKJF,Diakonie BBC,Erziehungsberatung (zu 40 % in PG 0604),367115.0,0.0,0.0,0.0,373812.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+274,0605,51,AKJF,Der Kinderschutzbund,"Beratung und Hilfe im Aufgabenschwerpunkt ""Gewalt in der Familie"", Öffentlichkeitsarbeit, Weiterbildung von Mitarbeitenden (zu 60 % in PG 0604)",129778.0,0.0,0.0,0.0,132121.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+275,0605,51,AKJF,Kinderschutzambulanz/ DRK,Ärztliche Kinderschutzambulanz (zu 20 % in PG 0604),334404.0,0.0,0.0,0.0,340504.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+276,0605,51,AKJF,Zartbitter,Beratungsstelle gegen sexualisierte Gewalt (zu 75 % in PG 0604) mit Sperrvermerk,94834.0,0.0,0.0,0.0,96545.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+277,0605,51,AKJF,AWO,Stadtteilbezogenes psychologisches Beratungsangebot (zu 50 % in PG 0604),33507.0,0.0,0.0,0.0,32557.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+278,0605,51,AKJF,Sozialdienst katholischer Frauen e. V. Münster,Adoptionsvermittlung / Pflegekinderwesen,153790.0,0.0,0.0,0.0,156595.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+279,0605,51,AKJF,Verband alleinerziehender Mütter und Väter Münster e. V.,"Beratung alleinerziehender Mütter und Väter, Kinderbetreuung in Notsituationen (zu 40 % in PG 0604)",68583.0,0.0,0.0,0.0,71542.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+280,0605,51,AKJF,Verein sozialintegrativer Projekte e. V.,"Pädagogische Angebote in der Jugendgerichtshilfe - ""Die Brücke""",144167.0,0.0,0.0,0.0,145917.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+281,0605,51,AKJF,Verein f. Mototherapie u. psychomot. Entwicklungsförderung e. V.,Mototherapie für Kinder und Jugendliche,92829.0,0.0,0.0,0.0,94508.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+282,0605,51,AKJF,Caritasverband Münster,Grundförderung Jugendhilfe im Strafverfahren 4 VZÄ,409447.0,0.0,0.0,0.0,416916.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+283,0605,51,AKJF,Verein sozialintegrativer Projekte e. V.,1 VZÄ Jugendhilfe im Strafverfahren,93786.0,0.0,0.0,0.0,95479.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+284,0605,51,AKJF,MOT-Treff Kotten (Verkehrstraining Jugendhilfe),Jugendhilfe im Strafverfahren,4271.0,0.0,0.0,0.0,4271.0,0.0,0.0,0.0,dem Grunde nach,31.12.2028
+285,0605,51,AKJF,Arbeiterwohlfahrt Unterbezirk Münsterland-Recklinghausen,Stadtteilbezogene Angebote - Mietkostenzuschuss,42780.0,0.0,0.0,0.0,42780.0,0.0,0.0,0.0,dem Grunde nach,31.12.2029
+286,0701,53,ASGAM,Psycho-Soziales Zentrum Münster gGmbH,Zuschuss f. Kontakt- u. Beratungsstelle f. psych. Kranke,233870.0,210483.0,0.0,23387.0,238080.0,214272.0,0.0,23808.0,freiwillig,31.12.2030
+287,0701,53,ASGAM,Verein Krisenhilfe e. V.,Zusch. Vereinsarbeit z. Prävention u. Betreuung von Menschen in Krisensituationen,155110.0,139599.0,0.0,15511.0,157900.0,142110.0,0.0,15790.0,freiwillig,31.12.2030
+288,0701,53,ASGAM,Diakonisches Werk Münster e. V.,Zuschuss f. Arbeit d. psychosoz. Beratungs- u. Behandlungsstelle f. Suchkranke Beratungsstelle für Suchtgefährdete,126370.0,113733.0,0.0,12637.0,128640.0,115776.0,0.0,12864.0,dem Grunde nach,31.12.2031
+289,0701,53,ASGAM,Caritasverband für die Stadt Münster e. V.,Zuschuss f. Arbeit d. psychosoz. Beratungs- u. Behandlungsstelle f. Suchtkranke Beratungsstelle für Suchtgefährdete,186750.0,168075.0,0.0,18675.0,190110.0,171099.0,0.0,19011.0,dem Grunde nach,31.12.2031
+290,0701,53,ASGAM,"Start e.V. ""Cafe Trockendock""","Zuschuss für die Arbeit des Cafes ""Trockendock"" für suchtkranke, psychisch kranke und odachlose Menschen",61660.0,55494.0,0.0,6166.0,62770.0,56493.0,0.0,6277.0,freiwillig,31.12.2031
+291,0701,53,ASGAM,HFR GmbH,"Zuschuss Firma ""Rümpelfix""",69590.0,62631.0,0.0,6959.0,70840.0,63756.0,0.0,7084.0,freiwillig,31.12.2030
+292,0701,53,ASGAM,Fachstelle für Sexualität und Gesundheit - Aidshilfe Münster e.V,Zuschuss f. Prävention u. Betreuung von Aids- Betroffenen,218260.0,196434.0,0.0,21826.0,222190.0,199971.0,0.0,22219.0,dem Grunde nach,31.12.2029
+293,0701,53,ASGAM,ASB Regionalverband Münsterland e.V.,Zuschuss an die Hebammenzentrale,17050.0,15345.0,0.0,1705.0,17360.0,15624.0,0.0,1736.0,freiwillig,31.12.2029
+294,0701,53,ASGAM,Verein f. Mototherapie u. psychomot. Entwicklungsförderung e. V.,Zuschuss f. motopädisches Förderangebot in KiTa's,27540.0,24786.0,0.0,2754.0,28040.0,25236.0,0.0,2804.0,freiwillig,31.12.2028
+295,0701,53,ASGAM,Deutsche Multiple-Sklerose- Gesellschaft Ortsverein Münster und Umgebung e. V.,Zuschuss f. Beratung und Betreuung von MS- Betroffenen,36370.0,32733.0,0.0,3637.0,37020.0,33318.0,0.0,3702.0,freiwillig,31.12.2028
+296,0701,53,ASGAM,Tumornetzwerk im Münsterland e. V.,Zuschuss f. Beratung und Betreuung krebskranker Menschen u. ihrer Angehörigen,35790.0,32211.0,0.0,3579.0,36430.0,32787.0,0.0,3643.0,freiwillig,31.12.2028
+297,0701,53,ASGAM,Stadtsportbund Münster e.V.,Strukturaufbau „bewegte Quartiere“,31360.0,28224.0,0.0,3136.0,31920.0,28728.0,0.0,3192.0,freiwillig,31.12.2029
+298,0701,53,ASGAM,Donum Vitae,Pauschaler Zuschuss für Schwangerenberatung,30754.0,0.0,0.0,0.0,29270.0,0.0,0.0,0.0,dem Grunde nach,31.12.2032
+299,0701,53,ASGAM,Pro Familia,Pauschaler Zuschuss für Schwangerenberatung,197770.0,0.0,0.0,0.0,201150.0,0.0,0.0,0.0,dem Grunde nach,31.12.2032
+300,0701,53,ASGAM,Diakonisches BBC,Pauschaler Zuschuss für Schwangerenberatung,17030.0,0.0,0.0,0.0,17160.0,0.0,0.0,0.0,dem Grunde nach,31.12.2032
+301,0701,53,ASGAM,SKF Schwangerenberatung,Pauschaler Zuschuss für Schwangerenberatung,8100.0,0.0,0.0,0.0,8250.0,0.0,0.0,0.0,dem Grunde nach,31.12.2032
+302,0801,52,SPA,Sportvereine (21),Betriebskostenzuschüsse für überlassene Sportanlagen,2017120.0,0.0,0.0,2017120.0,2017130.0,0.0,0.0,2017130.0,freiwillig,31.12.2030
+303,0801,52,SPA,Stadtsportbund Münster e. V.,Personalkosten,64800.0,64800.0,0.0,0.0,64800.0,64800.0,0.0,0.0,freiwillig,31.12.2030
+304,0801,52,SPA,Stadtsportbund Münster e. V.,Sportförderung,643310.0,0.0,0.0,643310.0,643310.0,0.0,0.0,643310.0,freiwillig,31.12.2030
+305,0801,52,SPA,Stadtsportbund Münster e. V.,Fortsetzung Handlungskonzept zur Implementierung der Prävention sexualisierter Gewalt,37000.0,0.0,0.0,37000.0,37000.0,0.0,0.0,37000.0,freiwillig,31.12.2027
+306,0801,52,SPA,SC Preußen Münster 06 GmbH & Co. KGaA,Betriebskostenzuschuss für das verpachtete Stadion,585290.0,0.0,0.0,585290.0,585290.0,0.0,0.0,585290.0,freiwillig,31.12.2030
+307,0801,52,SPA,Diverse Sportvereine,Betriebs- und Mietkostenzuschüsse für vereinseigene Sportanlagen,880210.0,0.0,0.0,880210.0,880210.0,0.0,0.0,880210.0,freiwillig,31.12.2030
+308,0801,52,SPA,Verein zur Förderung des Leistungssports in Münster e.V.,Betriebs- und Mietkostenzuschuss,232590.0,0.0,0.0,232590.0,232590.0,0.0,0.0,232590.0,freiwillig,31.12.2030
+309,0801,52,SPA,DJK SV Mauritz 1906 e.V. Münster,Betriebskostenzuschuss für den Mehraufwand der Mitbenutzung AFC Mammuts e.V.,14640.0,0.0,0.0,0.0,14640.0,0.0,0.0,0.0,freiwillig,31.12.2028
+310,0801,52,SPA,Westdeutscher Volleyball-Verband e. V.,Zuschuss zur Förderung des Beachvolleyball Turnier 'Premier Cup',2000.0,0.0,0.0,2000.0,0.0,0.0,0.0,0.0,freiwillig,31.12.2026
+311,0801,52,SPA,Reitverband Münster e.V.,Zuschuss zur Durchführung Agravis Cup 2025,7410.0,0.0,0.0,7410.0,7410.0,0.0,0.0,7410.0,freiwillig,31.12.2030
+312,0801,52,SPA,Reitverband Münster e.V.,Zuschuss zur Durchführung Jugend Reit- und Springturnier,2960.0,0.0,0.0,2960.0,2960.0,0.0,0.0,2960.0,freiwillig,31.12.2030
+313,0801,52,SPA,DLRG Behinderten- und Rehasport e.V.,"Betriebskostenzuschuss für den Betrieb der vereinseigenen Sportstätte ""Lechtenbergweg""",2850.0,0.0,0.0,2850.0,2850.0,0.0,0.0,2850.0,freiwillig,31.12.2030
+314,0801,52,SPA,Diverse Sportvereine,Betriebskostenzuschuss für die Mitbenutzung vereinseigener Sportanlagen durch städtische Schulen,17250.0,0.0,0.0,17250.0,17250.0,0.0,0.0,17250.0,freiwillig,31.12.2030
+315,0801,52,SPA,Diverse Sportvereine,Zuschuss zur Anschaffung von Sportpflegegeräten,20000.0,0.0,0.0,20000.0,20000.0,0.0,0.0,20000.0,freiwillig,31.12.2030
+316,0801,52,SPA,Funky e.V.,Sportförderung zum inklusiven Tanzangebot,34000.0,0.0,0.0,34000.0,34000.0,0.0,0.0,34000.0,freiwillig,31.12.2028
+317,0801,52,SPA,Ruderverein Münster e.V. & Akademischer Ruder-Club Münster e.V. & Paddelsportclub Münster e.V.,Zuschuss für die Mitbenutzung städtischer Schulen an vereinseigenen Anlagen,21000.0,0.0,0.0,21000.0,21000.0,0.0,0.0,21000.0,freiwillig,31.12.2027
+318,0801,52,SPA,Ruderverein Münster e.V. & Akademischer Ruder-Club Münster e.V. & Paddelsportclub Münster e.V.,Zuschuss für die Durchführung von Kooperationsveranstaltungen im Rudersport,18000.0,0.0,0.0,18000.0,18000.0,0.0,0.0,18000.0,freiwillig,31.12.2027
+319,0802,52,SPA,Schwimmvereinigung Münster von 1891 e.V.,Betriebskostenzuschuss für den Betrieb des Freibades Sudmühle,60000.0,0.0,0.0,60000.0,60000.0,0.0,0.0,60000.0,freiwillig,31.12.2030
+320,0802,52,SPA,Betreiberverein Bürgerbad Handorf e. V.,Nutzungszeitenüberlassung für Schwimmunterricht anderer Vereine und Schulen,426000.0,0.0,0.0,426000.0,456000.0,0.0,0.0,456000.0,freiwillig,31.12.2030
+321,0901,61,AWSS,Münsterland e.V.,Förderung Tourismus,516500.0,0.0,0.0,516500.0,517000.0,0.0,0.0,517000.0,freiwillig,31.12.2028
+322,0901,61,AWSS,Münsterland e.V.,Co-Finanzierung Regionalagentur,17000.0,0.0,0.0,17000.0,17000.0,0.0,0.0,17000.0,freiwillig,31.12.2028
+323,1003,64,AWSS,Seniorentreff Hansahof e. V. Marliese Kosmider und Ludwig Strietholt,"Aufwands- und Sachkostenzuschuss für das Weiterführen des Projektes ""Wohnen für Hilfe""",3820.0,0.0,0.0,3820.0,3890.0,0.0,0.0,3890.0,freiwillig,10 Jahre
+324,1303,67,AUKB,eingetragene Vereine und sonstige jur. Personen des privaten Rechts und natürliche Personen,Maßnahmen der Landschaftspflege und des Naturschutzes,46290.0,0.0,0.0,46290.0,46290.0,0.0,0.0,46290.0,freiwillig,jährlich
+325,1303,67,AUKB,NABU-Naturschutzstation Münsterland,verschiedene Naturschutzprojekte,69000.0,40020.0,0.0,28980.0,70250.0,40745.0,0.0,29505.0,freiwillig,jährlich
+326,1303,67,AUKB,NABU Münster e. V.,Streuobstwiesenschutz,29500.0,15930.0,0.0,13570.0,30300.0,16362.0,0.0,13938.0,freiwillig,jährlich
+327,1303,67,AUKB,NABU Naturschutzstation und Naturschutzbund Münster e.V.,"Projekt ""Münster summt auf""",33020.0,33020.0,0.0,0.0,33020.0,33020.0,0.0,0.0,freiwillig,31.12.2027
+328,1303,67,AUKB,TSV Nestwerk Münsterland e.V.,Verbesserung der Wildtierhilfe,20000.0,10000.0,0.0,10000.0,20000.0,10000.0,0.0,10000.0,freiwillig,31.12.2027
+329,1303,67,AUKB,Aktive Wildtierhilfe Münster AWHM (e.V. in Gründung),Aktive Wildtierhilfe in Münster,15000.0,0.0,0.0,15000.0,15000.0,0.0,0.0,15000.0,freiwillig,31.12.2027
+330,1303,67,AUKB,Stiftung Westfälische Kulturlandschaft,landwirtschaftliches Biodiversitätsprojekt,12000.0,10680.0,0.0,1320.0,12200.0,10858.0,0.0,1342.0,freiwillig,31.12.2027
+331,1401,67,AUKB,verschiedene Antragsteller,Bürgerschaftliches Engagement,16220.0,0.0,0.0,16220.0,16220.0,0.0,0.0,16220.0,freiwillig,jährlich
+332,1401,67,AUKB,Trägerverein Emshof,Betriebskostenzuschuss Emshof,53210.0,0.0,0.0,53210.0,53210.0,0.0,0.0,53210.0,freiwillig,jährlich
+333,1401,67,AUKB,Umweltforum Münster e.V.,"Betriebskosten, Personalkosten, Mittel für Umweltaktionen",81890.0,74689.0,0.0,7201.0,83390.0,76183.0,0.0,7207.0,freiwillig,jährlich
+334,1401,67,AUKB,Verein Münster nachhaltig e. V.,Förderung der Vereinsarbeit und der Durchführung des Tages der Nachhaltigkeit,28520.0,15009.0,0.0,13511.0,28730.0,15216.0,0.0,13514.0,freiwillig,31.12.2030
+335,1401,67,AUKB,Ernährungsrat Münster i.G.,Projektmittel (inkl. Projektstelle) für den Ernährungsrat Münster,46010.0,37958.0,0.0,8052.0,45000.0,38250.0,0.0,6750.0,freiwillig,31.12.2028
+336,1401,67,AUKB,B-Side Kultur e.V.,Betrieb der offenen Hansawerkstatt in der B-Side,70080.0,70080.0,0.0,0.0,70000.0,70000.0,0.0,0.0,freiwillig,31.12.2030
+337,1401,67,AUKB,Vamos e.V.,Institutionelle Förderung von kommunaler Bildungsarbeit im Bereich Bildung für nachhaltige Entwicklung bei Vamos e. V.,19180.0,9344.0,0.0,9836.0,19360.0,9531.0,0.0,9829.0,freiwillig,31.12.2027
+338,1401,67,AUKB,NABU-Münsterland gGmbH,Förderung der Kofinanzieurng von Bildungsarbeit im Bereich Bildung für nachhaltige Entwicklung,16130.0,0.0,0.0,16130.0,16130.0,0.0,0.0,16130.0,freiwillig,31.12.2028
+339,1401,Dez.O B,AUKB,Trägerkreis Münsteraner Klimage- spräche c/o Umweltforum e.V.,"Projekt ""Münsteraner Klimagespräche""",4500.0,0.0,0.0,4500.0,4500.0,0.0,0.0,4500.0,freiwillig,31.12.2027
+,,,,Gesamtsumme,,225778621.0,,,,232902814.0,,,,,
