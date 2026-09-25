@@ -10,27 +10,28 @@ type DetailRow = {
   Bezeichnung: string
   Gruppe: string
   Gruppenbezeichnung: string
-  Ertraege2026Num: number
-  Aufwendungen2026Num: number
+  ErtraegeNum: number
+  AufwendungenNum: number
 }
 
 const props = defineProps<{
   rows: DetailRow[]
   groupCode: string
   groupName: string
+  selectedYear: 2026 | 2027
 }>()
 
 const option = computed<EChartsOption>(() => {
   const products = props.rows
     .filter((row) => row.Gruppe === props.groupCode)
-    .sort((a, b) => b.Aufwendungen2026Num - a.Aufwendungen2026Num)
+    .sort((a, b) => b.AufwendungenNum - a.AufwendungenNum)
 
-  const mitteNode = "Haushalt"
+  const mitteNode = `Haushalt ${props.selectedYear}`
   const ueberschussNode = `Überschuss ${props.groupName}`
   const subventionNode = `Subvention aus anderen Bereichen`
 
-  const sumErtraege = products.reduce((sum, row) => sum + row.Ertraege2026Num, 0)
-  const sumAufwendungen = products.reduce((sum, row) => sum + row.Aufwendungen2026Num, 0)
+  const sumErtraege = products.reduce((sum, row) => sum + row.ErtraegeNum, 0)
+  const sumAufwendungen = products.reduce((sum, row) => sum + row.AufwendungenNum, 0)
   const saldo = sumErtraege - sumAufwendungen
 
   const productNodes = products.map((p) => `${p.Bezeichnung} (${p.Code})`)
@@ -49,18 +50,18 @@ const option = computed<EChartsOption>(() => {
 
   const links: Array<{ source: string; target: string; value: number }> = [
     ...products
-      .filter((p) => p.Ertraege2026Num > 0)
+      .filter((p) => p.ErtraegeNum > 0)
       .map((p) => ({
         target: mitteNode,
         source: `Einnahmen aus ${p.Bezeichnung} (${p.Code})`,
-        value: p.Ertraege2026Num,
+        value: p.ErtraegeNum,
       })),
     ...products
-      .filter((p) => p.Aufwendungen2026Num > 0)
+      .filter((p) => p.AufwendungenNum > 0)
       .map((p) => ({
         target: `Ausgaben für ${p.Bezeichnung} (${p.Code})`,
         source: mitteNode,
-        value: p.Aufwendungen2026Num,
+        value: p.AufwendungenNum,
       })),
   ]
 

@@ -7,12 +7,13 @@ import { euro } from '@/charts/format'
 type SankeyInputRow = {
   Gruppe: string
   Gruppenbezeichnung: string
-  Ertraege2026Num: number
-  Aufwendungen2026Num: number
+  ErtraegeNum: number
+  AufwendungenNum: number
 }
 
 const props = defineProps<{
   rows: SankeyInputRow[]
+  selectedYear: 2026 | 2027
 }>()
 
 const emit = defineEmits<{
@@ -28,8 +29,8 @@ function onChartClick(params: unknown): void {
 }
 
 const sankeyOption = computed<EChartsOption>(() => {
-  const totalEinnahmenNode = 'Einnahmen 2026 gesamt'
-  const totalAusgabenNode = 'Ausgaben 2026 gesamt'
+  const totalEinnahmenNode = `Einnahmen ${props.selectedYear} gesamt`
+  const totalAusgabenNode = `Ausgaben ${props.selectedYear} gesamt`
 
   const links: Array<{ source: string; target: string; value: number }> = []
   const einnahmenProGruppe = new Map<string, number>()
@@ -40,17 +41,17 @@ const sankeyOption = computed<EChartsOption>(() => {
     const gruppeEinnahmenNode = `Einnahmen ${gruppeLabel}`
     const gruppeAusgabenNode = `Ausgaben ${gruppeLabel}`
 
-    if (row.Ertraege2026Num > 0) {
+    if (row.ErtraegeNum > 0) {
       einnahmenProGruppe.set(
         gruppeEinnahmenNode,
-        (einnahmenProGruppe.get(gruppeEinnahmenNode) ?? 0) + row.Ertraege2026Num,
+        (einnahmenProGruppe.get(gruppeEinnahmenNode) ?? 0) + row.ErtraegeNum,
       )
     }
 
-    if (row.Aufwendungen2026Num > 0) {
+    if (row.AufwendungenNum > 0) {
       ausgabenProGruppe.set(
         gruppeAusgabenNode,
-        (ausgabenProGruppe.get(gruppeAusgabenNode) ?? 0) + row.Aufwendungen2026Num,
+        (ausgabenProGruppe.get(gruppeAusgabenNode) ?? 0) + row.AufwendungenNum,
       )
     }
   })
