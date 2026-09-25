@@ -37,8 +37,8 @@ const sankeyOption = computed<EChartsOption>(() => {
 
   props.rows.forEach((row) => {
     const gruppeLabel = `${row.Gruppe} ${row.Gruppenbezeichnung}`
-    const gruppeEinnahmenNode = `Einnahmen Gruppe: ${gruppeLabel}`
-    const gruppeAusgabenNode = `Ausgaben Gruppe: ${gruppeLabel}`
+    const gruppeEinnahmenNode = `Einnahmen ${gruppeLabel}`
+    const gruppeAusgabenNode = `Ausgaben ${gruppeLabel}`
 
     if (row.Ertraege2026Num > 0) {
       einnahmenProGruppe.set(
@@ -84,7 +84,6 @@ const sankeyOption = computed<EChartsOption>(() => {
   })
 
   return {
-    title: { text: 'Einnahmen und Ausgaben 2026' },
     tooltip: {
       trigger: 'item',
       triggerOn: 'mousemove',
@@ -101,10 +100,10 @@ const sankeyOption = computed<EChartsOption>(() => {
         layout: 'none',
         emphasis: { focus: 'adjacency' },
         data: Array.from(nodeNames).map((name) => {
-          const isEinnahmenGroup = name.startsWith('Einnahmen Gruppe: ')
-          const isAusgabenGroup = name.startsWith('Ausgaben Gruppe: ')
+          const isEinnahmenGroup = name.startsWith('Einnahmen ')
+          const isAusgabenGroup = name.startsWith('Ausgaben ')
           const isGroup = isEinnahmenGroup || isAusgabenGroup
-          const prefix = isEinnahmenGroup ? 'Einnahmen Gruppe: ' : 'Ausgaben Gruppe: '
+          const prefix = isEinnahmenGroup ? 'Einnahmen ' : 'Ausgaben '
           const groupCode = isGroup ? name.replace(prefix, '').slice(0, 2) : undefined
 
           return {

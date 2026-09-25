@@ -7,6 +7,8 @@ import '@awesome.me/webawesome/dist/components/callout/callout.js'
 import '@awesome.me/webawesome/dist/components/card/card.js'
 import '@awesome.me/webawesome/dist/components/divider/divider.js'
 import '@awesome.me/webawesome/dist/components/page/page.js'
+import '@awesome.me/webawesome/dist/components/tag/tag.js'
+import '@awesome.me/webawesome/dist/components/switch/switch.js'
 
 // Registriert Diagrammtypen und das Projekt-Theme für ECharts.
 import '@/charts/echartsTheme'

@@ -4,6 +4,7 @@ import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import EinAusgabenSankey from '@/components/einausgaben/EinAusgabenSankey.vue'
 import EinAusgabenGruppenDetail from '@/components/einausgaben/EinAusgabenGruppenDetail.vue'
+import { euro } from '@/charts/format'
 import rawData from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv?raw'
 import rawGroups from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_gruppen.csv?raw'
 
@@ -20,6 +21,20 @@ type DataRow = {
 type GroupRow = {
   Gruppe: string
   Gruppenbezeichnung: string
+}
+
+type ViewRow = DataRow & {
+  Gruppenbezeichnung: string
+  Ertraege2026Num: number
+  Aufwendungen2026Num: number
+}
+
+type TableGroup = {
+  code: string
+  name: string
+  rows: ViewRow[]
+  sumErtraege: number
+  sumAufwendungen: number
 }
 
 function parseCsv(text: string): string[][] {
@@ -83,7 +98,7 @@ const groupMap = new Map(
   toObjects<GroupRow>(rawGroups).map((g) => [g.Gruppe, g.Gruppenbezeichnung] as const),
 )
 
-const rows = computed(() =>
+const rows = computed<ViewRow[]>(() =>
   toObjects<DataRow>(rawData)
     .map((row) => ({
       ...row,
@@ -108,21 +123,23 @@ function onGroupSelect(groupCode: string): void {
 function clearSelection(): void {
   selectedGroup.value = null
 }
-
 </script>
 
 <template>
   <div class="mm-seite">
-    <PageIntro
-      titel="Ein- und Ausgaben"
-      beschreibung=""
-    />
+    <PageIntro titel="Ein- und Ausgaben" beschreibung="Einträge und Ausgaben" />
 
     <ChartCard
-      titel="Erträge und Aufwendungen als Sankey (2026)"
+      titel="Erträge und Aufwendungen"
     >
+      <div class="eingaben-ausgaben-toolbar">
+        <wa-tag v-if="selectedGroup" size="m" with-remove @wa-remove="clearSelection"
+          >{{ groupMap.get(selectedGroup) }}</wa-tag
+        >
+        <wa-tag v-else size="m" disabled>Gesamt</wa-tag>
+        <div class="year-toggle">2026<wa-switch size="l"></wa-switch>2027</div>
+      </div>
       <template v-if="selectedGroup">
-        <wa-button size="small" variant="neutral" @click="clearSelection">Zurück</wa-button>
         <EinAusgabenGruppenDetail
           :rows="rows"
           :group-code="selectedGroup"
@@ -133,3 +150,18 @@ function clearSelection(): void {
     </ChartCard>
   </div>
 </template>
+
+<style scoped>
+.eingaben-ausgaben-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.year-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+</style>
