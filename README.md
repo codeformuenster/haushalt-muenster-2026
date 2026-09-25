@@ -86,13 +86,13 @@ Inhalte
 |------------|------------|------------|------------|------------|
 | Vorbericht | | 5-34 | 1-30 | |
 | Stellenplan | | 35-68 | 31-64 | |
-| | Beamte & Beamtinnen | 37-38 | 33-34 | [stellenplan-beta.csv](daten/stellenplan-beta.csv) |
+| | Beamte & Beamtinnen | 37-38 | 33-34 |  |
 | | Tariflich Beschäftigte | 39-40 | 35-36 | |
 | | Stellen nach Haushaltsgliederung: Beamte & Beamtinnen 2026 | 41-45 | 37-41 | [Stellenplan_2026_2027.csv](daten/agg_tables/Stellenplan_2026_2027.csv), [Stellenplan_2026_2027_nach_Besoldungsgruppen.csv](daten/agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv) |
 | | Stellen nach Haushaltsgliederung: Tariflich Beschäftigte 2026 | 46-53 | 42-49 | (s.o.) |
 | | Stellen nach Haushaltsgliederung: Beamte & Beamtinnen 2027 | 54-58 | 50-54 | (s.o.) |
 | | Stellen nach Haushaltsgliederung: Tariflich Beschäftigte 2027 | 59-66 | 55-62 | (s.o.) |
-| Haushaltsquerschnitt | | 69-80 | 65-76 | [haushaltsquerschnitt.csv](daten/haushaltsquerschnitt.csv), [Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv](daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv) |
+| Haushaltsquerschnitt | | 69-80 | 65-76 | [Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv](daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv) |
 | | Ergebnisplanung 2026 | 71-73 | 67-69 | |
 | | Ergebnisplanung 2027 | 74-76 | 70-72 | |
 | | Finanzplanung 2026 | 77-78 | 73-74 | |
@@ -113,6 +113,10 @@ Inhalte
 ## Rohdaten
 
 `daten/raw_table_extraction/` enthält unbereinigte, automatisch extrahierte Tabellen aus beiden Bänden (ca. 1900 CSV-Dateien). Namensschema: `band<N>_p<PDF-Seite>_<Abschnitt>_<Typ>_t<Tabellen-Nr>.csv`, z.B. `band1_p700_PG0111_Immobilienmanagement_Investitionsmassnahmen_t0.csv`. Die Qualität ist gemischt: fehlende Leerzeichen, mehrzeilige Kopfzeilen, Fließtext statt Tabellen und teils falsche Abschnittskürzel (z.B. `PG12` für den Ergebnis- und Finanzplan, `PG03`/`PG05`/`PG13` für Produktbereichsseiten).
+
+## Skripte
+
+Python-Skripte zur Prüfung und Auswertung der Daten liegen in [`scripts/`](scripts/README.md). `scripts/pipeline/build_agg_tables.py` erzeugt alle Tabellen in `daten/agg_tables/` aus `daten/raw_table_extraction/` neu und prüft sie anschließend auf Konsistenz. Die Konsistenzprüfung der bereinigten CSVs schreibt ihren Bericht nach [`daten/pruefberichte/konsistenz.md`](daten/pruefberichte/konsistenz.md). Die manuell untersuchten Abweichungen sind in [`daten/pruefberichte/befunde.md`](daten/pruefberichte/befunde.md) dokumentiert.
 
 
 ## Die Anwendung
