@@ -7,7 +7,11 @@ Links
 
 ## Warum machen wir das? 
 
-TBD
+Weil der Haushalt einer Stadt alle betrifft – aber heute vor allem für diejenigen zugänglich ist, die die Zeit, das Wissen und die Geduld haben, sich durch hunderte Seiten Tabellen und Verwaltungssprache zu arbeiten.
+
+Wir wollen diese Zugangshürde senken.
+
+Nicht, indem wir Informationen weglassen. Sondern indem wir sie so aufbereiten, dass mehr Menschen sie verstehen, eigene Fragen stellen und sich eine Meinung bilden können.
 
 # Haushaltsplan der Stadt Münster PDF Inhalte
 
