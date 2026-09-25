@@ -1,6 +1,35 @@
 
 Dies ist der Quellcode vom Münsterhack '26 Projekt "Münster Money"
 
+## Webseite auf GitHub Pages
+
+Die Vue-App in `vue-project/` wird durch `.github/workflows/deploy-pages.yml`
+bei jedem Push auf `main` gebaut und auf GitHub Pages veröffentlicht.
+Der Workflow kann auch manuell im Actions-Tab gestartet werden.
+
+Einmalig im Repository unter **Settings → Pages → Build and deployment → Source**
+die Option **GitHub Actions** auswählen. Anschließend diese Änderungen nach
+`main` übernehmen und pushen.
+
+Die Webseite ist danach unter
+[codeformuenster.github.io/haushalt-muenster-2026/](https://codeformuenster.github.io/haushalt-muenster-2026/)
+erreichbar. Zusätzliche Secrets oder ein `gh-pages`-Branch sind nicht nötig.
+
+Der Workflow nutzt Node.js 24, installiert mit `npm ci`, prüft TypeScript und
+veröffentlicht `vue-project/dist/`. Der Vite-Basispfad kommt aus der Pages-Konfiguration.
+Vue Router nutzt Hash-URLs (z. B. `/#/about`), damit direkte Aufrufe und Neuladen
+von Unterseiten ohne serverseitige Weiterleitungen funktionieren.
+
+Den Pages-Build lokal prüfen:
+
+```sh
+cd vue-project
+npm ci
+npm run type-check
+npm run build-only -- --base /haushalt-muenster-2026/
+npm run preview -- --base /haushalt-muenster-2026/
+```
+
 Links
 * Quellseite für den Münsteraner Haushaltsplan: https://www.stadt-muenster.de/finanzen/muensters-haushalt/der-haushaltsplan
 
