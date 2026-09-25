@@ -46,10 +46,10 @@ const router = createRouter({
       meta: { nav: 'Stellenplan' },
     },
     {
-      path: '/freiwillige-leistungen',
-      name: 'freiwillige-leistungen',
-      component: () => import('@/pages/FreiwilligeLeistungenPage.vue'),
-      meta: { nav: 'Freiwillige Leistungen' },
+      path: '/zuschuesse',
+      name: 'zuschuesse',
+      component: () => import('@/pages/ZuschuessePage.vue'),
+      meta: { nav: 'Zuschüsse' },
     },
     {
       path: '/bezirke',

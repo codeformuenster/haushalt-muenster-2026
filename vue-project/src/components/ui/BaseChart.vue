@@ -22,6 +22,13 @@ withDefaults(
   { hoehe: '320px' },
 )
 
+/*
+ * Alles, was nicht Prop ist — vor allem Ereignis-Listener wie
+ * @legendselectchanged — gehört an das Diagramm, nicht an den Rahmen-<div>.
+ * Ohne das landen Listener auf einem Element, das sie nie auslöst.
+ */
+defineOptions({ inheritAttrs: false })
+
 const rahmen = ref<HTMLElement | null>(null)
 const hatBreite = ref(false)
 let beobachter: ResizeObserver | undefined
@@ -50,6 +57,7 @@ onBeforeUnmount(() => beobachter?.disconnect())
   <div ref="rahmen" class="mm-chart" :style="{ height: hoehe }">
     <VChart
       v-if="hatBreite"
+      v-bind="$attrs"
       :option="option"
       :theme="CHART_THEME"
       autoresize

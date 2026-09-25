@@ -142,7 +142,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Überblick (das große Ganze) | `/ueberblick` | `src/pages/UeberblickPage.vue` |
 | Ein- & Ausgaben | `/ein-ausgaben` | `src/pages/EinAusgabenPage.vue` |
 | Stellenplan | `/stellenplan` | `src/pages/StellenplanPage.vue` |
-| Freiwillige Leistungen | `/freiwillige-leistungen` | `src/pages/FreiwilligeLeistungenPage.vue` |
+| Zuschüsse an Vereine und Verbände | `/zuschuesse` | `src/pages/ZuschuessePage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
 | Glossar (PB/PG-Nummern, Rohdaten-Dateinamen) | `/glossar` | `src/pages/GlossarPage.vue` |
 
@@ -178,13 +178,21 @@ bleiben, auf hellem wie dunklem Hintergrund.
 
 ### Stand
 
-Alle sechs Seiten stehen mit Layout, Diagrammen und Navigation — die Zahlen
-darin sind aber **erfunden** und nur Platzhalter. Jede solche Seite zeigt einen
-`DemoHinweis`; der wird entfernt, sobald sie echte Daten aus `daten/` liest.
+**Zuschüsse** (`/zuschuesse`) liest echte Daten: der Zuschussbericht aus Band 2,
+aufbereitet von `preprocessing/zuschuesse.ts` (siehe
+[preprocessing/README.md](preprocessing/README.md)). Die übrigen fünf Seiten
+stehen mit Layout, Diagrammen und Navigation, die Zahlen darin sind aber
+**erfunden** und nur Platzhalter. Jede solche Seite zeigt einen `DemoHinweis`;
+der wird entfernt, sobald sie echte Daten aus `daten/` liest.
 
-Offen: Anbindung der CSVs aus `daten/`, ein GeoJSON der Stadtbezirke für die
-Karte, und die Abgrenzung freiwillige gegen pflichtige Leistungen — die
-kennzeichnet der Haushaltsplan nicht selbst.
+Die Abgrenzung freiwillige gegen pflichtige Leistungen ist für die Zuschüsse
+**geklärt**: der Zuschussbericht führt dafür selbst eine Spalte
+`verpflichtend_freiwillig` mit vier Stufen (`freiwillig`, `dem Grunde nach`,
+`der Höhe nach`, `Höhe und Grund nach`). Für den restlichen Haushalt — Personal,
+Bau, Sozialtransfers — kennzeichnet der Plan sie weiterhin nicht.
+
+Offen: Anbindung der übrigen CSVs aus `daten/` und ein GeoJSON der Stadtbezirke
+für die Karte.
 
 
 ## A message to our robotic friends (LLMs)

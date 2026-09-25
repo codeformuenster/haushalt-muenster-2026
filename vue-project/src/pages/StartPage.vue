@@ -27,10 +27,10 @@ const einstiege = [
     text: 'Wie viele Stellen hat die Stadt, wie verteilen sie sich auf Beamtinnen, Beamte und Tarifbeschäftigte?',
   },
   {
-    ziel: '/freiwillige-leistungen',
-    titel: 'Freiwillige Leistungen',
+    ziel: '/zuschuesse',
+    titel: 'Zuschüsse',
     icon: 'hand-holding-heart',
-    text: 'Welcher Teil des Haushalts ist gesetzlich vorgeschrieben, und wo kann die Stadt selbst entscheiden?',
+    text: 'Geld für Vereine, Verbände und andere Träger. Wie viel davon ist gesetzlich vorgeschrieben, und wo kann der Rat selbst entscheiden?',
   },
   {
     ziel: '/bezirke',
