@@ -358,7 +358,9 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   border-radius: var(--wa-border-radius-l);
   background-color: var(--wa-color-surface-raised);
   box-shadow: 0 4px 16px rgb(0 0 0 / 0.08);
-  transition: border-color 0.3s;
+  transition:
+    border-color 0.3s,
+    padding 0.3s;
 }
 
 .pl-bilanz__kopf {
@@ -367,6 +369,16 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--wa-space-s) var(--wa-space-l);
+}
+
+/* max-height statt display: none, damit Ein- und Ausblenden animiert werden kann. */
+.pl-bilanz__label,
+.pl-bilanz__info {
+  max-height: 3rem;
+  overflow: hidden;
+  transition:
+    max-height 0.3s,
+    opacity 0.3s;
 }
 
 .pl-bilanz__label {
@@ -380,7 +392,9 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   font-weight: var(--wa-font-weight-bold);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  transition: color 0.3s;
+  transition:
+    color 0.3s,
+    font-size 0.3s;
 }
 
 .pl-bilanz__info {
@@ -395,6 +409,9 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   border-radius: 999px;
   background-color: var(--wa-color-neutral-fill-quiet);
   overflow: hidden;
+  transition:
+    height 0.3s,
+    margin-top 0.3s;
 }
 
 .pl-bilanz__fuellung {
@@ -409,6 +426,9 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 .pl-bilanz__text {
   margin: var(--wa-space-xs) 0 0;
   font-size: var(--wa-font-size-s);
+  transition:
+    margin-top 0.3s,
+    font-size 0.3s;
 }
 
 .pl-bilanz--geschafft {
@@ -436,7 +456,8 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 
 .pl-bilanz--kompakt .pl-bilanz__label,
 .pl-bilanz--kompakt .pl-bilanz__info {
-  display: none;
+  max-height: 0;
+  opacity: 0;
 }
 
 .pl-bilanz--kompakt .pl-bilanz__zahl {
@@ -459,6 +480,10 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
     padding: var(--wa-space-s) var(--wa-space-m);
   }
 
+  .pl-bilanz--kompakt {
+    padding: var(--wa-space-xs) var(--wa-space-m);
+  }
+
   .pl-bilanz__zahl {
     font-size: var(--wa-font-size-2xl);
   }
@@ -477,6 +502,11 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 @media (prefers-reduced-motion: reduce) {
   .pl-bilanz--geschafft {
     animation: none;
+  }
+
+  .pl-bilanz,
+  .pl-bilanz * {
+    transition: none;
   }
 }
 
