@@ -31,3 +31,9 @@ export function euroKurz(wert: number): string {
 export function zahl(wert: number): string {
   return ZAHL.format(wert)
 }
+
+/** Stellenanteile mit zwei Nachkommastellen, damit kleine Änderungen sichtbar bleiben. */
+const VZAE = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+export function vzae(wert: number): string {
+  return VZAE.format(wert)
+}
