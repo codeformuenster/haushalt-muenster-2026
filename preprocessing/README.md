@@ -13,6 +13,7 @@ Abhängigkeit, kein `npm install`. Aus dem Wurzelverzeichnis des Repos:
 
 ```
 node preprocessing/zuschuesse.ts
+node preprocessing/bezirke.ts
 ```
 
 Das Skript prüft sich am Ende gegen die Soll-Werte aus `plan.md`, Abschnitt 5,
@@ -36,6 +37,7 @@ lässt sich im Browser direkt aufrufen, wenn jemand die Zahlen nachprüfen will.
 |---|---|
 | `csv.ts` | CSV-Leser nach RFC 4180, ~80 Zeilen, ohne Abhängigkeit |
 | `zuschuesse.ts` | Zuschussbericht → `vue-project/public/daten/zuschuesse-2026-2027.json` |
+| `bezirke.ts` | Bezirksbezogene Angaben + Stadtbezirks-Geometrie → `vue-project/public/daten/bezirke-2026-2027.json` und `stadtbezirke.geojson` |
 
 ## Eine weitere Seite anbinden
 

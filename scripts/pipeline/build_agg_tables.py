@@ -1,11 +1,13 @@
 """Erzeugt alle Tabellen unter daten/agg_tables/ neu aus daten/raw_table_extraction/.
 
 Reihenfolge: Gesamtübersicht (liefert die PG-Bezeichnungen für die Zuschüsse),
-Stellenplan, Zuschüsse, Investitionsmaßnahmen der Bezirksvertretungen. Danach läuft
+Stellenplan, Zuschüsse, Investitionsmaßnahmen der Bezirksvertretungen, danach die
+Planspiel-Daten der Vue-App (planspiel_daten.py). Zuletzt läuft
 die Konsistenzprüfung (scripts/check_konsistenz.py) und schreibt ihren Bericht nach
 daten/pruefberichte/konsistenz.md.
 
-Exit-Code 1, wenn ein Erzeugungsschritt fehlschlägt. Abweichungen der
+Exit-Code 1, wenn ein Erzeugungsschritt fehlschlägt oder die Planspiel-Daten nicht
+zum Gesamtergebnisplan passen; die Konsistenzprüfung läuft dann nicht mehr. Abweichungen der
 Konsistenzprüfung werden nur gemeldet und brechen den Lauf nicht ab: Die bekannten
 Abweichungen stehen so im PDF (siehe daten/pruefberichte/befunde.md).
 """
@@ -20,6 +22,7 @@ import agg_bezirksvertretungen
 import agg_gesamtuebersicht
 import agg_stellenplan
 import agg_zuschuesse
+import planspiel_daten
 
 DATEN = Path(__file__).resolve().parents[2] / "daten"
 KONSISTENZ = Path(__file__).resolve().parents[1] / "check_konsistenz.py"
@@ -28,11 +31,13 @@ KONSISTENZ = Path(__file__).resolve().parents[1] / "check_konsistenz.py"
 def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> None:
     """Erzeugt alle Tabellen unter daten/agg_tables/ neu und prüft sie auf Konsistenz.
 
-    Ausgaben: die sechs CSVs unter daten/agg_tables/ und daten/pruefberichte/konsistenz.md.
+    Ausgaben: die sechs CSVs unter daten/agg_tables/, vue-project/src/data/planspiel.json
+    und daten/pruefberichte/konsistenz.md.
     Exit-Code 1 nur, wenn ein Erzeugungsschritt fehlschlägt.
     Abweichungen der Konsistenzprüfung werden gemeldet, aber nicht als Fehler gewertet.
     """
-    for skript in (agg_gesamtuebersicht, agg_stellenplan, agg_zuschuesse, agg_bezirksvertretungen):
+    skripte = (agg_gesamtuebersicht, agg_stellenplan, agg_zuschuesse, agg_bezirksvertretungen, planspiel_daten)
+    for skript in skripte:
         skript.main(daten=daten)
 
     typer.echo("\nKonsistenzpruefung:")
