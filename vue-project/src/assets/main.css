@@ -99,3 +99,7 @@ wa-page {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
   gap: var(--wa-space-l);
 }
+
+.mm-hero__claim{
+   font-size: 1.5em;
+}
