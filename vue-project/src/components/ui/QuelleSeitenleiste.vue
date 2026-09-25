@@ -88,7 +88,7 @@ function nachDemSchliessen(ereignis: Event): void {
       <div class="mm-quelle__kopf">
         <h3>{{ quelle.titel }}</h3>
         <p class="mm-quelle__betrag">{{ quelle.betrag }}</p>
-        <p class="mm-quelle__fundstelle">Band {{ quelle.band }}, Seite {{ quelle.seite }}</p>
+        <p class="mm-quelle__fundstelle">Band {{ quelle.band }}, PDF-Seite {{ quelle.seite }}</p>
       </div>
 
       <div ref="ausschnitt" class="mm-quelle__ausschnitt">
@@ -96,7 +96,7 @@ function nachDemSchliessen(ereignis: Event): void {
           class="mm-quelle__seite"
           :style="{ width: `${quelle.bildBreite * SKALA}px`, height: `${quelle.bildHoehe * SKALA}px` }"
         >
-          <img :src="quelle.bild" :alt="`Band ${quelle.band}, Seite ${quelle.seite}`" />
+          <img :src="quelle.bild" :alt="`Band ${quelle.band}, PDF-Seite ${quelle.seite}`" />
           <div
             class="mm-quelle__markierung"
             :style="{
@@ -115,7 +115,7 @@ function nachDemSchliessen(ereignis: Event): void {
         target="_blank"
         rel="noopener"
       >
-        PDF auf Seite {{ quelle.seite }} öffnen
+        PDF-Seite {{ quelle.seite }} öffnen
         <wa-icon name="arrow-up-right-from-square" aria-hidden="true"></wa-icon>
       </a>
 

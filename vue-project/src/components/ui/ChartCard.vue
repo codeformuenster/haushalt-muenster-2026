@@ -3,12 +3,16 @@
  * Karte um ein Diagramm oder eine Tabelle. Sorgt dafür, dass Titel, Beschreibung
  * und Quellenangabe auf allen Seiten gleich sitzen.
  */
+import { pdfLink } from '@/data/haushaltsplan'
+
 defineProps<{
   titel: string
   /** Ein Satz, der erklärt, was man im Diagramm sieht. Optional, aber empfohlen. */
   beschreibung?: string
   /** Woher die Zahlen stammen, z. B. 'Haushaltsplan 2026/27, Band 2, S. 67'. */
   quelle?: string
+  /** PDF-Seite, auf die der Link hinter der Quellenangabe führt, z. B. { band: 2, seite: 71 }. */
+  pdf?: { band: 1 | 2; seite: number }
 }>()
 </script>
 
@@ -21,7 +25,14 @@ defineProps<{
 
     <slot />
 
-    <small slot="footer" v-if="quelle" class="mm-card__quelle">Quelle: {{ quelle }}</small>
+    <small slot="footer" v-if="quelle || pdf" class="mm-card__quelle">
+      <template v-if="quelle">Quelle: {{ quelle }}</template>
+      <template v-if="quelle && pdf"> · </template>
+      <a v-if="pdf" :href="pdfLink(pdf.band, pdf.seite)" target="_blank" rel="noopener">
+        PDF-Seite {{ pdf.seite }}
+        <wa-icon name="arrow-up-right-from-square" aria-hidden="true"></wa-icon>
+      </a>
+    </small>
   </wa-card>
 </template>
 
@@ -45,5 +56,15 @@ defineProps<{
 
 .mm-card__quelle {
   color: var(--wa-color-text-quiet);
+}
+
+/* Dunkles Markenblau wie die Buttons; das Orange wäre als kleiner Text zu kontrastarm. */
+.mm-card__quelle a {
+  color: var(--wa-color-brand-fill-loud);
+  white-space: nowrap;
+}
+
+.mm-card__quelle wa-icon {
+  font-size: 0.85em;
 }
 </style>

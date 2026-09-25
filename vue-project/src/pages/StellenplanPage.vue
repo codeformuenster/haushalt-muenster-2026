@@ -369,7 +369,12 @@ function waehlen(event: unknown) {
       >
     </div>
     <div class="stellen-layout">
-      <ChartCard :titel="titel" :beschreibung="beschreibung" :quelle="quelle">
+      <ChartCard
+        :titel="titel"
+        :beschreibung="beschreibung"
+        :quelle="quelle"
+        :pdf="{ band: 2, seite: 41 }"
+      >
         <p v-if="ansicht === 'change' && !balken.length" role="status">
           In diesem Produktbereich ändert sich die Gesamtstellenzahl keiner Produktgruppe.
         </p>
@@ -427,6 +432,7 @@ function waehlen(event: unknown) {
         titel="Im Detail"
         beschreibung="Alle Entgelt- und Besoldungsgruppen mit Stellenanteilen in der Auswahl."
         :quelle="quelle"
+        :pdf="{ band: 2, seite: 41 }"
       >
         <label
           >Produktgruppe<select v-model="auswahl">

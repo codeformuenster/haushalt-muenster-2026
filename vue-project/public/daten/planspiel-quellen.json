@@ -1,0 +1,43 @@
+{
+  "pdf": {"1": "https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Haushalt/Haushalt_2026_2027/Haushaltsplan_2026-2027_Band_1_Stand_20.05.2026.pdf", "2": "https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Haushalt/Haushalt_2026_2027/Haushaltsplan_2026-2027_Band_2_Stand_20.05.2026.pdf"},
+  "seiten": {
+    "1-9": {"bild": "quellen/band1_p009.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-11": {"bild": "quellen/band1_p011.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-129": {"bild": "quellen/band1_p129.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-163": {"bild": "quellen/band1_p163.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-210": {"bild": "quellen/band1_p210.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-226": {"bild": "quellen/band1_p226.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-236": {"bild": "quellen/band1_p236.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-244": {"bild": "quellen/band1_p244.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-282": {"bild": "quellen/band1_p282.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-318": {"bild": "quellen/band1_p318.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-387": {"bild": "quellen/band1_p387.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-445": {"bild": "quellen/band1_p445.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-459": {"bild": "quellen/band1_p459.webp", "breite": 841.9, "hoehe": 595.3},
+    "2-20": {"bild": "quellen/band2_p020.webp", "breite": 595.0, "hoehe": 842.0},
+    "2-143": {"bild": "quellen/band2_p143.webp", "breite": 595.0, "hoehe": 842.0}
+  },
+  "posten": {
+    "gesamt-01": {"band": 1, "seite": 9, "box": [28.3, 113.4, 813.6, 125.4], "csv": "band1_p009_PG12_Ergebnisplan_t0.csv", "zeile": 3, "zellen": ["01", "SteuernundähnlicheAbgaben", "712.929.372,93", "733.670.000", "772.920.000", "798.750.000", "813.840.000", "825.640.000", "822.440.000"]},
+    "gesamt-10": {"band": 1, "seite": 9, "box": [28.3, 221.4, 813.6, 233.4], "csv": "band1_p009_PG12_Ergebnisplan_t0.csv", "zeile": 12, "zellen": ["10", "= OrdentlicheErträge", "1.589.076.948,93", "1.638.166.610", "1.660.850.270", "1.684.643.440", "1.706.074.540", "1.722.407.610", "1.721.986.770"]},
+    "gesamt-11": {"band": 1, "seite": 9, "box": [28.3, 233.4, 813.6, 245.4], "csv": "band1_p009_PG12_Ergebnisplan_t0.csv", "zeile": 13, "zellen": ["11", "- Personalaufwendungen", "387.856.382,84", "388.988.670", "399.070.160", "403.490.640", "409.583.790", "418.732.790", "428.455.390"]},
+    "gesamt-14": {"band": 1, "seite": 9, "box": [28.3, 269.4, 813.6, 281.4], "csv": "band1_p009_PG12_Ergebnisplan_t0.csv", "zeile": 16, "zellen": ["14", "- BilanzielleAbschreibungen", "88.375.001,92", "90.167.570", "91.373.160", "91.693.160", "92.095.420", "92.490.660", "93.127.360"]},
+    "gesamt-17": {"band": 1, "seite": 9, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p009_PG12_Ergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "1.635.400.775,97", "1.673.665.839", "1.686.533.180", "1.701.368.570", "1.717.720.940", "1.726.395.080", "1.744.107.540"]},
+    "gesamt-20": {"band": 1, "seite": 9, "box": [28.3, 353.4, 813.6, 365.4], "csv": "band1_p009_PG12_Ergebnisplan_t0.csv", "zeile": 22, "zellen": ["20", "- ZinsenundsonstigeFinanzaufwendungen", "28.366.889,21", "39.007.000", "42.707.000", "45.007.000", "46.007.000", "47.007.000", "48.007.000"]},
+    "finanzplan-19": {"band": 1, "seite": 11, "box": [28.3, 341.4, 813.6, 353.4], "csv": "band1_p011_PG12_Finanzplan_t0.csv", "zeile": 21, "zellen": ["19", "+ EinzahlungenausderVeräußerungvonSachanlagen", "587.659,15", "581.420", "590.120", "590.120", "590.120", "590.120", "590.120"]},
+    "pg-0204-11": {"band": 1, "seite": 129, "box": [28.3, 233.4, 813.6, 245.4], "csv": "band1_p129_PG0204_Burgerangelegenheiten_Teilergebnisplan_t0.csv", "zeile": 13, "zellen": ["11", "- Personalaufwendungen", "5.308.253,45", "5.375.310", "5.467.200", "5.560.720", "5.642.990", "5.594.200", "5.721.970"]},
+    "pg-0209-17": {"band": 1, "seite": 163, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p163_PG0209_BrandschutzundfeuerwehrtechnischeHilfeleistung_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "38.718.962,10", "41.177.040", "44.086.450", "43.495.150", "44.299.850", "45.047.360", "46.179.080"]},
+    "pg-0402-17": {"band": 1, "seite": 226, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p226_PG0402_Volkshochschule_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "4.585.604,76", "4.329.820", "4.130.480", "4.155.760", "4.177.770", "4.212.330", "4.270.880"]},
+    "pg-0403-17": {"band": 1, "seite": 236, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p236_PG0403_Westf_SchulefurMusikundForderungderStadtteilmusikschulen_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "7.544.853,95", "7.124.770", "7.793.490", "7.867.750", "7.894.050", "8.056.840", "8.221.030"]},
+    "pg-0404-17": {"band": 1, "seite": 244, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p244_PG0404_StadtbuchereiundForderungvonBuchereienfreierTrager_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "6.749.664,99", "6.433.860", "6.442.600", "6.587.450", "7.485.560", "7.506.130", "7.629.230"]},
+    "pg-0501-10": {"band": 1, "seite": 282, "box": [28.3, 221.4, 813.6, 233.4], "csv": "band1_p282_PG0501_LeistungenderGrundsicherungfurArbeitsuchende_Teilergebnisplan_t0.csv", "zeile": 12, "zellen": ["10", "= OrdentlicheErträge", "199.883.586,88", "209.213.780", "197.969.720", "200.555.350", "203.001.080", "205.645.430", "208.516.910"]},
+    "pg-0501-17": {"band": 1, "seite": 282, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p282_PG0501_LeistungenderGrundsicherungfurArbeitsuchende_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "227.494.171,91", "241.060.820", "227.488.530", "230.309.560", "233.354.510", "236.729.140", "240.319.300"]},
+    "pg-0601-17": {"band": 1, "seite": 318, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p318_PG0601_ForderungvonKinderninTagesbetreuung_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "197.673.853,94", "209.216.110", "218.007.240", "218.555.440", "222.370.570", "221.089.870", "221.378.730"]},
+    "pg-0802-17": {"band": 1, "seite": 387, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p387_PG0802_Bader_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "7.050.086,90", "8.398.670", "9.138.320", "9.125.540", "9.185.470", "9.284.550", "9.444.070"]},
+    "pg-1101-04": {"band": 1, "seite": 445, "box": [28.3, 149.4, 813.6, 161.4], "csv": "band1_p445_PG1101_Abwasserbeseitigung_Teilergebnisplan_t0.csv", "zeile": 6, "zellen": ["04", "+ Öffentlich-rechtlicheLeistungsentgelte", "70.872.008,77", "79.066.250", "83.617.970", "86.001.000", "86.601.000", "87.301.000", "87.901.000"]},
+    "pg-1201-17": {"band": 1, "seite": 459, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p459_PG1201_BereitstellungvonVerkehrsflachenund_anlagen_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "87.364.461,91", "80.435.250", "83.066.730", "83.089.990", "83.496.580", "84.276.950", "84.673.010"]},
+    "pb-04-17": {"band": 1, "seite": 210, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p210_PB04_KulturundWissenschaft_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "55.752.212,21", "53.234.650", "55.652.360", "56.835.750", "56.601.630", "56.782.100", "57.245.920"]},
+    "steuer-sonstige": {"band": 2, "seite": 20, "box": [90.6, 722.6, 524.2, 733.1], "csv": "band2_p020_Vorbericht_Ergebnisplan_t1.csv", "zeile": 7, "zellen": ["Sonstige kommunale Steuern", "8,4", "8,6", "9,9", "10,4", "10,8", "10,8", "10,8"]},
+    "stadtwerke": {"band": 2, "seite": 143, "box": [63.4, 225.0, 523.3, 243.0], "csv": "band2_p143_Uebersicht_Wirtschaftslage_Unternehmen_Tabelle_t0.csv", "zeile": 7, "zellen": ["Stadtwerke Münster GmbH", "(1)", "6.500", "6.500", "6.500"]}
+  }
+}

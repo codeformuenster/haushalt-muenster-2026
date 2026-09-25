@@ -23,9 +23,10 @@ uv run --project scripts scripts/pipeline/<skript>.py --help
 | `pipeline/agg_bezirksvertretungen.py` | Summen der Investitionsmaßnahmen 2026/2027 je Bezirksvertretung und Fachthema (Band 2, S. 147-328), mit Kennzeichnung gesamtstädtischer Fachthemen. | `daten/agg_tables/Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv` |
 | `pipeline/planspiel_daten.py` | Daten für die Planspiel-Seite der Vue-App: Zeilen 01-17 (Erträge und Aufwendungen) 2026/2027 aus den Teilergebnisplänen der 68 Produktgruppen (Band 1, S. 15-558) und dem Gesamtergebnisplan (Band 1, S. 9), dazu die Summe aller und der freiwilligen Zuschüsse, Grund-, Gewerbe- und sonstige kommunale Steuern (Band 2, S. 20), den Zinsaufwand (Gesamtergebnisplan Zeile 20), die Einzahlungen aus der Veräußerung von Sachanlagen (Finanzplan, Band 1, S. 11), die Stellen der Produktgruppe 02 04 (Bürgerangelegenheiten) und die Ausschüttung der Stadtwerke (Band 2, S. 143). Prüft, ob die Produktgruppen zusammen den Gesamtergebnisplan ergeben. Braucht Gesamtübersicht, Stellenplan und Zuschüsse. | `vue-project/src/data/planspiel.json`; Exit-Code 1 bei Abweichungen über 1 € |
 | `pipeline/quellen_zuschuesse.py` | Quellenangaben für die Seitenleiste der Zuschüsse-Seite: sucht jede Zuschusszeile im PDF (Band 2, S. 351-362, braucht das PDF unter `daten/pdfs/`) und in den Roh-CSVs, rendert die zwölf Seiten als Bilder und prüft, dass jeder Posten aus `vue-project/public/daten/zuschuesse-2026-2027.json` genau einmal gefunden wird. Läuft nicht in `build_agg_tables.py` mit; nach Änderungen an der Extraktion des Zuschussberichts von Hand neu ausführen. | `vue-project/public/quellen/band2_p351.webp` bis `band2_p362.webp`, `vue-project/public/daten/zuschuesse-quellen.json`; Exit-Code 1, wenn ein Posten fehlt oder doppelt ist |
+| `pipeline/quellen_planspiel.py` | Quellenangaben für die Vergleichswerte der Planspiel-Karten: sucht jede Zeile aus der Liste `QUELLEN` (Band 1 und 2) in der Roh-CSV und im PDF (braucht beide PDFs unter `daten/pdfs/`), prüft, dass der Wert 2026 in der Zeile dem Wert in `vue-project/src/data/planspiel.json` entspricht, und rendert nur die benutzten Seiten. Die Schlüssel stehen als `quelle` in `vue-project/src/components/planspiel/karten.ts`. Läuft nicht in `build_agg_tables.py` mit; nach `planspiel_daten.py` oder neuen Vergleichswerten von Hand neu ausführen. | `vue-project/public/quellen/band<N>_p<PPP>.webp`, `vue-project/public/daten/planspiel-quellen.json`; Exit-Code 1 ohne zu schreiben, wenn eine Zeile fehlt, mehrdeutig ist oder ihr Wert abweicht |
 | `check_konsistenz.py` | Prüft die bereinigten CSVs in `daten/agg_tables/` (Gesamtübersicht, Stellenplan) auf rechnerische Konsistenz: Summen über Produktgruppen und Produktbereiche, Zeilenformeln, Abgleich Stellenplan mit Besoldungsgruppen. | Konsole, Markdown-Bericht `daten/pruefberichte/konsistenz.md`, Exit-Code 1 bei Abweichungen |
 
-`pipeline/rohdaten.py` enthält gemeinsame Hilfsfunktionen (Roh-CSVs finden und lesen, deutsche Zahlen umwandeln) und wird nicht direkt aufgerufen.
+`pipeline/rohdaten.py` enthält gemeinsame Hilfsfunktionen (Roh-CSVs finden und lesen, deutsche Zahlen umwandeln) und wird nicht direkt aufgerufen. Ebenso `pipeline/quellen.py` für die beiden `quellen_*`-Skripte: Zeile in einer Roh-CSV finden (mit Zeilennummer), dieselbe Zeile als Rechteck auf der PDF-Seite finden, Seiten als WebP rendern (2 Pixel je PDF-Punkt, Qualität 60) und das JSON schreiben.
 
 ## Pipeline
 
@@ -47,4 +48,10 @@ Die Quellenangaben der Zuschüsse-Seite brauchen die lokalen PDFs und laufen des
 
 ```sh
 uv run --project scripts scripts/pipeline/quellen_zuschuesse.py
+```
+
+Ebenso die Quellenangaben des Planspiels, nachdem `planspiel_daten.py` gelaufen ist:
+
+```sh
+uv run --project scripts scripts/pipeline/quellen_planspiel.py
 ```

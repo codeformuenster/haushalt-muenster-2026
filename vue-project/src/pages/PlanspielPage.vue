@@ -8,6 +8,7 @@ import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
+import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
 import {
@@ -17,6 +18,7 @@ import {
   GRUPPEN,
   KARTEN,
   PRODUKTBEREICHE,
+  type Vergleich,
   ZEILE,
 } from '@/components/planspiel/karten'
 
@@ -133,6 +135,88 @@ function balken(posten: { name: string; betrag: number }[], farbe: string): ECha
 
 const woher = computed(() => balken(ertraege, POL_FARBEN.positiv))
 const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
+
+/** Betrag eines Vergleichswerts, mit Einheit oder in €. */
+function vergleichsBetrag(v: Vergleich): string {
+  return v.einheit ? `${zahl(v.betrag)} ${v.einheit}` : euroKurz(v.betrag)
+}
+
+// ------------------------------------------------------------------ Quelle
+
+/** public/daten/planspiel-quellen.json, erzeugt von scripts/pipeline/quellen_planspiel.py. */
+interface Quellen {
+  /** URL des PDFs je Band. */
+  pdf: Record<string, string>
+  /** Schlüssel "<Band>-<PDF-Seite>". */
+  seiten: Record<string, { bild: string; breite: number; hoehe: number }>
+  posten: Record<
+    string,
+    {
+      band: number
+      seite: number
+      box: [number, number, number, number]
+      csv: string
+      zeile: number
+      zellen: string[]
+    }
+  >
+}
+
+const ROHDATEN_URL =
+  'https://github.com/codeformuenster/haushalt-muenster-2026/blob/main/daten/raw_table_extraction/'
+
+const quelleOffen = ref(false)
+const quelle = ref<Quelle | null>(null)
+const quellenFehler = ref(false)
+/** Erst beim ersten Klick geladen und dann behalten. */
+let quellen: Promise<Quellen> | null = null
+
+function ladeQuellen(): Promise<Quellen> {
+  quellen ??= fetch(`${import.meta.env.BASE_URL}daten/planspiel-quellen.json`).then((antwort) => {
+    if (!antwort.ok) throw new Error(`HTTP ${antwort.status}`)
+    return antwort.json() as Promise<Quellen>
+  })
+  return quellen
+}
+
+async function zeigeQuelle(v: Vergleich): Promise<void> {
+  quelle.value = null
+  quellenFehler.value = false
+  quelleOffen.value = true
+  let q: Quellen
+  try {
+    q = await ladeQuellen()
+  } catch {
+    // Ein fehlgeschlagener Abruf soll beim nächsten Klick neu versucht werden.
+    quellen = null
+    quellenFehler.value = true
+    return
+  }
+  const eintrag = v.quelle ? q.posten[v.quelle] : undefined
+  const seite = eintrag && q.seiten[`${eintrag.band}-${eintrag.seite}`]
+  const pdfUrl = eintrag && q.pdf[String(eintrag.band)]
+  if (!eintrag || !seite || !pdfUrl) {
+    quellenFehler.value = true
+    return
+  }
+  quelle.value = {
+    titel: v.name,
+    betrag: `${vergleichsBetrag(v)} in 2026`,
+    band: eintrag.band,
+    seite: eintrag.seite,
+    bild: `${import.meta.env.BASE_URL}${seite.bild}`,
+    bildBreite: seite.breite,
+    bildHoehe: seite.hoehe,
+    box: eintrag.box,
+    pdfUrl,
+    csv: {
+      datei: eintrag.csv,
+      zeile: eintrag.zeile,
+      zellen: eintrag.zellen,
+      url: `${ROHDATEN_URL}${eintrag.csv}?plain=1#L${eintrag.zeile}`,
+    },
+  }
+}
 </script>
 
 <template>
@@ -156,6 +240,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
         titel="Woher kommt das Geld?"
         beschreibung="Geplante Erträge 2026 nach Art."
         quelle="Haushaltsplan Band 1, S. 9 (PDF), Zeilen 01-08"
+        :pdf="{ band: 1, seite: 9 }"
       >
         <BaseChart :option="woher" hoehe="400px" />
       </ChartCard>
@@ -237,9 +322,24 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
                 <strong>{{ karte.wirkung === 0 ? 'Im Haushalt 2026' : 'Zum Vergleich' }}</strong>
                 <span v-for="v in karte.vergleich" :key="v.name" class="pl-vergleich__zeile">
                   <span>{{ v.name }}</span>
-                  <span>{{
-                    v.einheit ? `${zahl(v.betrag)} ${v.einheit}` : euroKurz(v.betrag)
-                  }}</span>
+                  <span class="pl-vergleich__betrag">
+                    {{ vergleichsBetrag(v) }}
+                    <!--
+                      prevent: Der Klick soll nur die Quelle öffnen, nicht die Karte umschalten.
+                      Zeilen ohne Quelle bekommen einen unsichtbaren Knopf, damit die Beträge
+                      einer Karte bündig bleiben.
+                    -->
+                    <wa-button
+                      v-if="karte.vergleich.some((x) => x.quelle)"
+                      :class="{ 'pl-vergleich__platzhalter': !v.quelle }"
+                      appearance="plain"
+                      size="small"
+                      :title="`Quelle zu ${v.name} anzeigen`"
+                      @click.prevent="zeigeQuelle(v)"
+                    >
+                      <wa-icon name="file-lines" :label="`Quelle zu ${v.name} anzeigen`"></wa-icon>
+                    </wa-button>
+                  </span>
                 </span>
               </span>
               <span class="pl-wissen">
@@ -331,6 +431,8 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
         </wa-card>
       </div>
     </details>
+
+    <QuelleSeitenleiste v-model:offen="quelleOffen" :quelle="quelle" :fehler="quellenFehler" />
   </div>
 </template>
 
@@ -674,6 +776,22 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 .pl-vergleich__zeile > :last-child {
   flex-shrink: 0;
   text-align: right;
+}
+
+/* Der Quellen-Knopf hängt rechts am Betrag; negativer Rand, damit er die Zeile nicht höher macht. */
+.pl-vergleich__betrag {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pl-vergleich__betrag wa-button {
+  margin-block: calc(-1 * var(--wa-space-xs));
+  margin-inline-end: calc(-1 * var(--wa-space-s));
+}
+
+/* visibility statt display: hält den Platz frei und nimmt den Knopf aus Tab-Reihenfolge und Vorlesen. */
+.pl-vergleich__betrag .pl-vergleich__platzhalter {
+  visibility: hidden;
 }
 
 .pl-wissen {

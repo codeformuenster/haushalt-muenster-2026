@@ -66,6 +66,7 @@ const treemap = computed<EChartsOption>(() => ({
       titel="Ausgaben nach Aufgabenbereich"
       beschreibung="Geplante Aufwendungen 2026, aufgeteilt auf die Aufgabenbereiche der Stadt."
       quelle="Haushaltsplan 2026/27, Band 2, Haushaltsquerschnitt, S. 67 ff."
+      :pdf="{ band: 2, seite: 71 }"
     >
       <BaseChart :option="treemap" hoehe="480px" />
     </ChartCard>

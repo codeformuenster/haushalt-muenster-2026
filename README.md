@@ -211,6 +211,12 @@ Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
 **Ein- & Ausgaben** und **Stellenplan** lesen ihre Zahlen direkt aus CSV bzw.
 JSON unter `vue-project/src/`, ohne Skript in `preprocessing/`.
 
+Quellenangaben unter Diagrammen verlinken, wo möglich, direkt auf die PDF-Seite im
+Original-PDF (`pdf`-Prop von `ChartCard`, Links in `src/data/haushaltsplan.ts`). Im
+**Planspiel** öffnet ein Knopf neben den Vergleichswerten der Karten dieselbe
+Quellen-Seitenleiste wie bei den Zuschüssen; die Angaben dafür erzeugt
+`scripts/pipeline/quellen_planspiel.py`.
+
 Nur noch **Überblick** (`/ueberblick`) zeigt **erfundene** Platzhalterzahlen und
 trägt deshalb einen `DemoHinweis`. Der wird entfernt, sobald die Seite echte
 Daten aus `daten/` liest — dann kann auch `src/components/ui/DemoHinweis.vue`

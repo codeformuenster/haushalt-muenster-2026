@@ -374,6 +374,7 @@ function jahrGewaehlt(ereignis: Event): void {
         titel="Wo investiert die Stadt?"
         beschreibung="Je dunkler ein Bezirk, desto mehr Geld ist dort für Investitionen vorgesehen. Ein Klick auf einen Bezirk zeigt unten, wofür."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 147 }"
       >
         <div class="mm-steuerung">
           <wa-select label="Haushaltsjahr" :value="jahr" @change="jahrGewaehlt">
@@ -422,6 +423,7 @@ function jahrGewaehlt(ereignis: Event): void {
         :titel="`Wofür — ${auswahlName}`"
         beschreibung="Die Investitionen der Auswahl nach Fachthema. Über der Karte lässt sich der Bezirk wechseln."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 147 }"
       >
         <BaseChart :option="fachthemen" hoehe="480px" />
       </ChartCard>
@@ -430,6 +432,7 @@ function jahrGewaehlt(ereignis: Event): void {
         titel="Alle Zahlen"
         :beschreibung="`Auszahlungen ${jahr} je Fachthema und Bezirk, größtes Thema zuerst.`"
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 147 }"
       >
         <div class="mm-tabelle-rahmen">
           <table class="mm-tabelle">

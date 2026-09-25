@@ -541,6 +541,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         titel="Worüber kann der Rat entscheiden?"
         beschreibung="Der Haushaltsplan unterscheidet, ob eine Zuwendung dem Grunde nach vorgeschrieben ist (die Stadt muss zahlen) und ob auch ihre Höhe feststeht. Daraus ergeben sich vier Stufen zwischen völlig frei und vollständig gebunden."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 349 }"
       >
         <dl class="mm-kennzahlen">
           <div v-for="k in kennzahlen" :key="k.titel" class="mm-kennzahl">
@@ -596,6 +597,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         titel="Alle Zuschüsse nach Produktbereich"
         beschreibung="Wohin das Geld überhaupt fließt. Der Ring zeigt die Aufteilung auf die Produktbereiche des Haushalts — die sieben größten einzeln, die übrigen zusammengefasst. Hier geht es nur um den Betrag, nicht darum, wie frei die Stadt darüber entscheiden kann; das steht im nächsten Diagramm."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 349 }"
       >
         <BaseChart :option="verteilung" hoehe="420px" @legendselectchanged="legendeGeaendert" />
       </ChartCard>
@@ -604,6 +606,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         titel="Wo der Spielraum liegt"
         beschreibung="Nur die verhandelbaren Stufen „freiwillig“ und „dem Grunde nach“, je Produktbereich. Ein Bereich kann viel Geld bewegen und hier trotzdem kurz ausfallen — dass ein Balken klein ist, heißt also nicht, dass der Bereich klein ist, sondern dass wenig davon zur Entscheidung steht. Der Vergleich zum vorigen Diagramm lohnt sich."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 349 }"
       >
         <BaseChart :option="spielraum" hoehe="440px" />
       </ChartCard>
@@ -612,6 +615,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         titel="Bis wann ist das Geld zugesagt?"
         beschreibung="Zusagen laufen aus, und erst dann wird wieder über das Geld entschieden. Die Fläche zeigt, wie viel nach Ende des jeweiligen Jahres noch zugesagt ist: links alles, was ein Enddatum hat, und dann von Jahr zu Jahr weniger, bis rechts nichts mehr läuft. Wo die Fläche steil abfällt, wird in dem Jahr besonders viel neu verhandelt — jedenfalls bei den Stufen „freiwillig“ und „dem Grunde nach“; die gebundenen Mittel laufen zwar auch aus, werden aber gesetzlich fortgeschrieben."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 349 }"
       >
         <BaseChart :option="befristung" hoehe="400px" />
         <p class="mm-fussnote">
@@ -625,6 +629,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         titel="Alle Posten einzeln"
         beschreibung="Der vollständige Zuschussbericht, sortiert nach dem Betrag für 2026."
         :quelle="QUELLE"
+        :pdf="{ band: 2, seite: 349 }"
       >
         <div class="mm-filter">
           <wa-input

@@ -67,6 +67,8 @@ export interface Vergleich {
   betrag: number
   /** Ohne Einheit ist der Betrag in €. */
   einheit?: string
+  /** Schlüssel in public/daten/planspiel-quellen.json; nur bei Beträgen aus genau einer Zeile im Plan. */
+  quelle?: string
 }
 
 export interface Karte {
@@ -98,11 +100,12 @@ const neueStellen = 10
 const aufwendungenGesamt: Vergleich = {
   name: 'Alle ordentlichen Aufwendungen',
   betrag: gesamt(ZEILE.aufwendungen),
+  quelle: 'gesamt-17',
 }
 
 /** Die Kosten (Zeile 17) einer Produktgruppe. */
 function kosten(name: string, code: string): Vergleich {
-  return { name, betrag: produktgruppe(code, ZEILE.aufwendungen) }
+  return { name, betrag: produktgruppe(code, ZEILE.aufwendungen), quelle: `pg-${code}-17` }
 }
 
 /**
@@ -137,7 +140,9 @@ export const KARTEN: Karte[] = [
     ...anteilVon(0.1, daten.grundsteuer[JAHR], 'Grundsteuer'),
     wissen:
       'Den Hebesatz legt der Rat der Stadt fest. Die Grundsteuer zahlen die Eigentümer, Vermieter dürfen sie über die Nebenkosten an Mieter weitergeben.',
-    vergleich: [{ name: 'Alle Steuern und Abgaben', betrag: gesamt(ZEILE.steuern) }],
+    vergleich: [
+      { name: 'Alle Steuern und Abgaben', betrag: gesamt(ZEILE.steuern), quelle: 'gesamt-01' },
+    ],
     annahme:
       'Der Grundsteuerertrag steigt im selben Verhältnis wie der Hebesatz. Der Plan nennt ihn nur auf 0,1 Mio. € gerundet.',
     quelle: 'Haushaltsplan Band 2, S. 20 (PDF), Vorbericht',
@@ -149,7 +154,9 @@ export const KARTEN: Karte[] = [
     text: 'Der Hebesatz der Gewerbesteuer steigt um 5 %.',
     ...anteilVon(0.05, daten.gewerbesteuer[JAHR], 'Gewerbesteuer'),
     wissen: `Die Gewerbesteuer ist die größte Steuerquelle der Stadt, 2026 rund ${anteil(daten.gewerbesteuer[JAHR], gesamt(ZEILE.ertraege))} aller ordentlichen Erträge. Sie schwankt mit der Wirtschaftslage, und Städte konkurrieren mit ihren Hebesätzen um Betriebe.`,
-    vergleich: [{ name: 'Alle ordentlichen Erträge', betrag: gesamt(ZEILE.ertraege) }],
+    vergleich: [
+      { name: 'Alle ordentlichen Erträge', betrag: gesamt(ZEILE.ertraege), quelle: 'gesamt-10' },
+    ],
     annahme:
       'Der Gewerbesteuerertrag steigt im selben Verhältnis wie der Hebesatz. Die Gewerbesteuerumlage an Bund und Land steigt dadurch nicht, weil sie sich allein nach dem Messbetrag richtet. Der Plan nennt den Ertrag nur auf 0,1 Mio. € gerundet.',
     quelle: 'Haushaltsplan Band 2, S. 20 (PDF), Vorbericht',
@@ -175,7 +182,11 @@ export const KARTEN: Karte[] = [
     wissen:
       'Gebühren für Abwasser oder Müllabfuhr dürfen nach dem Kommunalabgabengesetz NRW nur die Kosten decken. Dazu zählen auch kalkulatorische Zinsen und Abschreibungen, die dem allgemeinen Haushalt zugutekommen. Nimmt die Stadt mehr ein, muss sie die Überdeckung innerhalb von vier Jahren über niedrigere Gebühren ausgleichen. Eine Erhöhung über die Kosten hinaus hilft dem Haushalt deshalb nicht.',
     vergleich: [
-      { name: 'Abwassergebühren', betrag: produktgruppe('1101', ZEILE.oeffentlicheEntgelte) },
+      {
+        name: 'Abwassergebühren',
+        betrag: produktgruppe('1101', ZEILE.oeffentlicheEntgelte),
+        quelle: 'pg-1101-04',
+      },
     ],
     annahme:
       'Die Gebühren decken schon die zulässigen Kosten. Mehreinnahmen müssten in den Folgejahren über niedrigere Gebühren ausgeglichen werden.',
@@ -190,7 +201,11 @@ export const KARTEN: Karte[] = [
     wirkung: 0,
     wissen: `Die Stadtwerke Münster GmbH gehört der Stadt und schüttet 2026 voraussichtlich ${euroKurz(daten.stadtwerkeAusschuettung[JAHR])} an sie aus. Solche Ausschüttungen bucht die Stadt wie Zinsen als Finanzerträge, getrennt vom laufenden Betrieb. Sie ändern das ordentliche Ergebnis deshalb nicht. Mit Gewinnen aus dem Energiegeschäft gleichen die Stadtwerke außerdem Verluste im Busverkehr aus (Querverbund).`,
     vergleich: [
-      { name: 'Ausschüttung der Stadtwerke', betrag: daten.stadtwerkeAusschuettung[JAHR] },
+      {
+        name: 'Ausschüttung der Stadtwerke',
+        betrag: daten.stadtwerkeAusschuettung[JAHR],
+        quelle: 'stadtwerke',
+      },
     ],
     annahme: `Auch 50 % mehr Ausschüttung (rund ${euroKurz(0.5 * daten.stadtwerkeAusschuettung[JAHR])}) landen im Finanzergebnis. Das Planspiel zählt nur das ordentliche Ergebnis.`,
     quelle:
@@ -237,7 +252,13 @@ export const KARTEN: Karte[] = [
     text: 'Die Hundesteuer steigt um 20 %, bei einem Hund von 120 € auf 144 € im Jahr.',
     ...anteilVon(0.2, hundesteuer, 'Hundesteuer'),
     wissen: `Die Hundesteuer ist eine kleine örtliche Steuer. Den Steuersatz legt der Rat in einer Satzung fest. Sie bringt rund ${euroKurz(hundesteuer)} im Jahr, die Grundsteuer zum Vergleich ${euroKurz(daten.grundsteuer[JAHR])}.`,
-    vergleich: [{ name: 'Sonstige kommunale Steuern', betrag: daten.sonstigeSteuern[JAHR] }],
+    vergleich: [
+      {
+        name: 'Sonstige kommunale Steuern',
+        betrag: daten.sonstigeSteuern[JAHR],
+        quelle: 'steuer-sonstige',
+      },
+    ],
     annahme:
       'Die Einnahmen steigen im selben Verhältnis wie der Steuersatz, und es werden gleich viele Hunde angemeldet. Der Haushaltsplan weist die Hundesteuer nicht einzeln aus, deshalb gilt die gerundete Angabe der Stadt.',
     quelle:
@@ -276,7 +297,12 @@ export const KARTEN: Karte[] = [
     ...anteilVon(0.1, theaterZuschuss, 'Theaterzuschuss'),
     wissen: `Die Stadt gibt dem Theater Münster 2026 rund ${euroKurz(theaterZuschuss)}. Im Haushalt steht dafür nur dieser eine Zuschuss. Kultur gehört zu den freiwilligen Aufgaben der Stadt.`,
     vergleich: [
-      { name: 'Kultur und Wissenschaft gesamt', betrag: aufwendungenProduktbereich('04') },
+      // Die Summe der Produktgruppen steht so auch im Teilergebnisplan des Produktbereichs.
+      {
+        name: 'Kultur und Wissenschaft gesamt',
+        betrag: aufwendungenProduktbereich('04'),
+        quelle: 'pb-04-17',
+      },
     ],
     annahme:
       'Die ordentlichen Aufwendungen der Produktgruppe 04 07 (Theater Münster) sinken um 10 %.',
@@ -304,7 +330,11 @@ export const KARTEN: Karte[] = [
     wissen: `Leistungen wie die Grundsicherung für Arbeitsuchende regelt der Bund im Sozialgesetzbuch. Die Stadt darf die Höhe nicht selbst festlegen. Sie trägt vor allem die Kosten für Unterkunft und Heizung, der Bund erstattet einen großen Teil. 2026 stehen hier ${euroKurz(produktgruppe('0501', ZEILE.aufwendungen))} Aufwendungen rund ${euroKurz(produktgruppe('0501', ZEILE.ertraege))} Erträge gegenüber.`,
     vergleich: [
       kosten('Kosten der Grundsicherung', '0501'),
-      { name: 'Erträge, v. a. Erstattungen', betrag: produktgruppe('0501', ZEILE.ertraege) },
+      {
+        name: 'Erträge, v. a. Erstattungen',
+        betrag: produktgruppe('0501', ZEILE.ertraege),
+        quelle: 'pg-0501-10',
+      },
     ],
     annahme:
       'Die Stadt muss die gesetzlichen Leistungen in voller Höhe zahlen. Ein Ratsbeschluss kann sie nicht kürzen.',
@@ -317,7 +347,10 @@ export const KARTEN: Karte[] = [
     text: 'Die Beschäftigten der Stadt bekommen keine Lohnerhöhung.',
     wirkung: 0,
     wissen: `Die Löhne der Tarifbeschäftigten handeln Gewerkschaften, Bund und kommunale Arbeitgeberverbände für ganz Deutschland im TVöD aus. Die Besoldung der Beamtinnen und Beamten legt das Land NRW per Gesetz fest. Die Stadt muss beides zahlen, und Personal macht 2026 rund ${anteil(gesamt(ZEILE.personal), gesamt(ZEILE.aufwendungen))} aller ordentlichen Aufwendungen aus.`,
-    vergleich: [{ name: 'Personalaufwand', betrag: gesamt(ZEILE.personal) }, aufwendungenGesamt],
+    vergleich: [
+      { name: 'Personalaufwand', betrag: gesamt(ZEILE.personal), quelle: 'gesamt-11' },
+      aufwendungenGesamt,
+    ],
     annahme:
       'Die Stadt ist an Tarifvertrag und Besoldungsgesetz gebunden. Ein Ratsbeschluss kann Lohnerhöhungen nicht verhindern.',
     quelle: 'Haushaltsplan Band 1, S. 9 (PDF), Zeilen 11 und 17',
@@ -369,7 +402,7 @@ export const KARTEN: Karte[] = [
     rechnung: `= ${neueStellen} Stellen × ${euroKurz(stelleBuergeramt)} je Stelle`,
     wissen: `Eine Vollzeitstelle bei den Bürgerangelegenheiten kostet die Stadt im Schnitt rund ${euroKurz(stelleBuergeramt)} im Jahr. Neue Stellen belasten den Haushalt jedes Jahr wieder.`,
     vergleich: [
-      { name: 'Personal Bürgerbüro', betrag: buergeramtPersonal },
+      { name: 'Personal Bürgerbüro', betrag: buergeramtPersonal, quelle: 'pg-0204-11' },
       { name: 'Stellen (Vollzeit)', betrag: buergeramtStellen, einheit: 'Stellen' },
     ],
     annahme:
@@ -440,7 +473,9 @@ export const KARTEN: Karte[] = [
     wirkung: 0,
     wissen:
       'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im Ergebnis bleibt, und die Zinsen belasten die folgenden Jahre. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
-    vergleich: [{ name: 'Zinsen und Finanzaufwand', betrag: daten.zinsaufwand[JAHR] }],
+    vergleich: [
+      { name: 'Zinsen und Finanzaufwand', betrag: daten.zinsaufwand[JAHR], quelle: 'gesamt-20' },
+    ],
     annahme: 'Ein Kredit ändert das ordentliche Ergebnis nicht, er steht nur im Finanzplan.',
     quelle:
       'Gemeindeordnung NRW, §§ 86 und 89, 2026 (https://recht.nrw.de/lrgv/gesetz/01012026-gemeindeordnung-fuer-das-land-nordrhein-westfalen-bekanntmachung-der/)',
@@ -453,7 +488,13 @@ export const KARTEN: Karte[] = [
     wirkung: -schulKosten / schulNutzungsdauer,
     rechnung: `= ${euroKurz(schulKosten)} Baukosten ÷ ${schulNutzungsdauer} Jahre Nutzungsdauer`,
     wissen: `Eine Investition belastet das Ergebnis nicht auf einmal. Der Wert des Gebäudes wird über seine Nutzungsdauer verteilt abgeschrieben, hier ${euroKurz(schulKosten / schulNutzungsdauer)} im Jahr. Deshalb wirken große Bauprojekte im ordentlichen Ergebnis klein. Zinsen für Kredite kommen im Finanzergebnis hinzu.`,
-    vergleich: [{ name: 'Alle Abschreibungen der Stadt', betrag: gesamt(ZEILE.abschreibungen) }],
+    vergleich: [
+      {
+        name: 'Alle Abschreibungen der Stadt',
+        betrag: gesamt(ZEILE.abschreibungen),
+        quelle: 'gesamt-14',
+      },
+    ],
     annahme: `Die Schule kostet so viel wie die neue vierzügige Grundschule im York-Quartier und ist 2026 ein volles Jahr in Betrieb. Die Stadt schreibt sie gleichmäßig über ${schulNutzungsdauer} Jahre ab (in NRW sind für Schulgebäude 40 bis 80 Jahre erlaubt). Fördermittel und Betriebskosten sind nicht eingerechnet. Zinsen zählen im Planspiel nicht mit, weil sie außerhalb des ordentlichen Ergebnisses stehen. Bei einem Kredit zu ${zahl(schulZins * 100)} % wären es im ersten Jahr rund ${euroKurz(schulZins * schulKosten)}.`,
     quelle:
       'Stadt Münster, Neue Grundschule York, 2024 (https://www.presse-service.de/data.aspx/static/1170051.html); NKF-Rahmentabelle der Gesamtnutzungsdauer, 2025 (https://recht.nrw.de/system/files/BA/54831-53146-smbl_6300_20250312_a_anlage18.pdf)',
@@ -466,7 +507,13 @@ export const KARTEN: Karte[] = [
     wirkung: 0,
     wissen:
       'Der Kaufpreis fließt in die Kasse. Im Ergebnis zählt aber nur der Teil, der über dem Wert des Grundstücks in der Bilanz liegt, und das nur einmal. Im nächsten Jahr ist das Minus wieder da, und das Grundstück fehlt, etwa für Wohnungen oder Schulen.',
-    vergleich: [{ name: 'Verkauf von Sachanlagen', betrag: daten.verkaufSachanlagen[JAHR] }],
+    vergleich: [
+      {
+        name: 'Verkauf von Sachanlagen',
+        betrag: daten.verkaufSachanlagen[JAHR],
+        quelle: 'finanzplan-19',
+      },
+    ],
     annahme:
       'Wie hoch die Bilanzwerte der Grundstücke sind, steht nicht im Haushaltsplan. Deshalb wird kein Gewinn angesetzt. Für 2026 plant die Stadt nur geringe Einzahlungen aus dem Verkauf von Sachanlagen.',
     quelle: 'Haushaltsplan Band 1, S. 11 (PDF), Finanzplan Zeile 19',
