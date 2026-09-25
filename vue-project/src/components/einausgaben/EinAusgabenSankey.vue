@@ -7,12 +7,13 @@ import { euro } from '@/charts/format'
 type SankeyInputRow = {
   Gruppe: string
   Gruppenbezeichnung: string
-  Ertraege2026Num: number
-  Aufwendungen2026Num: number
+  ErtraegeNum: number
+  AufwendungenNum: number
 }
 
 const props = defineProps<{
   rows: SankeyInputRow[]
+  selectedYear: 2026 | 2027
 }>()
 
 const emit = defineEmits<{
@@ -28,8 +29,8 @@ function onChartClick(params: unknown): void {
 }
 
 const sankeyOption = computed<EChartsOption>(() => {
-  const totalEinnahmenNode = 'Einnahmen 2026 gesamt'
-  const totalAusgabenNode = 'Ausgaben 2026 gesamt'
+  const totalEinnahmenNode = `Einnahmen ${props.selectedYear} gesamt`
+  const totalAusgabenNode = `Ausgaben ${props.selectedYear} gesamt`
 
   const links: Array<{ source: string; target: string; value: number }> = []
   const einnahmenProGruppe = new Map<string, number>()
@@ -37,20 +38,20 @@ const sankeyOption = computed<EChartsOption>(() => {
 
   props.rows.forEach((row) => {
     const gruppeLabel = `${row.Gruppe} ${row.Gruppenbezeichnung}`
-    const gruppeEinnahmenNode = `Einnahmen Gruppe: ${gruppeLabel}`
-    const gruppeAusgabenNode = `Ausgaben Gruppe: ${gruppeLabel}`
+    const gruppeEinnahmenNode = `Einnahmen ${gruppeLabel}`
+    const gruppeAusgabenNode = `Ausgaben ${gruppeLabel}`
 
-    if (row.Ertraege2026Num > 0) {
+    if (row.ErtraegeNum > 0) {
       einnahmenProGruppe.set(
         gruppeEinnahmenNode,
-        (einnahmenProGruppe.get(gruppeEinnahmenNode) ?? 0) + row.Ertraege2026Num,
+        (einnahmenProGruppe.get(gruppeEinnahmenNode) ?? 0) + row.ErtraegeNum,
       )
     }
 
-    if (row.Aufwendungen2026Num > 0) {
+    if (row.AufwendungenNum > 0) {
       ausgabenProGruppe.set(
         gruppeAusgabenNode,
-        (ausgabenProGruppe.get(gruppeAusgabenNode) ?? 0) + row.Aufwendungen2026Num,
+        (ausgabenProGruppe.get(gruppeAusgabenNode) ?? 0) + row.AufwendungenNum,
       )
     }
   })
@@ -84,7 +85,6 @@ const sankeyOption = computed<EChartsOption>(() => {
   })
 
   return {
-    title: { text: 'Einnahmen und Ausgaben 2026 (Sankey)' },
     tooltip: {
       trigger: 'item',
       triggerOn: 'mousemove',
@@ -101,10 +101,10 @@ const sankeyOption = computed<EChartsOption>(() => {
         layout: 'none',
         emphasis: { focus: 'adjacency' },
         data: Array.from(nodeNames).map((name) => {
-          const isEinnahmenGroup = name.startsWith('Einnahmen Gruppe: ')
-          const isAusgabenGroup = name.startsWith('Ausgaben Gruppe: ')
+          const isEinnahmenGroup = name.startsWith('Einnahmen ')
+          const isAusgabenGroup = name.startsWith('Ausgaben ')
           const isGroup = isEinnahmenGroup || isAusgabenGroup
-          const prefix = isEinnahmenGroup ? 'Einnahmen Gruppe: ' : 'Ausgaben Gruppe: '
+          const prefix = isEinnahmenGroup ? 'Einnahmen ' : 'Ausgaben '
           const groupCode = isGroup ? name.replace(prefix, '').slice(0, 2) : undefined
 
           return {
