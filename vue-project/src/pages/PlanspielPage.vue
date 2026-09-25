@@ -11,7 +11,6 @@ import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
 import {
-  anteil,
   aufwendungenProduktbereich,
   ERTRAGSARTEN,
   gesamt,
@@ -232,28 +231,16 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
                 </template>
                 <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
               </span>
-              <span v-if="karte.posten.length" class="pl-posten">
-                <strong>Im Haushalt 2026</strong>
-                <template v-for="p in karte.posten" :key="p.name">
-                  <span class="pl-posten__zeile">
-                    <span>{{ p.name }}</span>
-                    <span>{{
-                      p.einheit ? `${zahl(p.betrag)} ${p.einheit}` : euroKurz(p.betrag)
-                    }}</span>
-                  </span>
-                  <template v-if="p.ganzes">
-                    <span class="pl-posten__zeile">
-                      <span>{{ p.ganzes.name }}</span>
-                      <span>{{ euroKurz(p.ganzes.betrag) }}</span>
-                    </span>
-                    <span class="pl-posten__zeile">
-                      <span class="pl-posten__balken" aria-hidden="true">
-                        <span :style="{ width: `${(100 * p.betrag) / p.ganzes.betrag}%` }" />
-                      </span>
-                      <span>{{ anteil(p.betrag, p.ganzes.betrag) }}</span>
-                    </span>
-                  </template>
-                </template>
+              <span v-if="karte.rechnung" class="pl-karte__rechnung">{{ karte.rechnung }}</span>
+              <span v-if="karte.vergleich.length" class="pl-vergleich">
+                <!-- Ohne Wirkung gibt es keine Rechnung, mit der man vergleichen könnte. -->
+                <strong>{{ karte.wirkung === 0 ? 'Im Haushalt 2026' : 'Zum Vergleich' }}</strong>
+                <span v-for="v in karte.vergleich" :key="v.name" class="pl-vergleich__zeile">
+                  <span>{{ v.name }}</span>
+                  <span>{{
+                    v.einheit ? `${zahl(v.betrag)} ${v.einheit}` : euroKurz(v.betrag)
+                  }}</span>
+                </span>
               </span>
               <span class="pl-wissen">
                 <strong>Gut zu wissen</strong>
@@ -650,8 +637,15 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   font-weight: normal;
 }
 
-/* Einordnung in Zahlen: schlichte Zeilen, bei Teil und Ganzem ein dünner Anteilsbalken. */
-.pl-posten {
+/* Rechenweg direkt unter der Wirkung; der negative Rand rückt ihn näher an die Zahl. */
+.pl-karte__rechnung {
+  margin-top: calc(-1 * var(--wa-space-2xs));
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  font-variant-numeric: tabular-nums;
+}
+
+.pl-vergleich {
   display: flex;
   flex-direction: column;
   gap: var(--wa-space-3xs);
@@ -661,7 +655,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   font-size: var(--wa-font-size-s);
 }
 
-.pl-posten strong {
+.pl-vergleich strong {
   margin-bottom: var(--wa-space-3xs);
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-xs);
@@ -670,33 +664,16 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   text-transform: uppercase;
 }
 
-.pl-posten__zeile {
+.pl-vergleich__zeile {
   display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: var(--wa-space-s);
   font-variant-numeric: tabular-nums;
 }
 
-.pl-posten__zeile > :last-child {
+.pl-vergleich__zeile > :last-child {
   flex-shrink: 0;
   text-align: right;
-}
-
-.pl-posten__balken {
-  flex: 1;
-  height: 5px;
-  border-radius: 999px;
-  background-color: var(--wa-color-neutral-fill-normal);
-  overflow: hidden;
-}
-
-.pl-posten__balken > span {
-  display: block;
-  max-width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  background-color: var(--wa-color-brand-fill-loud);
 }
 
 .pl-wissen {
