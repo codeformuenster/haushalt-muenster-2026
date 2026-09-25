@@ -103,7 +103,7 @@ Inhalte
 | Ergebnisrechnung, Finanzrechnung und Bilanz 2024 | | 93-100 | 89-96 | |
 | Wirtschaftspläne und Jahresabschlüsse der Sondervermögen | AWM, citeq, Münster Marketing, Theater Münster | 101-136 | 97-132 | |
 | Übersicht über die Wirtschaftslage der Unternehmen | | 137-146 | 133-142 | |
-| Bezirksbezogene Haushaltsangaben | Bezirksvertretungen Mitte, Nord, Ost, Südost, Hiltrup, West (Teilergebnisplan PG 01 01, Investitionsmaßnahmen im Bezirk) | 147-328 | 143-324 | |
+| Bezirksbezogene Haushaltsangaben | Bezirksvertretungen Mitte, Nord, Ost, Südost, Hiltrup, West (Teilergebnisplan PG 01 01, Investitionsmaßnahmen im Bezirk) | 147-328 | 143-324 | [Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv](daten/agg_tables/Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv) |
 | Übersicht über die Zuwendungen an die Fraktionen | | 329-344 | 325-340 | |
 | Zuschussbericht | Zuwendungen an Dritte | 345-366 | 341-362 | |
 | Maßnahmenprogramm des Amtes für Mobilität und Tiefbau | | 367-370 | 363-366 | |
@@ -113,6 +113,12 @@ Inhalte
 ## Rohdaten
 
 `daten/raw_table_extraction/` enthält unbereinigte, automatisch extrahierte Tabellen aus beiden Bänden (ca. 1900 CSV-Dateien). Namensschema: `band<N>_p<PDF-Seite>_<Abschnitt>_<Typ>_t<Tabellen-Nr>.csv`, z.B. `band1_p700_PG0111_Immobilienmanagement_Investitionsmassnahmen_t0.csv`. Die Qualität ist gemischt: fehlende Leerzeichen, mehrzeilige Kopfzeilen, Fließtext statt Tabellen und teils falsche Abschnittskürzel (z.B. `PG12` für den Ergebnis- und Finanzplan, `PG03`/`PG05`/`PG13` für Produktbereichsseiten).
+
+## Geodaten
+
+`daten/geo/` enthält Kartengrundlagen, die nicht aus dem Haushaltsplan stammen,
+sondern aus dem [Open-Data-Portal der Stadt Münster](https://opendata.stadt-muenster.de/).
+Herkunft, Stand und Lizenz je Datei stehen in [`daten/geo/README.md`](daten/geo/README.md).
 
 ## Skripte
 
@@ -187,12 +193,20 @@ bleiben, auf hellem wie dunklem Hintergrund.
 
 ### Stand
 
-**Zuschüsse** (`/zuschuesse`) liest echte Daten: der Zuschussbericht aus Band 2,
-aufbereitet von `preprocessing/zuschuesse.ts` (siehe
-[preprocessing/README.md](preprocessing/README.md)). Die übrigen fünf Seiten
-stehen mit Layout, Diagrammen und Navigation, die Zahlen darin sind aber
-**erfunden** und nur Platzhalter. Jede solche Seite zeigt einen `DemoHinweis`;
-der wird entfernt, sobald sie echte Daten aus `daten/` liest.
+Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
+(siehe [preprocessing/README.md](preprocessing/README.md)):
+
+* **Zuschüsse** (`/zuschuesse`) — der Zuschussbericht aus Band 2.
+* **Bezirke** (`/bezirke`) — die bezirksbezogenen Haushaltsangaben aus Band 2,
+  auf einer Karte der sechs Stadtbezirke.
+
+**Ein- & Ausgaben** und **Stellenplan** lesen ihre Zahlen direkt aus CSV bzw.
+JSON unter `vue-project/src/`, ohne Skript in `preprocessing/`.
+
+Nur noch **Überblick** (`/ueberblick`) zeigt **erfundene** Platzhalterzahlen und
+trägt deshalb einen `DemoHinweis`. Der wird entfernt, sobald die Seite echte
+Daten aus `daten/` liest — dann kann auch `src/components/ui/DemoHinweis.vue`
+weg.
 
 Die Abgrenzung freiwillige gegen pflichtige Leistungen ist für die Zuschüsse
 **geklärt**: der Zuschussbericht führt dafür selbst eine Spalte
@@ -200,8 +214,15 @@ Die Abgrenzung freiwillige gegen pflichtige Leistungen ist für die Zuschüsse
 `der Höhe nach`, `Höhe und Grund nach`). Für den restlichen Haushalt — Personal,
 Bau, Sozialtransfers — kennzeichnet der Plan sie weiterhin nicht.
 
-Offen: Anbindung der übrigen CSVs aus `daten/` und ein GeoJSON der Stadtbezirke
-für die Karte.
+Räumlich geht der Haushalt nur bis zu den sechs **Stadtbezirken**. Eine Karte der
+45 Stadtteile ist deshalb nicht möglich — es gibt dafür keine Zahlen, auch wenn
+die Geometrie im Open-Data-Portal läge. Was die Bezirke-Seite zeigt, sind
+Investitionen *im* Bezirk; entschieden werden sie überwiegend gesamtstädtisch.
+
+Offen: Anbindung der übrigen CSVs aus `daten/`. Für die Bezirke wäre der nächste
+Schritt die einzelne Investitionsmaßnahme — 283 benannte Vorhaben („Ludgerikirchplatz“,
+„Kita Sonnenstraße“) stecken in den 635 Roh-CSVs unter
+`daten/raw_table_extraction/band2_*Bezirksvertretung*`.
 
 
 ## A message to our robotic friends (LLMs)
