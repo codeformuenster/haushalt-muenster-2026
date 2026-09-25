@@ -4,6 +4,7 @@
  * von dort in die einzelnen Themenseiten.
  */
 import { RouterLink, useRouter } from 'vue-router'
+import heroImageUrl from '@/assets/images/Hero-image.png'
 
 const router = useRouter()
 
@@ -50,17 +51,29 @@ const einstiege = [
 <template>
   <div class="mm-seite">
     <section class="mm-hero">
-      <h1>Wofür gibt Münster sein Geld aus?</h1>
-      <p class="mm-hero__lead">
-        Der Haushaltsplan der Stadt Münster für 2026 und 2027 umfasst mehrere hundert Seiten
-        Tabellen. Darin steht, wofür die Stadt in den nächsten zwei Jahren Geld ausgibt — von
-        Kitaplätzen über Straßenbau bis zur Feuerwehr. Nur liest ihn so gut wie niemand.
-      </p>
-      <p class="mm-hero__lead">
-        Münster Money nimmt die Zahlen aus diesem Plan und macht sie sichtbar: als Diagramme,
-        durch die man sich klicken kann, statt als PDF zum Durchblättern.
-      </p>
-      <wa-button variant="brand" @click="router.push('/ueberblick')">Zum Überblick</wa-button>
+      <div class="mm-hero__inhalt">
+        <div class="mm-hero__text">
+          <h1>Wofür gibt Münster sein Geld aus?</h1>
+          <p class="mm-hero__lead">
+            Der Haushaltsplan der Stadt Münster für 2026 und 2027 umfasst mehrere hundert Seiten
+            Tabellen. Darin steht, wofür die Stadt in den nächsten zwei Jahren Geld ausgibt — von
+            Kitaplätzen über Straßenbau bis zur Feuerwehr. Nur liest ihn so gut wie niemand.
+          </p>
+          <p class="mm-hero__lead">
+            Münster Money nimmt die Zahlen aus diesem Plan und macht sie sichtbar: als Diagramme,
+            durch die man sich klicken kann, statt als PDF zum Durchblättern.
+          </p>
+          <wa-button variant="brand" @click="router.push('/ueberblick')">Zum Überblick</wa-button>
+        </div>
+
+        <aside class="mm-hero__teaser" aria-label="Planspiel-Hinweis">
+          <img :src="heroImageUrl" alt="Illustration zum Haushalts-Planspiel" class="mm-hero__bild" />
+          <p class="mm-hero__claim">
+            Kannst du den Haushalt ausgleichen? Spiele unser
+            <RouterLink to="/planspiel">Planspiel</RouterLink>
+          </p>
+        </aside>
+      </div>
     </section>
 
     <wa-divider></wa-divider>
@@ -100,6 +113,40 @@ const einstiege = [
   line-height: 1.15;
 }
 
+.mm-hero__inhalt {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 1fr);
+  gap: var(--wa-space-l);
+  align-items: start;
+}
+
+.mm-hero__teaser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-s);
+}
+
+.mm-hero__bild {
+  width: 100%;
+  height: auto;
+  border-radius: var(--wa-border-radius-l);
+}
+
+.mm-hero__claim {
+  margin: 0;
+  font-size: 1.5em;
+  text-align: center;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--wa-color-text-normal);
+}
+
+.mm-hero__claim a {
+  color: var(--wa-color-brand-on-quiet);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .mm-hero__lead {
   max-width: var(--mm-lesebreite);
   margin: var(--wa-space-m) 0 0;
@@ -110,6 +157,12 @@ const einstiege = [
 
 .mm-hero wa-button {
   margin-top: var(--wa-space-l);
+}
+
+@media (max-width: 52rem) {
+  .mm-hero__inhalt {
+    grid-template-columns: 1fr;
+  }
 }
 
 .mm-abschnitt-titel {
