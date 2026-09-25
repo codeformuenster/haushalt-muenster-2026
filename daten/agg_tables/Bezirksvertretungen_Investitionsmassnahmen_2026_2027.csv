@@ -1,0 +1,84 @@
+Bezirksvertretung,Fachthema,BezirksspezifischGeprueft,AnzahlQuellCSVs,Einzahlungen_2026_EUR,Auszahlungen_2026_EUR,Saldo_2026_EUR,Einzahlungen_2027_EUR,Auszahlungen_2027_EUR,Saldo_2027_EUR
+Muenster-Mitte,Abwasserbeseitigung,JA,14,0.0,800000.0,-800000.0,0.0,2450000.0,-2450000.0
+Muenster-Nord,Abwasserbeseitigung,JA,6,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Ost,Abwasserbeseitigung,JA,5,0.0,1910000.0,-1910000.0,0.0,2350000.0,-2350000.0
+Muenster-Suedost,Abwasserbeseitigung,JA,12,0.0,1820000.0,-1820000.0,0.0,4250000.0,-4250000.0
+Muenster-Hiltrup,Abwasserbeseitigung,JA,8,0.0,3800000.0,-3800000.0,0.0,4470000.0,-4470000.0
+Muenster-West,Abwasserbeseitigung,JA,16,0.0,2050000.0,-2050000.0,0.0,2450000.0,-2450000.0
+Muenster-Mitte,Bäder,JA,5,0.0,403450.0,-403450.0,0.0,590300.0,-590300.0
+Muenster-Nord,Bäder,JA,2,0.0,253450.0,-253450.0,0.0,90300.0,-90300.0
+Muenster-Ost,Bäder,JA,3,0.0,253450.0,-253450.0,0.0,590300.0,-590300.0
+Muenster-Suedost,Bäder,JA,2,0.0,253450.0,-253450.0,0.0,90300.0,-90300.0
+Muenster-Hiltrup,Bäder,JA,3,0.0,323450.0,-323450.0,0.0,190300.0,-190300.0
+Muenster-West,Bäder,JA,4,0.0,493450.0,-493450.0,0.0,90300.0,-90300.0
+Muenster-Mitte,Bereitstellung von Verkehrsflächen und -anlagen,JA,26,5430000.0,9760000.0,-4330000.0,5590000.0,11180000.0,-5590000.0
+Muenster-Nord,Bereitstellung von Verkehrsflächen und -anlagen,JA,11,2700000.0,7450000.0,-4750000.0,1500000.0,6000000.0,-4500000.0
+Muenster-Ost,Bereitstellung von Verkehrsflächen und -anlagen,JA,8,1280000.0,5170000.0,-3890000.0,1000000.0,6100000.0,-5100000.0
+Muenster-Suedost,Bereitstellung von Verkehrsflächen und -anlagen,JA,14,1000000.0,4350000.0,-3350000.0,1000000.0,5215000.0,-4215000.0
+Muenster-Hiltrup,Bereitstellung von Verkehrsflächen und -anlagen,JA,10,1000000.0,3500000.0,-2500000.0,1130000.0,3700000.0,-2570000.0
+Muenster-West,Bereitstellung von Verkehrsflächen und -anlagen,JA,18,2000000.0,8295000.0,-6295000.0,2000000.0,8000000.0,-6000000.0
+Muenster-Mitte,Brandschutz und feuerwehrtechnische Hilfeleistung,JA,6,0.0,150000.0,-150000.0,0.0,100000.0,-100000.0
+Muenster-Nord,Brandschutz und feuerwehrtechnische Hilfeleistung,JA,5,0.0,150000.0,-150000.0,0.0,100000.0,-100000.0
+Muenster-Ost,Brandschutz und feuerwehrtechnische Hilfeleistung,JA,5,0.0,150000.0,-150000.0,0.0,100000.0,-100000.0
+Muenster-Suedost,Brandschutz und feuerwehrtechnische Hilfeleistung,JA,5,0.0,250000.0,-250000.0,0.0,200000.0,-200000.0
+Muenster-Hiltrup,Brandschutz und feuerwehrtechnische Hilfeleistung,JA,6,0.0,8526000.0,-8526000.0,0.0,16112000.0,-16112000.0
+Muenster-West,Brandschutz und feuerwehrtechnische Hilfeleistung,JA,6,0.0,3930000.0,-3930000.0,0.0,470000.0,-470000.0
+Muenster-Mitte,Fließende Gewässer,JA,2,0.0,200000.0,-200000.0,0.0,200000.0,-200000.0
+Muenster-Ost,Fließende Gewässer,JA,2,500000.0,800000.0,-300000.0,1100000.0,1500000.0,-400000.0
+Muenster-Mitte,Förderung von Kindern in Tagesbetreuung,JA,10,0.0,3889800.0,-3889800.0,0.0,2481800.0,-2481800.0
+Muenster-Nord,Förderung von Kindern in Tagesbetreuung,JA,8,0.0,2204800.0,-2204800.0,0.0,2324800.0,-2324800.0
+Muenster-Ost,Förderung von Kindern in Tagesbetreuung,JA,9,0.0,4805030.0,-4805030.0,0.0,2324800.0,-2324800.0
+Muenster-Suedost,Förderung von Kindern in Tagesbetreuung,JA,8,0.0,2800620.0,-2800620.0,0.0,2324800.0,-2324800.0
+Muenster-Hiltrup,Förderung von Kindern in Tagesbetreuung,JA,9,0.0,7297200.0,-7297200.0,0.0,2324800.0,-2324800.0
+Muenster-West,Förderung von Kindern in Tagesbetreuung,JA,9,0.0,3154800.0,-3154800.0,0.0,2324800.0,-2324800.0
+Muenster-Mitte,Friedhöfe,"NEIN (gesamtstaedtisch, identisch je BV)",3,0.0,63270.0,-63270.0,0.0,63270.0,-63270.0
+Muenster-Nord,Friedhöfe,"NEIN (gesamtstaedtisch, identisch je BV)",3,0.0,63270.0,-63270.0,0.0,63270.0,-63270.0
+Muenster-Ost,Friedhöfe,"NEIN (gesamtstaedtisch, identisch je BV)",3,0.0,63270.0,-63270.0,0.0,63270.0,-63270.0
+Muenster-Suedost,Friedhöfe,"NEIN (gesamtstaedtisch, identisch je BV)",3,0.0,63270.0,-63270.0,0.0,63270.0,-63270.0
+Muenster-Hiltrup,Friedhöfe,"NEIN (gesamtstaedtisch, identisch je BV)",3,0.0,63270.0,-63270.0,0.0,63270.0,-63270.0
+Muenster-West,Friedhöfe,"NEIN (gesamtstaedtisch, identisch je BV)",3,0.0,63270.0,-63270.0,0.0,63270.0,-63270.0
+Muenster-Mitte,Gewerberechtliche Angelegenheiten,JA,2,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Mitte,Grün- und Freiflächen,JA,18,373000.0,1339500.0,-966500.0,30000.0,954500.0,-924500.0
+Muenster-Nord,Grün- und Freiflächen,JA,7,0.0,125000.0,-125000.0,0.0,425000.0,-425000.0
+Muenster-Ost,Grün- und Freiflächen,JA,10,0.0,185490.0,-185490.0,0.0,525490.0,-525490.0
+Muenster-Suedost,Grün- und Freiflächen,JA,9,0.0,160740.0,-160740.0,0.0,865740.0,-865740.0
+Muenster-Hiltrup,Grün- und Freiflächen,JA,8,0.0,155970.0,-155970.0,0.0,555970.0,-555970.0
+Muenster-West,Grün- und Freiflächen,JA,13,0.0,1176770.0,-1176770.0,0.0,386770.0,-386770.0
+Muenster-Mitte,Immobilienmanagement,JA,3,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Suedost,Immobilienmanagement,JA,3,1000000.0,2750000.0,-1750000.0,2450000.0,4500000.0,-2050000.0
+Muenster-Hiltrup,Immobilienmanagement,JA,2,0.0,450000.0,-450000.0,0.0,0.0,0.0
+Muenster-West,Immobilienmanagement,JA,2,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Mitte,Kinder- und Jugendarbeit,JA,3,0.0,100000.0,-100000.0,0.0,100000.0,-100000.0
+Muenster-Nord,Kinder- und Jugendarbeit,JA,2,0.0,100000.0,-100000.0,0.0,100000.0,-100000.0
+Muenster-Hiltrup,Kinder- und Jugendarbeit,JA,2,0.0,100000.0,-100000.0,0.0,100000.0,-100000.0
+Muenster-West,Kinder- und Jugendarbeit,JA,2,0.0,100000.0,-100000.0,0.0,100000.0,-100000.0
+Muenster-Mitte,Kulturmanagement/Kulturförderung,JA,3,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Suedost,Kulturmanagement/Kulturförderung,JA,3,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Mitte,Leistungen für Schulen,JA,43,330000.0,57940670.0,-57610670.0,330000.0,56104300.0,-55774300.0
+Muenster-Nord,Leistungen für Schulen,JA,24,4559450.0,20080000.0,-15520550.0,3522570.0,36616000.0,-33093430.0
+Muenster-Ost,Leistungen für Schulen,JA,23,330000.0,18708290.0,-18378290.0,330000.0,41120000.0,-40790000.0
+Muenster-Suedost,Leistungen für Schulen,JA,27,330000.0,21834430.0,-21504430.0,330000.0,33990560.0,-33660560.0
+Muenster-Hiltrup,Leistungen für Schulen,JA,23,330000.0,16225000.0,-15895000.0,330000.0,28439350.0,-28109350.0
+Muenster-West,Leistungen für Schulen,JA,27,330000.0,50189130.0,-49859130.0,330000.0,63650740.0,-63320740.0
+Muenster-Mitte,"Natur, Landschaft, Erholung, Wasserschutz",JA,3,4500.0,4500.0,0.0,4500.0,4500.0,0.0
+Muenster-Nord,"Natur, Landschaft, Erholung, Wasserschutz",JA,3,4500.0,4500.0,0.0,4500.0,4500.0,0.0
+Muenster-Ost,"Natur, Landschaft, Erholung, Wasserschutz",JA,3,4550.0,4550.0,0.0,4550.0,4550.0,0.0
+Muenster-Suedost,"Natur, Landschaft, Erholung, Wasserschutz",JA,3,4550.0,4550.0,0.0,4550.0,74550.0,-70000.0
+Muenster-Hiltrup,"Natur, Landschaft, Erholung, Wasserschutz",JA,3,0.0,81000.0,-81000.0,0.0,127000.0,-127000.0
+Muenster-West,"Natur, Landschaft, Erholung, Wasserschutz",JA,3,9000.0,9000.0,0.0,9000.0,9000.0,0.0
+Muenster-Nord,Rettungsdienst,JA,2,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-Suedost,Rettungsdienst,JA,2,0.0,0.0,0.0,0.0,200000.0,-200000.0
+Muenster-Mitte,Sicherung besonderer sozialer Bedarfe,JA,2,0.0,0.0,0.0,0.0,0.0,0.0
+Muenster-West,Sicherung des Lebensunterhalts,JA,2,0.0,470000.0,-470000.0,0.0,2324000.0,-2324000.0
+Muenster-Mitte,Sportinfrastruktur/Sportförderung/Sportveranstaltungen,JA,12,801460.0,6184910.0,-5383450.0,106000.0,4006500.0,-3900500.0
+Muenster-Nord,Sportinfrastruktur/Sportförderung/Sportveranstaltungen,JA,8,106000.0,3888500.0,-3782500.0,106000.0,4856500.0,-4750500.0
+Muenster-Ost,Sportinfrastruktur/Sportförderung/Sportveranstaltungen,JA,8,106000.0,2938500.0,-2832500.0,106000.0,2856500.0,-2750500.0
+Muenster-Suedost,Sportinfrastruktur/Sportförderung/Sportveranstaltungen,JA,8,423180.0,2938500.0,-2515320.0,106000.0,2856500.0,-2750500.0
+Muenster-Hiltrup,Sportinfrastruktur/Sportförderung/Sportveranstaltungen,JA,9,106000.0,2938500.0,-2832500.0,106000.0,2856500.0,-2750500.0
+Muenster-West,Sportinfrastruktur/Sportförderung/Sportveranstaltungen,JA,10,106000.0,4698500.0,-4592500.0,106000.0,2856500.0,-2750500.0
+Muenster-Mitte,"Stadt- und Regionalentwicklung, Stadtplanung",JA,5,0.0,0.0,0.0,0.0,185000.0,-185000.0
+Muenster-Nord,"Stadt- und Regionalentwicklung, Stadtplanung",JA,2,0.0,400000.0,-400000.0,0.0,270000.0,-270000.0
+Muenster-Ost,"Stadt- und Regionalentwicklung, Stadtplanung",JA,3,0.0,115000.0,-115000.0,0.0,25000.0,-25000.0
+Muenster-Suedost,"Stadt- und Regionalentwicklung, Stadtplanung",JA,3,0.0,15000.0,-15000.0,0.0,15000.0,-15000.0
+Muenster-Hiltrup,"Stadt- und Regionalentwicklung, Stadtplanung",JA,3,0.0,50000.0,-50000.0,0.0,50000.0,-50000.0
+Muenster-West,"Stadt- und Regionalentwicklung, Stadtplanung",JA,4,0.0,70000.0,-70000.0,0.0,35000.0,-35000.0
