@@ -202,6 +202,9 @@ Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
 (siehe [preprocessing/README.md](preprocessing/README.md)):
 
 * **Zuschüsse** (`/zuschuesse`) — der Zuschussbericht aus Band 2.
+  Zu jedem Posten der Tabelle öffnet ein Knopf eine Seitenleiste mit dem
+  Ausschnitt der PDF-Seite, einem Link ins Original-PDF und der Zeile der Roh-CSV.
+  Die Angaben dafür erzeugt `scripts/pipeline/quellen_zuschuesse.py` aus dem lokalen PDF.
 * **Bezirke** (`/bezirke`) — die bezirksbezogenen Haushaltsangaben aus Band 2,
   auf einer Karte der sechs Stadtbezirke.
 

@@ -12,6 +12,7 @@ import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
+import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 
@@ -442,6 +443,75 @@ function filterZuruecksetzen(): void {
   gradFilter.value = 'alle'
   bereichFilter.value = 'alle'
 }
+
+// ------------------------------------------------------------------ Quelle
+
+/** public/daten/zuschuesse-quellen.json, erzeugt von scripts/pipeline/quellen_zuschuesse.py. */
+interface Quellen {
+  pdf: string
+  band: number
+  seiten: Record<string, { bild: string; breite: number; hoehe: number }>
+  posten: Record<
+    string,
+    {
+      seite: number
+      box: [number, number, number, number]
+      csv: string
+      zeile: number
+      zellen: string[]
+    }
+  >
+}
+
+const ROHDATEN_URL =
+  'https://github.com/codeformuenster/haushalt-muenster-2026/blob/main/daten/raw_table_extraction/'
+
+const quelleOffen = ref(false)
+const quelle = ref<Quelle | null>(null)
+const quellenFehler = ref(false)
+/** Erst beim ersten Klick geladen und dann behalten. */
+let quellen: Promise<Quellen> | null = null
+
+function ladeQuellen(): Promise<Quellen> {
+  quellen ??= fetch(`${import.meta.env.BASE_URL}daten/zuschuesse-quellen.json`).then((antwort) => {
+    if (!antwort.ok) throw new Error(`HTTP ${antwort.status}`)
+    return antwort.json() as Promise<Quellen>
+  })
+  return quellen
+}
+
+async function zeigeQuelle(p: Posten): Promise<void> {
+  quelle.value = null
+  quellenFehler.value = false
+  quelleOffen.value = true
+  try {
+    const q = await ladeQuellen()
+    const eintrag = q.posten[String(p.nr)]
+    const seite = eintrag && q.seiten[String(eintrag.seite)]
+    if (!eintrag || !seite) throw new Error(`Keine Quelle für Nr. ${p.nr}`)
+    quelle.value = {
+      titel: p.empfaenger,
+      betrag: `${euro(p.eur2026)} in 2026`,
+      band: q.band,
+      seite: eintrag.seite,
+      bild: `${import.meta.env.BASE_URL}${seite.bild}`,
+      bildBreite: seite.breite,
+      bildHoehe: seite.hoehe,
+      box: eintrag.box,
+      pdfUrl: q.pdf,
+      csv: {
+        datei: eintrag.csv,
+        zeile: eintrag.zeile,
+        zellen: eintrag.zellen,
+        url: `${ROHDATEN_URL}${eintrag.csv}?plain=1#L${eintrag.zeile}`,
+      },
+    }
+  } catch {
+    // Ein fehlgeschlagener Abruf soll beim nächsten Klick neu versucht werden.
+    quellen = null
+    quellenFehler.value = true
+  }
+}
 </script>
 
 <template>
@@ -604,6 +674,7 @@ function filterZuruecksetzen(): void {
                 <th class="mm-zahl">2026</th>
                 <th class="mm-zahl">2027</th>
                 <th>bis</th>
+                <th><span class="mm-unsichtbar">Quelle</span></th>
               </tr>
             </thead>
             <tbody>
@@ -620,6 +691,16 @@ function filterZuruecksetzen(): void {
                 <td class="mm-zahl">{{ euro(p.eur2026) }}</td>
                 <td class="mm-zahl">{{ euro(p.eur2027) }}</td>
                 <td>{{ p.befristetBis }}</td>
+                <td class="mm-quelle-spalte">
+                  <wa-button
+                    appearance="plain"
+                    size="small"
+                    title="Quelle anzeigen"
+                    @click="zeigeQuelle(p)"
+                  >
+                    <wa-icon name="file-lines" label="Quelle anzeigen"></wa-icon>
+                  </wa-button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -638,6 +719,8 @@ function filterZuruecksetzen(): void {
         </p>
       </ChartCard>
     </template>
+
+    <QuelleSeitenleiste v-model:offen="quelleOffen" :quelle="quelle" :fehler="quellenFehler" />
   </div>
 </template>
 
@@ -733,6 +816,21 @@ function filterZuruecksetzen(): void {
   height: 0.5em;
   border-radius: 50%;
   vertical-align: 0.1em;
+}
+
+/* Schmale Spalte mit dem Quellen-Knopf; der Knopf bringt sein eigenes Polster mit. */
+.mm-tabelle .mm-quelle-spalte {
+  padding: 0;
+}
+
+/* Spaltenkopf nur für Screenreader. */
+.mm-unsichtbar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .mm-fussnote {
