@@ -2,7 +2,7 @@
 
 Liest Band 1 und Band 2 aus daten/pdfs/ mit pdfplumber (extract_tables mit
 Standardeinstellungen) und schreibt eine CSV je Tabelle. Mehrzeilige Zellen werden
-wie in der ursprünglichen Extraktion behandelt: Haben mindestens 40 % der Zellen
+wie in der ursprünglichen Extraktion behandelt: Haben mindestens 41 % der Zellen
 einer Zeile dieselbe Zeilenzahl n > 1, wird die Zeile in n Zeilen aufgeteilt;
 sonst werden Zeilenumbrüche durch Leerzeichen ersetzt.
 
@@ -26,7 +26,7 @@ PDFS = {
     1: "Haushaltsplan_2026-2027_Band_1_Stand_20.05.2026.pdf",
     2: "Haushaltsplan_2026-2027_Band_2_Stand_20.05.2026.pdf",
 }
-SCHWELLE = 0.4
+SCHWELLE = 0.41
 
 
 def zeilen_aufteilen(tabelle: list[list[str | None]]) -> list[list[str]]:
