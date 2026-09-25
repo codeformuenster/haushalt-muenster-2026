@@ -689,7 +689,8 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 .pl-wissen strong {
   display: block;
   margin-bottom: var(--wa-space-3xs);
-  color: var(--wa-color-brand-on-quiet);
+  /* Das Marken-Orange ist als kleiner Text zu kontrastarm; der orange Rand bleibt der Akzent. */
+  color: var(--wa-color-text-normal);
   font-size: var(--wa-font-size-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -710,7 +711,8 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   width: fit-content;
   margin: 0;
   padding: 0;
-  color: var(--wa-color-brand-on-quiet);
+  /* Dunkles Markenblau (4,9:1 auf Weiß) statt Orange, wie die Buttons. */
+  color: var(--wa-color-brand-fill-loud);
 }
 
 .pl-rechnung p {
