@@ -1,95 +1,164 @@
 <script setup lang="ts">
-/** Erträge und Aufwendungen gegenübergestellt. */
 import { computed } from 'vue'
-import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
-import ChartCard from '@/components/ui/ChartCard.vue'
-import BaseChart from '@/components/ui/BaseChart.vue'
-import DemoHinweis from '@/components/ui/DemoHinweis.vue'
-import { euro, euroKurz } from '@/charts/format'
-import { POL_FARBEN } from '@/charts/echartsTheme'
+import { euro } from '@/charts/format'
+import rawData from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv?raw'
+import rawGroups from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_gruppen.csv?raw'
 
-// TODO: echte Daten aus daten/haushaltsquerschnitt.csv
-// (ordentliche_ertraege / ordentliche_aufwendungen je Jahr).
-const jahre = ['2024', '2025', '2026', '2027']
-const ertraege = [1_284_000_000, 1_331_000_000, 1_402_000_000, 1_448_000_000]
-const aufwendungen = [1_312_000_000, 1_389_000_000, 1_461_000_000, 1_496_000_000]
+type DataRow = {
+  Code: string
+  Bezeichnung: string
+  Ertraege_2026: string
+  Aufwendungen_2026: string
+  Ertraege_2027: string
+  Aufwendungen_2027: string
+  Gruppe: string
+}
 
-const gegenueberstellung = computed<EChartsOption>(() => ({
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: { type: 'shadow' },
-    valueFormatter: (wert) => euro(Number(wert)),
-  },
-  legend: { bottom: 0 },
-  grid: { left: 80, right: 24, top: 24, bottom: 56 },
-  xAxis: { type: 'category', data: jahre },
-  yAxis: { type: 'value', axisLabel: { formatter: (wert: number) => euroKurz(wert) } },
-  series: [
-    { name: 'Erträge', type: 'bar', data: ertraege, itemStyle: { color: POL_FARBEN.positiv } },
-    {
-      name: 'Aufwendungen',
-      type: 'bar',
-      data: aufwendungen,
-      itemStyle: { color: POL_FARBEN.negativ },
-    },
-  ],
-}))
+type GroupRow = {
+  Gruppe: string
+  Gruppenbezeichnung: string
+}
 
-const saldo = computed<EChartsOption>(() => {
-  const werte = ertraege.map((wert, i) => wert - (aufwendungen[i] ?? 0))
-  return {
-    tooltip: { trigger: 'axis', valueFormatter: (wert) => euro(Number(wert)) },
-    grid: { left: 80, right: 24, top: 24, bottom: 32 },
-    xAxis: {
-      type: 'category',
-      data: jahre,
-      // Ohne onZero: false säßen die Jahreszahlen auf der Nulllinie und damit
-      // mitten in den Balken, sobald das Ergebnis negativ ist.
-      axisLine: { onZero: false },
-    },
-    yAxis: { type: 'value', axisLabel: { formatter: (wert: number) => euroKurz(wert) } },
-    series: [
-      {
-        name: 'Jahresergebnis',
-        type: 'bar',
-        data: werte.map((wert) => ({
-          value: wert,
-          itemStyle: {
-            color: wert >= 0 ? POL_FARBEN.positiv : POL_FARBEN.negativ,
-            // Rundung gehört ans freie Ende des Balkens, nicht an die Nulllinie.
-            borderRadius: wert >= 0 ? [4, 4, 0, 0] : [0, 0, 4, 4],
-          },
-        })),
-      },
-    ],
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = []
+  let row: string[] = []
+  let value = ''
+  let inQuotes = false
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i]
+    if (char === '"') {
+      const next = text[i + 1]
+      if (inQuotes && next === '"') {
+        value += '"'
+        i += 1
+      } else {
+        inQuotes = !inQuotes
+      }
+    } else if (char === ',' && !inQuotes) {
+      row.push(value)
+      value = ''
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && text[i + 1] === '\n') i += 1
+      row.push(value)
+      rows.push(row)
+      row = []
+      value = ''
+    } else {
+      value += char
+    }
   }
-})
+
+  if (value.length > 0 || row.length > 0) {
+    row.push(value)
+    rows.push(row)
+  }
+
+  return rows.filter((r) => r.some((cell) => cell.trim().length > 0))
+}
+
+function toObjects<T extends Record<string, string>>(text: string): T[] {
+  const rows = parseCsv(text)
+  if (rows.length === 0) return []
+  const [header = [], ...data] = rows
+  return data.map((values) => {
+    const obj: Record<string, string> = {}
+    header.forEach((key, idx) => {
+      obj[key] = values[idx] ?? ''
+    })
+    return obj as T
+  })
+}
+
+function asNumber(value: string): number {
+  const num = Number(value)
+  return Number.isFinite(num) ? num : 0
+}
+
+const groupMap = new Map(
+  toObjects<GroupRow>(rawGroups).map((g) => [g.Gruppe, g.Gruppenbezeichnung] as const),
+)
+
+const tableRows = computed(() =>
+  toObjects<DataRow>(rawData)
+    .map((row) => {
+      const ertraege2026 = asNumber(row.Ertraege_2026)
+      const aufwendungen2026 = asNumber(row.Aufwendungen_2026)
+      const ertraege2027 = asNumber(row.Ertraege_2027)
+      const aufwendungen2027 = asNumber(row.Aufwendungen_2027)
+      return {
+        ...row,
+        Gruppenbezeichnung: groupMap.get(row.Gruppe) ?? row.Gruppe,
+        Ertraege2026Num: ertraege2026,
+        Aufwendungen2026Num: aufwendungen2026,
+        Ertraege2027Num: ertraege2027,
+        Aufwendungen2027Num: aufwendungen2027,
+      }
+    })
+    .sort((a, b) => a.Code.localeCompare(b.Code)),
+)
 </script>
 
 <template>
   <div class="mm-seite">
     <PageIntro
       titel="Ein- und Ausgaben"
-      beschreibung="Was nimmt die Stadt ein, was gibt sie aus — und bleibt am Ende etwas übrig? Erträge stammen vor allem aus Steuern und Zuweisungen, Aufwendungen aus Personal, Sachkosten und Transferleistungen."
+      beschreibung="Tabelle der Produktgruppen mit Erträgen und Aufwendungen für 2026 und 2027. Die Gruppenbezeichnungen werden aus der separaten Gruppendatei aufgelöst."
     />
 
-    <DemoHinweis />
-
-    <ChartCard
-      titel="Erträge und Aufwendungen im Vergleich"
-      beschreibung="Gegenüberstellung je Haushaltsjahr."
-      quelle="Haushaltsplan 2026/27, Band 2, Ergebnisplanung"
-    >
-      <BaseChart :option="gegenueberstellung" hoehe="380px" />
-    </ChartCard>
-
-    <ChartCard
-      titel="Jahresergebnis"
-      beschreibung="Erträge minus Aufwendungen. Balken nach unten bedeuten ein Defizit."
-      quelle="Haushaltsplan 2026/27, Band 2, Ergebnisplanung"
-    >
-      <BaseChart :option="saldo" hoehe="320px" />
-    </ChartCard>
+    <div class="tabelle-wrapper">
+      <table class="ein-ausgaben-tabelle">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Bezeichnung</th>
+            <th>Gruppe</th>
+            <th>Erträge 2026</th>
+            <th>Aufwendungen 2026</th>
+            <th>Erträge 2027</th>
+            <th>Aufwendungen 2027</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in tableRows" :key="row.Code">
+            <td>{{ row.Code }}</td>
+            <td>{{ row.Bezeichnung }}</td>
+            <td>{{ row.Gruppenbezeichnung }}</td>
+            <td>{{ euro(row.Ertraege2026Num) }}</td>
+            <td>{{ euro(row.Aufwendungen2026Num) }}</td>
+            <td>{{ euro(row.Ertraege2027Num) }}</td>
+            <td>{{ euro(row.Aufwendungen2027Num) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.tabelle-wrapper {
+  overflow-x: auto;
+}
+
+.ein-ausgaben-tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.ein-ausgaben-tabelle th,
+.ein-ausgaben-tabelle td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ein-ausgaben-tabelle th {
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+}
+</style>
