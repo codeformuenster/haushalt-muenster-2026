@@ -1,68 +1,479 @@
 <script setup lang="ts">
-/** Stellen der Stadtverwaltung nach Beschäftigtengruppe und Besoldung. */
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
-import DemoHinweis from '@/components/ui/DemoHinweis.vue'
-import { zahl } from '@/charts/format'
+import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
+import { vzae } from '@/charts/format'
+import daten from '@/data/stellenplan.json'
 
-// TODO: echte Daten aus daten/stellenplan-beta.csv (Spalten group, grade, year, value).
-const gruppen = [
-  { name: 'Tariflich Beschäftigte', stellen: 3421 },
-  { name: 'Beamte und Beamtinnen', stellen: 1287 },
-  { name: 'Nachwuchskräfte', stellen: 312 },
-  { name: 'Wahlbeamte und Wahlbeamtinnen', stellen: 9 },
+type Ansicht = 'map' | 'rank' | 'change'
+type Stelle = {
+  code: string
+  name: string
+  year: string
+  total: number
+  grades: Record<string, number>
+}
+const stellen: Stelle[] = daten.rows.map((row) => {
+  const grades: Record<string, number> = {}
+  for (const [key, value] of Object.entries(row.grades)) {
+    if (typeof value === 'number') grades[key] = value
+  }
+  return { ...row, grades }
+})
+const jahr = ref('2026')
+const bereich = ref('all')
+const ansicht = ref<Ansicht>('map')
+const auswahl = ref('0601')
+const ansichten: { id: Ansicht; name: string }[] = [
+  { id: 'map', name: 'Stellenlandschaft' },
+  { id: 'rank', name: 'Rangliste' },
+  { id: 'change', name: 'Veränderungen' },
 ]
-
-const nachGruppe = computed<EChartsOption>(() => ({
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: { type: 'shadow' },
-    valueFormatter: (wert) => `${zahl(Number(wert))} Stellen`,
-  },
-  grid: { left: 200, right: 64, top: 16, bottom: 32 },
-  xAxis: { type: 'value', axisLabel: { formatter: (wert: number) => zahl(wert) } },
-  yAxis: {
-    type: 'category',
-    // Von unten nach oben aufsteigend, damit die größte Gruppe oben steht.
-    data: [...gruppen].map((g) => g.name).reverse(),
-  },
-  series: [
-    {
-      name: 'Stellen',
-      type: 'bar',
-      data: [...gruppen].map((g) => g.stellen).reverse(),
-      // Balken direkt beschriften — bei nur einer Serie spart das die Legende.
-      label: { show: true, position: 'right', formatter: ({ value }) => zahl(Number(value)) },
-      itemStyle: { borderRadius: [0, 4, 4, 0] },
+const index = new Map(stellen.map((r) => [`${r.year}:${r.code}`, r]))
+const differenz = (code: string) =>
+  Math.round(
+    ((index.get(`2027:${code}`)?.total ?? 0) - (index.get(`2026:${code}`)?.total ?? 0)) * 100,
+  ) / 100
+const vorzeichen = (wert: number) => `${wert > 0 ? '+' : ''}${vzae(wert)}`
+const auswahlZeilen = computed(() =>
+  stellen.filter(
+    (r) => r.year === jahr.value && (bereich.value === 'all' || r.code.startsWith(bereich.value)),
+  ),
+)
+const sortiert = computed(() =>
+  [...auswahlZeilen.value].sort((a, b) =>
+    ansicht.value === 'change'
+      ? Math.abs(differenz(b.code)) - Math.abs(differenz(a.code))
+      : b.total - a.total,
+  ),
+)
+const balken = computed(() =>
+  [...sortiert.value]
+    .filter((r) => ansicht.value !== 'change' || differenz(r.code) !== 0)
+    .reverse(),
+)
+const aktuell = computed(() => auswahlZeilen.value.find((r) => r.code === auswahl.value))
+watch(auswahlZeilen, (rows) => {
+  if (!rows.some((r) => r.code === auswahl.value)) auswahl.value = rows[0]?.code ?? ''
+})
+const gesamt = computed(() =>
+  stellen.filter((r) => r.year === jahr.value).reduce((sum, r) => sum + r.total, 0),
+)
+const gesamtDelta = stellen
+  .filter((r) => r.year === '2027')
+  .reduce((sum, r) => sum + differenz(r.code), 0)
+const gruppen = computed(() =>
+  Object.entries(aktuell.value?.grades ?? {})
+    .filter(([, wert]) => wert > 0)
+    .sort((a, b) => b[1] - a[1]),
+)
+const gruppenName = (key: string) =>
+  key
+    .replace('Beamte_', '')
+    .replace('Tarif_', '')
+    .replace('_LG2E2', ' (LG 2.2)')
+    .replace('_LG2E1', ' (LG 2.1)')
+    .replace('TVOEDFEST', 'TVöD fest')
+const quelle = 'Haushaltsplan 2026/27, Band 2 · Stellenplan nach Besoldungsgruppen'
+const titel = computed(() =>
+  ansicht.value === 'change'
+    ? 'Wo verändert sich der Stellenplan?'
+    : ansicht.value === 'rank'
+      ? 'Alle Aufgabenbereiche im Vergleich'
+      : 'Wo stecken die Stellen?',
+)
+const beschreibung = computed(() =>
+  ansicht.value === 'change'
+    ? '2027 minus 2026 · alle Änderungen nach Größe sortiert · Balken auswählen'
+    : ansicht.value === 'rank'
+      ? 'Alle Produktgruppen der Auswahl · nach Stellenumfang sortiert · Balken auswählen'
+      : 'Fläche = Stellenumfang · Produktgruppe auswählen',
+)
+const hauptHoehe = computed(() =>
+  ansicht.value === 'map' ? '480px' : `${Math.max(220, balken.value.length * 40 + 75)}px`,
+)
+const detailHoehe = computed(() => `${Math.max(180, gruppen.value.length * 38 + 70)}px`)
+const tooltip = { renderMode: 'richText' as const, confine: true }
+const hauptOption = computed<EChartsOption>(() => {
+  if (ansicht.value === 'map')
+    return {
+      tooltip: { ...tooltip, valueFormatter: (value) => `${vzae(Number(value))} VZÄ` },
+      series: [
+        {
+          type: 'treemap',
+          roam: false,
+          nodeClick: false,
+          breadcrumb: { show: false },
+          left: 0,
+          right: 0,
+          top: 12,
+          bottom: 0,
+          // Eine gemeinsame Farbe statt einer wiederholten Palette für 15 Bereiche.
+          color: [KATEGORIE_FARBEN[0]],
+          upperLabel: { show: true, height: 26 },
+          label: {
+            show: true,
+            overflow: 'truncate',
+            formatter: (p) => `${p.name}\n${vzae(Number(p.value))}`,
+          },
+          levels: [
+            { itemStyle: { borderWidth: 0, gapWidth: 5 } },
+            { itemStyle: { borderWidth: 2, gapWidth: 2 }, upperLabel: { show: true } },
+            { itemStyle: { borderWidth: 0 }, upperLabel: { show: false } },
+          ],
+          data: Object.entries(daten.areas)
+            .map(([code, name]) => ({
+              name,
+              children: auswahlZeilen.value
+                .filter((r) => r.code.startsWith(code))
+                .map((r) => ({ name: r.name, value: r.total, code: r.code })),
+            }))
+            .filter((r) => r.children.length),
+        },
+      ],
+    }
+  return {
+    tooltip: {
+      ...tooltip,
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      valueFormatter: (value) =>
+        `${ansicht.value === 'change' ? vorzeichen(Number(value)) : vzae(Number(value))} VZÄ`,
     },
-  ],
-}))
+    grid: { left: 4, right: 68, top: 20, bottom: 40, containLabel: true },
+    xAxis: {
+      type: 'value',
+      name: ansicht.value === 'change' ? 'Δ VZÄ' : 'VZÄ',
+      nameLocation: 'middle',
+      nameGap: 28,
+    },
+    yAxis: {
+      type: 'category',
+      data: balken.value.map((r) => `${r.code} ${r.name}`),
+      axisLabel: { interval: 0, width: 125, overflow: 'truncate' },
+    },
+    series: [
+      {
+        type: 'bar',
+        barMaxWidth: 24,
+        label: {
+          show: true,
+          position: 'right',
+          formatter: (p) =>
+            ansicht.value === 'change' ? vorzeichen(Number(p.value)) : vzae(Number(p.value)),
+        },
+        data: balken.value.map((r) => ({
+          value: ansicht.value === 'change' ? differenz(r.code) : r.total,
+          code: r.code,
+          itemStyle: {
+            color:
+              ansicht.value === 'change' && differenz(r.code) < 0
+                ? POL_FARBEN.negativ
+                : KATEGORIE_FARBEN[0],
+          },
+        })),
+      },
+    ],
+  }
+})
+const detailOption = computed<EChartsOption>(() => {
+  const rows = [...gruppen.value].reverse()
+  return {
+    tooltip: {
+      ...tooltip,
+      trigger: 'axis',
+      valueFormatter: (value) => `${vzae(Number(value))} VZÄ`,
+    },
+    grid: { left: 4, right: 60, top: 15, bottom: 40, containLabel: true },
+    xAxis: { type: 'value', name: 'VZÄ', nameLocation: 'middle', nameGap: 28 },
+    yAxis: {
+      type: 'category',
+      data: rows.map(([key]) => gruppenName(key)),
+      axisLabel: { interval: 0 },
+    },
+    series: [
+      {
+        type: 'bar',
+        barMaxWidth: 24,
+        label: { show: true, position: 'right', formatter: (p) => vzae(Number(p.value)) },
+        data: rows.map(([key, value]) => ({
+          value,
+          itemStyle: {
+            color: key.startsWith('Beamte_') ? KATEGORIE_FARBEN[3] : KATEGORIE_FARBEN[0],
+          },
+        })),
+      },
+    ],
+  }
+})
+function waehlen(event: unknown) {
+  if (typeof event !== 'object' || !event || !('data' in event)) return
+  const data = event.data
+  if (typeof data === 'object' && data && 'code' in data && typeof data.code === 'string')
+    auswahl.value = data.code
+}
 </script>
 
 <template>
   <div class="mm-seite">
     <PageIntro
-      titel="Stellenplan"
-      beschreibung="Der Stellenplan legt fest, wie viele Stellen die Stadtverwaltung besetzen darf — getrennt nach Beamtinnen und Beamten, Tarifbeschäftigten und Nachwuchskräften. Er sagt nichts über die tatsächlich besetzten Stellen aus."
+      titel="Stellenatlas Münster"
+      beschreibung="Wo arbeitet die Stadt? Geplante Stellen nach Aufgaben und Besoldung – in Vollzeitäquivalenten (VZÄ). Der Stellenplan zeigt keine tatsächlich besetzten Stellen oder Beschäftigtenzahlen."
     />
-
-    <DemoHinweis />
-
-    <ChartCard
-      titel="Stellen nach Beschäftigtengruppe"
-      beschreibung="Geplante Stellen 2026 in der Kernverwaltung."
-      quelle="Haushaltsplan 2026/27, Band 2, Stellenplan, S. 33 ff."
-    >
-      <BaseChart :option="nachGruppe" hoehe="320px" />
-    </ChartCard>
-
-    <wa-callout variant="brand" appearance="outlined">
-      <strong>Noch offen:</strong> Aufschlüsselung nach Besoldungs- und Entgeltgruppen sowie der
-      Vergleich Plan gegen Ist — beides steckt schon in
-      <code>daten/stellenplan-beta.csv</code>.
-    </wa-callout>
+    <div class="stellen-kennzahlen" aria-live="polite">
+      <div>
+        <span>Stadt insgesamt · {{ jahr }}</span
+        ><strong>{{ vzae(gesamt) }} VZÄ</strong>
+      </div>
+      <div>
+        <span>Veränderung 2026 → 2027 · Stadt insgesamt</span
+        ><strong>{{ vorzeichen(gesamtDelta) }} VZÄ</strong>
+      </div>
+      <div><span>Aufgaben der Stadt</span><strong>63 Produktgruppen</strong></div>
+    </div>
+    <div class="stellen-filter">
+      <div class="stellen-ansichten" role="group" aria-label="Darstellung">
+        <button
+          v-for="view in ansichten"
+          :key="view.id"
+          type="button"
+          :aria-pressed="ansicht === view.id"
+          @click="ansicht = view.id"
+        >
+          {{ view.name }}
+        </button>
+      </div>
+      <label
+        >Planjahr<select v-model="jahr">
+          <option>2026</option>
+          <option>2027</option>
+        </select></label
+      >
+      <label
+        >Produktbereich<select v-model="bereich">
+          <option value="all">Alle Produktbereiche</option>
+          <option v-for="(name, code) in daten.areas" :key="code" :value="code">{{ name }}</option>
+        </select></label
+      >
+    </div>
+    <div class="stellen-layout">
+      <ChartCard :titel="titel" :beschreibung="beschreibung" :quelle="quelle">
+        <p v-if="ansicht === 'change' && !balken.length" role="status">
+          In diesem Produktbereich ändert sich die Gesamtstellenzahl keiner Produktgruppe.
+        </p>
+        <BaseChart
+          v-else
+          :key="ansicht"
+          :option="hauptOption"
+          :hoehe="hauptHoehe"
+          @chart-click="waehlen"
+        />
+        <details>
+          <summary>Alle Werte als Tabelle</summary>
+          <table>
+            <caption class="sr-only">
+              {{
+                titel
+              }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Produktgruppe</th>
+                <th scope="col">{{ ansicht === 'change' ? 'Δ VZÄ' : 'VZÄ' }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="row in sortiert" :key="row.code">
+                <td>
+                  <button type="button" class="stellen-textbutton" @click="auswahl = row.code">
+                    {{ row.code }} · {{ row.name }}
+                  </button>
+                </td>
+                <td>
+                  {{ ansicht === 'change' ? vorzeichen(differenz(row.code)) : vzae(row.total) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </ChartCard>
+      <ChartCard
+        titel="Im Detail"
+        beschreibung="Alle Entgelt- und Besoldungsgruppen mit Stellenanteilen in der Auswahl."
+        :quelle="quelle"
+      >
+        <label
+          >Produktgruppe<select v-model="auswahl">
+            <option v-for="row in auswahlZeilen" :key="row.code" :value="row.code">
+              {{ row.code }} · {{ row.name }}
+            </option>
+          </select></label
+        >
+        <div v-if="aktuell" aria-live="polite">
+          <h3>{{ aktuell.name }}</h3>
+          <p class="stellen-detailzahl">{{ vzae(aktuell.total) }} VZÄ · {{ jahr }}</p>
+          <p>{{ vorzeichen(differenz(aktuell.code)) }} VZÄ von 2026 auf 2027</p>
+        </div>
+        <div class="stellen-legende">
+          <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span
+          ><span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
+        </div>
+        <BaseChart :option="detailOption" :hoehe="detailHoehe" />
+        <details>
+          <summary>Besoldungsgruppen als Tabelle</summary>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Gruppe</th>
+                <th scope="col">VZÄ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="[key, value] in gruppen" :key="key">
+                <td>{{ gruppenName(key) }}</td>
+                <td>{{ vzae(value) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </details>
+      </ChartCard>
+    </div>
+    <p class="stellen-hinweis">
+      Die Summen werden aus den Besoldungsgruppen berechnet. Gegenüber der separaten
+      Stellenübersicht ergeben sich kleine Abweichungen (2026: 0,06 VZÄ; 2027: 0,07 VZÄ), die noch
+      am Originalplan geprüft werden müssen. Eine Entgelt- oder Personalkostenschätzung ist in
+      diesem Zwischenstand nicht enthalten.
+    </p>
   </div>
 </template>
+
+<style scoped>
+.stellen-kennzahlen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wa-space-xl);
+}
+.stellen-kennzahlen > div {
+  flex: 1;
+  min-width: 12rem;
+}
+.stellen-kennzahlen span,
+.stellen-kennzahlen strong {
+  display: block;
+}
+.stellen-kennzahlen span,
+.stellen-hinweis {
+  color: var(--wa-color-text-quiet);
+}
+.stellen-kennzahlen strong,
+.stellen-detailzahl {
+  font-size: var(--wa-font-size-xl);
+  font-variant-numeric: tabular-nums;
+}
+.stellen-filter,
+.stellen-ansichten {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--wa-space-s);
+}
+label {
+  display: grid;
+  gap: var(--wa-space-2xs);
+  min-width: 0;
+  max-width: 100%;
+}
+select,
+button {
+  font: inherit;
+  color: inherit;
+  background: var(--wa-color-surface-default);
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: var(--wa-border-radius-m);
+  padding: var(--wa-space-s);
+  min-height: 44px;
+  max-width: 100%;
+}
+select {
+  width: 100%;
+}
+button {
+  cursor: pointer;
+}
+button[aria-pressed='true'] {
+  background: var(--wa-color-brand-fill-loud);
+  color: var(--wa-color-brand-on-loud);
+}
+.stellen-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--wa-space-l);
+  align-items: start;
+}
+.stellen-layout > * {
+  min-width: 0;
+}
+h3 {
+  overflow-wrap: anywhere;
+  font-size: var(--wa-font-size-m);
+}
+.stellen-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wa-space-s);
+  font-size: var(--wa-font-size-s);
+}
+.stellen-legende i {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+}
+summary {
+  cursor: pointer;
+  padding-block: var(--wa-space-s);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--wa-font-size-s);
+}
+th,
+td {
+  text-align: left;
+  padding-block: var(--wa-space-s);
+  border-bottom: 1px solid var(--wa-color-surface-border);
+  overflow-wrap: anywhere;
+}
+th:last-child,
+td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.stellen-textbutton {
+  text-align: left;
+  border: 0;
+  padding: 0;
+  color: var(--wa-color-text-link);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+@media (max-width: 850px) {
+  .stellen-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stellen-filter > label {
+    flex: 1 1 12rem;
+  }
+}
+</style>

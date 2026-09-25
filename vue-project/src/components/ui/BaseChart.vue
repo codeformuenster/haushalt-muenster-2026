@@ -18,6 +18,8 @@ withDefaults(
   { hoehe: '320px' },
 )
 
+const emit = defineEmits<{ 'chart-click': [event: unknown] }>()
+
 const rahmen = ref<HTMLElement | null>(null)
 const hatBreite = ref(false)
 let beobachter: ResizeObserver | undefined
@@ -44,7 +46,13 @@ onBeforeUnmount(() => beobachter?.disconnect())
 
 <template>
   <div ref="rahmen" class="mm-chart" :style="{ height: hoehe }">
-    <VChart v-if="hatBreite" :option="option" :theme="CHART_THEME" autoresize />
+    <VChart
+      v-if="hatBreite"
+      :option="option"
+      :theme="CHART_THEME"
+      autoresize
+      @click="emit('chart-click', $event)"
+    />
   </div>
 </template>
 
