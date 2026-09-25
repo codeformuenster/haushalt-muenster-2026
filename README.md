@@ -125,6 +125,15 @@ Vue 3 + TypeScript + Vite in `vue-project/`. UI-Komponenten von
 [Web Awesome](https://webawesome.com), Diagramme mit
 [ECharts](https://echarts.apache.org) über `vue-echarts`.
 
+Die Gehaltskostenschätzung im Stellenatlas kombiniert die TVöD-VKA-Tabellen mit den
+[NRW-Grundgehaltssätzen ab April 2026](https://www.finanzverwaltung.nrw.de/system/files/media/document/file/grundgehaelter-a-b-r-und-w-01.04.26_0.pdf).
+TVöD-Festentgelte werden mit dem gewichteten Mittel der übrigen Tarifstellen ihrer Produktgruppe
+angesetzt. S10 wird als Mittel aus S9 und S11b geschätzt; für die fehlende Stufe 1 von P7–P9 wird
+der Abstand zwischen Stufe 2 und 3 zurückgerechnet. Bei A-Besoldungsgruppen wird die gewählte
+Besoldungsstufe verwendet oder, falls sie dort nicht existiert, die nächstgelegene verfügbare
+Stufe. A9Z enthält nur das A9-Grundgehalt ohne Amtszulage. Die Rechnung enthält keine
+Jahressonderzahlungen, Zulagen, Zuschläge, Arbeitgeberanteile oder Versorgungskosten.
+
 ```
 cd vue-project
 npm install

@@ -6,9 +6,10 @@ import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
 import { euro, euroKurz, vzae } from '@/charts/format'
+import { BESOLDUNG_QUELLE } from '@/data/besoldung'
 import daten from '@/data/stellenplan.json'
 import { TARIF_QUELLEN } from '@/data/tvoed'
-import { grundOhneBewertung, jahresentgelt, schaetzung } from '@/lib/entgelt'
+import { hinweisZumWert, jahresentgelt, schaetzung } from '@/lib/entgelt'
 
 type Ansicht = 'map' | 'rank' | 'change'
 type Kennzahl = 'vzae' | 'entgelt'
@@ -32,6 +33,7 @@ const ansicht = ref<Ansicht>('map')
 const kennzahl = ref<Kennzahl>('vzae')
 const auswahl = ref('0601')
 const stufe = ref(3)
+const besoldungsStufe = ref(6)
 const ansichten: { id: Ansicht; name: string }[] = [
   { id: 'map', name: 'Stellenlandschaft' },
   { id: 'rank', name: 'Rangliste' },
@@ -43,7 +45,7 @@ const differenz = (code: string) =>
     ((index.get(`2027:${code}`)?.total ?? 0) - (index.get(`2026:${code}`)?.total ?? 0)) * 100,
   ) / 100
 const entgelt = (row: Stelle | undefined) =>
-  row ? schaetzung(row.grades, row.year, stufe.value).euro : 0
+  row ? schaetzung(row.grades, row.year, stufe.value, besoldungsStufe.value).euro : 0
 const entgeltDifferenz = (code: string) =>
   entgelt(index.get(`2027:${code}`)) - entgelt(index.get(`2026:${code}`))
 const wert = (row: Stelle) => (kennzahl.value === 'vzae' ? row.total : entgelt(row))
@@ -88,20 +90,21 @@ const gruppen = computed(() =>
     .sort((a, b) => b[1] - a[1]),
 )
 const aktuelleSchaetzung = computed(() =>
-  schaetzung(aktuell.value?.grades ?? {}, jahr.value, stufe.value),
+  schaetzung(aktuell.value?.grades ?? {}, jahr.value, stufe.value, besoldungsStufe.value),
 )
 const stadtSchaetzung = computed(() =>
   stellen
     .filter((r) => r.year === jahr.value)
     .reduce(
       (summe, r) => {
-        const wert = schaetzung(r.grades, jahr.value, stufe.value)
+        const wert = schaetzung(r.grades, jahr.value, stufe.value, besoldungsStufe.value)
         summe.euro += wert.euro
         summe.bewertet += wert.bewertet
         summe.unbewertet += wert.unbewertet
+        summe.angenahert += wert.angenahert
         return summe
       },
-      { euro: 0, bewertet: 0, unbewertet: 0 },
+      { euro: 0, bewertet: 0, unbewertet: 0, angenahert: 0 },
     ),
 )
 const bewertungsquote = computed(() => {
@@ -119,9 +122,13 @@ const kennzahlDelta = computed(() =>
         .reduce((summe, r) => summe + entgeltDifferenz(r.code), 0),
 )
 const gruppenJahresentgelt = (key: string, value: number) => {
-  const betrag = jahresentgelt(key, jahr.value, stufe.value)
+  const betrag =
+    key === 'Tarif_TVOEDFEST'
+      ? aktuelleSchaetzung.value.durchschnittTarif
+      : jahresentgelt(key, jahr.value, stufe.value, besoldungsStufe.value)
   return betrag == null ? null : betrag * value
 }
+const gruppenHinweis = (key: string) => hinweisZumWert(key, stufe.value, besoldungsStufe.value)
 const gruppenName = (key: string) =>
   key
     .replace('Beamte_', '')
@@ -313,8 +320,9 @@ function waehlen(event: unknown) {
         <span>Aufgaben der Stadt</span><strong>63 Produktgruppen</strong>
       </div>
       <div v-else>
-        <span>Abdeckung der Stellen</span><strong>{{ vzae(bewertungsquote) }} %</strong>
-        <small>{{ vzae(stadtSchaetzung.unbewertet) }} VZÄ nicht bewertet</small>
+        <span>Davon mit Näherungswert</span
+        ><strong>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</strong>
+        <small>{{ vzae(bewertungsquote) }} % der Stellen bewertet</small>
       </div>
     </div>
     <div class="stellen-filter">
@@ -338,8 +346,13 @@ function waehlen(event: unknown) {
         </button>
       </div>
       <label v-if="kennzahl === 'entgelt'" class="stellen-stufe"
-        >Erfahrungsstufe<select v-model.number="stufe">
+        >TVöD-Stufe<select v-model.number="stufe">
           <option v-for="nr in 6" :key="nr" :value="nr">Stufe {{ nr }}</option>
+        </select></label
+      >
+      <label v-if="kennzahl === 'entgelt'" class="stellen-stufe"
+        >Besoldungsstufe<select v-model.number="besoldungsStufe">
+          <option v-for="nr in 10" :key="nr + 2" :value="nr + 2">Stufe {{ nr + 2 }}</option>
         </select></label
       >
       <label
@@ -428,7 +441,7 @@ function waehlen(event: unknown) {
             {{
               kennzahl === 'vzae'
                 ? `${vzae(aktuell.total)} VZÄ`
-                : `${euroKurz(aktuelleSchaetzung.euro)} · Stufe ${stufe}`
+                : `${euroKurz(aktuelleSchaetzung.euro)} · TVöD ${stufe} / Besoldung ${besoldungsStufe}`
             }}
             · {{ jahr }}
           </p>
@@ -439,7 +452,7 @@ function waehlen(event: unknown) {
           ><span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
         </div>
         <p v-else class="stellen-hinweis">
-          Das Diagramm enthält nur Gruppen mit einem passenden TVöD-Tabellenwert.
+          Alle Gruppen sind bewertet; Näherungen sind in der Tabelle gekennzeichnet.
         </p>
         <BaseChart :option="detailOption" :hoehe="detailHoehe" />
         <details>
@@ -449,7 +462,7 @@ function waehlen(event: unknown) {
               <tr>
                 <th scope="col">Gruppe</th>
                 <th scope="col">VZÄ</th>
-                <th scope="col">Tabellenentgelt/Jahr · Stufe {{ stufe }}</th>
+                <th scope="col">Geschätzte Kosten/Jahr</th>
               </tr>
             </thead>
             <tbody>
@@ -459,8 +472,11 @@ function waehlen(event: unknown) {
                 <td>
                   <template v-if="gruppenJahresentgelt(key, value) != null">
                     {{ euro(gruppenJahresentgelt(key, value)!) }}
+                    <small v-if="gruppenHinweis(key)" class="stellen-leise">
+                      {{ gruppenHinweis(key) }}
+                    </small>
                   </template>
-                  <span v-else class="stellen-leise">{{ grundOhneBewertung(key, stufe) }}</span>
+                  <span v-else class="stellen-leise">Kein Wert verfügbar</span>
                 </td>
               </tr>
             </tbody>
@@ -471,13 +487,15 @@ function waehlen(event: unknown) {
     <ChartCard
       v-if="kennzahl === 'entgelt'"
       titel="Zur Gehaltskostenschätzung"
-      beschreibung="Szenario bei vollständiger Besetzung der Planstellen und gleicher Erfahrungsstufe für alle Tarifbeschäftigten."
-      quelle="VKA-Entgelttabellen, Tarifstand ab 1. Mai 2026"
+      beschreibung="Szenario bei vollständiger Besetzung der Planstellen mit den gewählten TVöD- und Besoldungsstufen."
+      quelle="VKA-Entgelttabellen und Grundgehaltstabellen NRW"
     >
       <div class="entgelt-kopf">
         <p>
           2026 wird monatsgenau mit vier Monaten des vorherigen und acht Monaten des neuen
           Tarifstands berechnet. Für 2027 wird der Stand ab Mai 2026 unverändert fortgeschrieben.
+          Die NRW-Grundgehälter ab April 2026 werden für beide Planjahre mit zwölf Monaten
+          angesetzt.
         </p>
       </div>
       <div class="entgelt-kennzahlen" aria-live="polite">
@@ -492,16 +510,19 @@ function waehlen(event: unknown) {
           <small v-if="aktuell">{{ aktuell.code }} · {{ aktuell.name }}</small>
         </div>
         <div>
-          <span>Abdeckung der Stellen</span>
-          <strong>{{ vzae(bewertungsquote) }} %</strong>
-          <small>{{ vzae(stadtSchaetzung.unbewertet) }} VZÄ nicht bewertet</small>
+          <span>Näherungswerte</span>
+          <strong>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</strong>
+          <small>{{ vzae(bewertungsquote) }} % der Stellen bewertet</small>
         </div>
       </div>
       <p class="stellen-hinweis">
         Enthalten ist nur das monatliche Tabellenentgelt × 12 beziehungsweise der monatsgenaue
         Tarifwechsel 2026. Jahressonderzahlung, Zulagen, Zuschläge, Arbeitgeberanteile und
-        Versorgungskosten sind nicht enthalten. Beamtenstellen, TVöD-Festentgelte und S10 bleiben
-        unbewertet; in Stufe 1 zusätzlich P7–P9, da dort keine Tabellenwerte vorliegen.
+        Versorgungskosten sind nicht enthalten. TVöD-Festentgelte erhalten den gewichteten
+        Tarifmittelwert ihrer Produktgruppe. S10 ist der Mittelwert aus S9 und S11b; fehlende
+        Stufe-1-Werte von P7–P9 werden aus dem Abstand von Stufe 2 zu 3 zurückgerechnet. Bei
+        A-Besoldungsgruppen ohne die gewählte Stufe gilt die nächstgelegene vorhandene Stufe. A9Z
+        enthält nur A9 ohne Amtszulage.
       </p>
       <details>
         <summary>Tarifquellen</summary>
@@ -509,6 +530,11 @@ function waehlen(event: unknown) {
           <li v-for="tarifquelle in TARIF_QUELLEN" :key="tarifquelle.url">
             <a :href="tarifquelle.url" target="_blank" rel="noopener noreferrer">
               {{ tarifquelle.name }}
+            </a>
+          </li>
+          <li>
+            <a :href="BESOLDUNG_QUELLE.url" target="_blank" rel="noopener noreferrer">
+              {{ BESOLDUNG_QUELLE.name }}
             </a>
           </li>
         </ul>
@@ -660,6 +686,11 @@ td:last-child {
 .entgelt-kopf p,
 .entgelt-kennzahlen small {
   color: var(--wa-color-text-quiet);
+}
+td .stellen-leise {
+  display: block;
+  max-width: 22rem;
+  white-space: normal;
 }
 .entgelt-kopf {
   display: flex;
