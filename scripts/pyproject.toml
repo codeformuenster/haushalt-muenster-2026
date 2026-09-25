@@ -1,0 +1,9 @@
+[project]
+name = "haushalt-muenster-scripts"
+version = "0.1.0"
+description = "Auswertungs- und Prüfskripte für die Haushaltsdaten der Stadt Münster"
+requires-python = ">=3.12"
+dependencies = [
+    "polars",
+    "typer",
+]
