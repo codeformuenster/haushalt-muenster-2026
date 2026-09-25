@@ -71,5 +71,19 @@ Produktgruppen übernommen. Codes bleiben Zeichenketten mit führenden Nullen.
 Die Detaildatei ergibt 4.898,38 VZÄ (2026) und 4.901,73 VZÄ (2027).
 Die Abweichungen zur Übersicht von 0,06 beziehungsweise 0,07 VZÄ müssen noch
 am Originalplan geprüft werden. Es handelt sich um Planstellen, nicht um den
-Besetzungsstand. Erfahrungsstufen, Gehälter und Personalkostenschätzungen sind
-noch nicht Bestandteil dieses Zwischenstands.
+Besetzungsstand.
+
+### TVöD-Entgeltschätzung
+
+`src/data/tvoed.ts` enthält die Tabellenentgelte für E-, S- und P-Gruppen aus
+den offiziellen VKA-Tabellen. Die Nutzerinnen und Nutzer wählen eine gemeinsame
+Erfahrungsstufe für das Szenario. Für 2026 berechnet die Seite vier Monate mit
+dem bis April geltenden Tarifstand und acht Monate mit dem Tarifstand ab Mai.
+Für 2027 schreibt sie den Stand ab Mai 2026 unverändert fort.
+
+Die Schätzung umfasst ausschließlich das Tabellenentgelt bei vollständiger
+Besetzung. Jahressonderzahlungen, Zulagen, Zuschläge, Arbeitgeberanteile und
+Versorgungskosten fehlen. Beamtenstellen, TVöD-Festentgelte und S10 bleiben
+unbewertet; in Stufe 1 außerdem P7 bis P9, da diese Gruppen keine Stufe 1 haben.
+Die Oberfläche zeigt deshalb neben jedem Ergebnis die bewerteten und
+unbewerteten VZÄ.

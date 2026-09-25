@@ -5,8 +5,10 @@ import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
-import { vzae } from '@/charts/format'
+import { euro, euroKurz, vzae } from '@/charts/format'
 import daten from '@/data/stellenplan.json'
+import { TARIF_QUELLEN } from '@/data/tvoed'
+import { grundOhneBewertung, jahresentgelt, schaetzung } from '@/lib/entgelt'
 
 type Ansicht = 'map' | 'rank' | 'change'
 type Stelle = {
@@ -27,6 +29,7 @@ const jahr = ref('2026')
 const bereich = ref('all')
 const ansicht = ref<Ansicht>('map')
 const auswahl = ref('0601')
+const stufe = ref(3)
 const ansichten: { id: Ansicht; name: string }[] = [
   { id: 'map', name: 'Stellenlandschaft' },
   { id: 'rank', name: 'Rangliste' },
@@ -70,6 +73,31 @@ const gruppen = computed(() =>
     .filter(([, wert]) => wert > 0)
     .sort((a, b) => b[1] - a[1]),
 )
+const aktuelleSchaetzung = computed(() =>
+  schaetzung(aktuell.value?.grades ?? {}, jahr.value, stufe.value),
+)
+const stadtSchaetzung = computed(() =>
+  stellen
+    .filter((r) => r.year === jahr.value)
+    .reduce(
+      (summe, r) => {
+        const wert = schaetzung(r.grades, jahr.value, stufe.value)
+        summe.euro += wert.euro
+        summe.bewertet += wert.bewertet
+        summe.unbewertet += wert.unbewertet
+        return summe
+      },
+      { euro: 0, bewertet: 0, unbewertet: 0 },
+    ),
+)
+const bewertungsquote = computed(() => {
+  const summe = stadtSchaetzung.value.bewertet + stadtSchaetzung.value.unbewertet
+  return summe === 0 ? 0 : (stadtSchaetzung.value.bewertet / summe) * 100
+})
+const gruppenJahresentgelt = (key: string, value: number) => {
+  const betrag = jahresentgelt(key, jahr.value, stufe.value)
+  return betrag == null ? null : betrag * value
+}
 const gruppenName = (key: string) =>
   key
     .replace('Beamte_', '')
@@ -329,23 +357,80 @@ function waehlen(event: unknown) {
               <tr>
                 <th scope="col">Gruppe</th>
                 <th scope="col">VZÄ</th>
+                <th scope="col">Tabellenentgelt/Jahr · Stufe {{ stufe }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="[key, value] in gruppen" :key="key">
                 <td>{{ gruppenName(key) }}</td>
                 <td>{{ vzae(value) }}</td>
+                <td>
+                  <template v-if="gruppenJahresentgelt(key, value) != null">
+                    {{ euro(gruppenJahresentgelt(key, value)!) }}
+                  </template>
+                  <span v-else class="stellen-leise">{{ grundOhneBewertung(key, stufe) }}</span>
+                </td>
               </tr>
             </tbody>
           </table>
         </details>
       </ChartCard>
     </div>
+    <ChartCard
+      titel="Geschätztes TVöD-Tabellenentgelt"
+      beschreibung="Szenario bei vollständiger Besetzung der Planstellen und gleicher Erfahrungsstufe für alle Tarifbeschäftigten."
+      quelle="VKA-Entgelttabellen, Tarifstand ab 1. Mai 2026"
+    >
+      <div class="entgelt-kopf">
+        <label class="entgelt-stufe"
+          >Angenommene Erfahrungsstufe
+          <select v-model.number="stufe">
+            <option v-for="nr in 6" :key="nr" :value="nr">Stufe {{ nr }}</option>
+          </select>
+        </label>
+        <p>
+          2026 wird monatsgenau mit vier Monaten des vorherigen und acht Monaten des neuen
+          Tarifstands berechnet. Für 2027 wird der Stand ab Mai 2026 unverändert fortgeschrieben.
+        </p>
+      </div>
+      <div class="entgelt-kennzahlen" aria-live="polite">
+        <div>
+          <span>Stadt insgesamt · {{ jahr }}</span>
+          <strong>{{ euroKurz(stadtSchaetzung.euro) }}</strong>
+          <small>{{ vzae(stadtSchaetzung.bewertet) }} bewertete VZÄ</small>
+        </div>
+        <div>
+          <span>Ausgewählte Produktgruppe</span>
+          <strong>{{ euroKurz(aktuelleSchaetzung.euro) }}</strong>
+          <small v-if="aktuell">{{ aktuell.code }} · {{ aktuell.name }}</small>
+        </div>
+        <div>
+          <span>Abdeckung der Stellen</span>
+          <strong>{{ vzae(bewertungsquote) }} %</strong>
+          <small>{{ vzae(stadtSchaetzung.unbewertet) }} VZÄ nicht bewertet</small>
+        </div>
+      </div>
+      <p class="stellen-hinweis">
+        Enthalten ist nur das monatliche Tabellenentgelt × 12 beziehungsweise der monatsgenaue
+        Tarifwechsel 2026. Jahressonderzahlung, Zulagen, Zuschläge, Arbeitgeberanteile und
+        Versorgungskosten sind nicht enthalten. Beamtenstellen, TVöD-Festentgelte und S10 bleiben
+        unbewertet; in Stufe 1 zusätzlich P7–P9, da dort keine Tabellenwerte vorliegen.
+      </p>
+      <details>
+        <summary>Tarifquellen</summary>
+        <ul>
+          <li v-for="tarifquelle in TARIF_QUELLEN" :key="tarifquelle.url">
+            <a :href="tarifquelle.url" target="_blank" rel="noopener noreferrer">
+              {{ tarifquelle.name }}
+            </a>
+          </li>
+        </ul>
+      </details>
+    </ChartCard>
     <p class="stellen-hinweis">
       Die Summen werden aus den Besoldungsgruppen berechnet. Gegenüber der separaten
       Stellenübersicht ergeben sich kleine Abweichungen (2026: 0,06 VZÄ; 2027: 0,07 VZÄ), die noch
-      am Originalplan geprüft werden müssen. Eine Entgelt- oder Personalkostenschätzung ist in
-      diesem Zwischenstand nicht enthalten.
+      am Originalplan geprüft werden müssen.
     </p>
   </div>
 </template>
@@ -379,6 +464,19 @@ function waehlen(event: unknown) {
   flex-wrap: wrap;
   align-items: end;
   gap: var(--wa-space-s);
+}
+.stellen-filter {
+  flex-wrap: nowrap;
+}
+.stellen-filter .stellen-ansichten {
+  flex: 1 1 auto;
+}
+.stellen-filter > label {
+  flex: 0 1 auto;
+  width: auto;
+}
+.stellen-filter > label:last-child {
+  width: min(22rem, 36vw);
 }
 label {
   display: grid;
@@ -461,6 +559,39 @@ td:last-child {
   padding: 0;
   color: var(--wa-color-text-link);
 }
+.stellen-leise,
+.entgelt-kopf p,
+.entgelt-kennzahlen small {
+  color: var(--wa-color-text-quiet);
+}
+.entgelt-kopf {
+  display: flex;
+  align-items: end;
+  gap: var(--wa-space-l);
+  margin-bottom: var(--wa-space-l);
+}
+.entgelt-kopf p {
+  max-width: var(--mm-lesebreite);
+  margin: 0;
+}
+.entgelt-stufe {
+  flex: 0 0 15rem;
+  width: 15rem;
+}
+.entgelt-kennzahlen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--wa-space-l);
+}
+.entgelt-kennzahlen span,
+.entgelt-kennzahlen strong,
+.entgelt-kennzahlen small {
+  display: block;
+}
+.entgelt-kennzahlen strong {
+  font-size: var(--wa-font-size-xl);
+  font-variant-numeric: tabular-nums;
+}
 .sr-only {
   position: absolute;
   width: 1px;
@@ -472,8 +603,24 @@ td:last-child {
   .stellen-layout {
     grid-template-columns: minmax(0, 1fr);
   }
-  .stellen-filter > label {
+  .stellen-filter {
+    flex-wrap: wrap;
+  }
+  .stellen-filter > label,
+  .stellen-filter > label:last-child {
     flex: 1 1 12rem;
+    width: auto;
+  }
+  .entgelt-kopf {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .entgelt-stufe {
+    flex-basis: auto;
+    width: min(100%, 15rem);
+  }
+  .entgelt-kennzahlen {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>
