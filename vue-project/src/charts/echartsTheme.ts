@@ -58,6 +58,27 @@ export const KATEGORIE_FARBEN = [
   '#6163f2', // indigo
 ] as const
 
+/**
+ * Abgestufte Skala für Größen mit natürlicher Reihenfolge — wenig bis viel.
+ * Gedacht für `visualMap`, vor allem die Einfärbung der Karte: die Stufen
+ * werden heller nach dunkler, das liest sich auch in Graustufen und bei jeder
+ * Farbsehschwäche noch als Rangfolge.
+ *
+ * Nicht für Kategorien nehmen — dafür gibt es KATEGORIE_FARBEN. Und nicht für
+ * Werte mit Vorzeichen; dann POL_FARBEN.
+ *
+ * Die Skala endet bewusst vor dem tiefsten Blau: Gebietsnamen stehen dunkel mit
+ * weißem Rand darauf und bleiben so auch auf der stärksten Stufe lesbar.
+ */
+export const SEQUENZ_FARBEN = [
+  '#eaf1fc',
+  '#c6daf5',
+  '#9dbeec',
+  '#6d9ce1',
+  '#3a78d4',
+  '#1257b0',
+] as const
+
 /** Für Gegenüberstellungen mit Vorzeichen: Erträge vs. Aufwendungen, Plan vs. Ist. */
 export const POL_FARBEN = {
   positiv: '#00883c',
@@ -80,13 +101,16 @@ registerTheme(CHART_THEME, {
   color: [...KATEGORIE_FARBEN],
   backgroundColor: 'transparent',
   textStyle: {
-    fontFamily:
-      'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontFamily: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     color: TEXT_NORMAL,
   },
   // Achsen und Gitter bleiben zurückhaltend, damit die Daten vorne stehen.
   categoryAxis: achse,
-  valueAxis: { ...achse, axisLine: { show: false }, splitLine: { show: true, lineStyle: { color: LINIE } } },
+  valueAxis: {
+    ...achse,
+    axisLine: { show: false },
+    splitLine: { show: true, lineStyle: { color: LINIE } },
+  },
   legend: {
     textStyle: { color: TEXT_LEISE, fontSize: 12 },
     icon: 'roundRect',
