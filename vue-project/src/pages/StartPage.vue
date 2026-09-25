@@ -11,26 +11,31 @@ const einstiege = [
   {
     ziel: '/ueberblick',
     titel: 'Überblick',
+    icon: 'chart-pie',
     text: 'Das große Ganze: Wie verteilt sich der Haushalt auf die Aufgabenbereiche der Stadt? Von dort geht es Schritt für Schritt ins Detail.',
   },
   {
     ziel: '/ein-ausgaben',
     titel: 'Ein- & Ausgaben',
+    icon: 'scale-balanced',
     text: 'Woher kommt das Geld, und wofür wird es ausgegeben? Erträge und Aufwendungen gegenübergestellt.',
   },
   {
     ziel: '/stellenplan',
     titel: 'Stellenplan',
+    icon: 'users',
     text: 'Wie viele Stellen hat die Stadt, wie verteilen sie sich auf Beamtinnen, Beamte und Tarifbeschäftigte?',
   },
   {
     ziel: '/freiwillige-leistungen',
     titel: 'Freiwillige Leistungen',
+    icon: 'hand-holding-heart',
     text: 'Welcher Teil des Haushalts ist gesetzlich vorgeschrieben, und wo kann die Stadt selbst entscheiden?',
   },
   {
     ziel: '/bezirke',
     titel: 'Bezirke',
+    icon: 'map-location-dot',
     text: 'Wie verteilen sich Mittel über die Stadtbezirke? Der räumliche Blick auf den Haushalt.',
   },
 ]
@@ -59,7 +64,10 @@ const einstiege = [
       <div class="mm-raster">
         <RouterLink v-for="einstieg in einstiege" :key="einstieg.ziel" :to="einstieg.ziel" class="mm-kachel">
           <wa-card appearance="outlined">
-            <h3>{{ einstieg.titel }}</h3>
+            <div class="mm-kachel__kopf">
+              <wa-icon :name="einstieg.icon" class="mm-kachel__icon"></wa-icon>
+              <h3>{{ einstieg.titel }}</h3>
+            </div>
             <p>{{ einstieg.text }}</p>
           </wa-card>
         </RouterLink>
@@ -119,8 +127,20 @@ const einstiege = [
   height: 100%;
 }
 
+.mm-kachel__kopf {
+  display: flex;
+  align-items: center;
+  gap: var(--wa-space-xs);
+  margin-bottom: var(--wa-space-2xs);
+}
+
+.mm-kachel__icon {
+  color: var(--wa-color-brand-on-quiet);
+  font-size: 1.1em;
+}
+
 .mm-kachel h3 {
-  margin: 0 0 var(--wa-space-2xs);
+  margin: 0;
   font-size: var(--wa-font-size-l);
   color: var(--wa-color-brand-on-quiet);
 }
