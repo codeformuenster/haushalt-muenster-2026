@@ -8,6 +8,10 @@ import VChart from 'vue-echarts'
 import type { EChartsOption } from 'echarts'
 import { CHART_THEME } from '@/charts/echartsTheme'
 
+const emit = defineEmits<{
+  chartClick: [params: unknown]
+}>()
+
 withDefaults(
   defineProps<{
     /** ECharts-Konfiguration des Diagramms. */
@@ -44,7 +48,13 @@ onBeforeUnmount(() => beobachter?.disconnect())
 
 <template>
   <div ref="rahmen" class="mm-chart" :style="{ height: hoehe }">
-    <VChart v-if="hatBreite" :option="option" :theme="CHART_THEME" autoresize />
+    <VChart
+      v-if="hatBreite"
+      :option="option"
+      :theme="CHART_THEME"
+      autoresize
+      @click="(params: unknown) => emit('chartClick', params)"
+    />
   </div>
 </template>
 
