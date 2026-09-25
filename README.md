@@ -87,7 +87,7 @@ Inhalte
 
 ## Skripte
 
-Python-Skripte zur Prüfung und Auswertung der Daten liegen in [`scripts/`](scripts/README.md). Die Konsistenzprüfung der bereinigten CSVs schreibt ihren Bericht nach [`daten/pruefberichte/konsistenz.md`](daten/pruefberichte/konsistenz.md).
+Python-Skripte zur Prüfung und Auswertung der Daten liegen in [`scripts/`](scripts/README.md). Die Konsistenzprüfung der bereinigten CSVs schreibt ihren Bericht nach [`daten/pruefberichte/konsistenz.md`](daten/pruefberichte/konsistenz.md). Die manuell untersuchten Abweichungen sind in [`daten/pruefberichte/befunde.md`](daten/pruefberichte/befunde.md) dokumentiert.
 
 
 ## Die Anwendung
