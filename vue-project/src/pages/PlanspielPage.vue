@@ -3,7 +3,7 @@
  * Planspiel: Wer den Haushalt 2026 ausgleichen will, dreht an Einnahmen und
  * Ausgaben und sieht sofort, wie sich das ordentliche Ergebnis verändert.
  */
-import { computed, reactive } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
@@ -61,6 +61,26 @@ const ergebnis = computed(() => START + veraenderung.value)
 const geschafft = computed(() => ergebnis.value >= 0)
 // Anteil des Wegs vom Planwert bis zur Null, für den Fortschrittsbalken.
 const fortschritt = computed(() => Math.min(1, Math.max(0, veraenderung.value / -START)))
+
+// Sobald die Diagramme über der Klebekante verschwunden sind, klebt die Ergebnisbox
+// oben und wird kompakt. Die Kante ist der berechnete `top`-Wert der Box.
+const diagramme = useTemplateRef<HTMLElement>('diagramme')
+const bilanz = useTemplateRef<HTMLElement>('bilanz')
+const kompakt = ref(false)
+let beobachter: IntersectionObserver | undefined
+
+onMounted(() => {
+  if (!diagramme.value || !bilanz.value) return
+  const kante = parseFloat(getComputedStyle(bilanz.value).top) || 0
+  beobachter = new IntersectionObserver(
+    ([eintrag]) => {
+      if (eintrag) kompakt.value = !eintrag.isIntersecting && eintrag.boundingClientRect.top < 0
+    },
+    { rootMargin: `-${kante}px 0px 0px 0px` },
+  )
+  beobachter.observe(diagramme.value)
+})
+onBeforeUnmount(() => beobachter?.disconnect())
 
 const kartenJeGruppe = GRUPPEN.map((g) => ({
   ...g,
@@ -131,7 +151,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
       einfach addiert, jeweils bezogen auf den Plan.
     </wa-callout>
 
-    <div class="mm-raster">
+    <div ref="diagramme" class="mm-raster">
       <ChartCard
         titel="Woher kommt das Geld?"
         beschreibung="Geplante Erträge 2026 nach Art."
@@ -150,8 +170,9 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
     </div>
 
     <section
+      ref="bilanz"
       class="pl-bilanz"
-      :class="{ 'pl-bilanz--geschafft': geschafft }"
+      :class="{ 'pl-bilanz--geschafft': geschafft, 'pl-bilanz--kompakt': kompakt }"
       aria-label="Ordentliches Ergebnis 2026"
     >
       <div class="pl-bilanz__kopf">
@@ -406,6 +427,30 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 .pl-bilanz--geschafft .pl-bilanz__text {
   font-weight: var(--wa-font-weight-bold);
   color: v-bind('POL_FARBEN.positiv');
+}
+
+/* Beim Kleben oben nur das Nötigste: Zahl, Balken, Resttext. */
+.pl-bilanz--kompakt {
+  padding: var(--wa-space-xs) var(--wa-space-m);
+}
+
+.pl-bilanz--kompakt .pl-bilanz__label,
+.pl-bilanz--kompakt .pl-bilanz__info {
+  display: none;
+}
+
+.pl-bilanz--kompakt .pl-bilanz__zahl {
+  font-size: var(--wa-font-size-l);
+}
+
+.pl-bilanz--kompakt .pl-bilanz__balken {
+  height: 0.4rem;
+  margin-top: var(--wa-space-2xs);
+}
+
+.pl-bilanz--kompakt .pl-bilanz__text {
+  margin-top: var(--wa-space-2xs);
+  font-size: var(--wa-font-size-xs);
 }
 
 /* Auf dem Handy kompakter, damit die klebende Box nicht Karten und Regler verdeckt. */
