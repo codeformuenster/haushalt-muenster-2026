@@ -24,6 +24,8 @@
   --mm-bright-teal-blue: #0077b6ff;
   --mm-french-blue: #023e8aff;
   --mm-deep-twilight: #03045eff;
+  /* Seitenhintergrund („Papier-Ton“). */
+  --mm-cream: #ffedd6;
 
   /* Web Awesome Brand-Skala (95 = hellste … 05 = dunkelste), aus den Markenfarben
      befüllt: Orange 95–60, dann Blau 50–10 (abgestimmte Reihenfolge). So ziehen
@@ -67,7 +69,15 @@ body {
   margin: 0;
   font-family: var(--wa-font-family-body);
   color: var(--wa-color-text-normal);
-  background-color: var(--wa-color-surface-default);
+  background-color: var(--mm-cream);
+}
+
+/* Die sichtbare Seitenfläche: <wa-page> malt selbst --wa-color-surface-default
+   über den ganzen Viewport und würde den body-Hintergrund verdecken. Externe
+   Regeln am Host-Element gewinnen gegen die :host-Regel des Components,
+   daher hier überschreiben. */
+wa-page {
+  background-color: var(--mm-cream);
 }
 
 /*
