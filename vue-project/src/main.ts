@@ -14,6 +14,9 @@ import '@awesome.me/webawesome/dist/components/input/input.js'
 import '@awesome.me/webawesome/dist/components/option/option.js'
 import '@awesome.me/webawesome/dist/components/page/page.js'
 import '@awesome.me/webawesome/dist/components/tag/tag.js'
+import '@awesome.me/webawesome/dist/components/spinner/spinner.js'
+import '@awesome.me/webawesome/dist/components/select/select.js'
+import '@awesome.me/webawesome/dist/components/tag/tag.js'
 import '@awesome.me/webawesome/dist/components/switch/switch.js'
 
 // Registriert Diagrammtypen und das Projekt-Theme für ECharts.
