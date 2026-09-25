@@ -1,0 +1,779 @@
+{
+  "quelle": "Haushaltsplan 2026/27, Band 2, S. 143–324 (Bezirksbezogene Haushaltsangaben)",
+  "erzeugtAm": "2026-09-25",
+  "bezirke": [
+    {
+      "name": "Mitte",
+      "nr": "1"
+    },
+    {
+      "name": "West",
+      "nr": "5"
+    },
+    {
+      "name": "Nord",
+      "nr": "6"
+    },
+    {
+      "name": "Ost",
+      "nr": "7"
+    },
+    {
+      "name": "Südost",
+      "nr": "8"
+    },
+    {
+      "name": "Hiltrup",
+      "nr": "9"
+    }
+  ],
+  "posten": [
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Abwasserbeseitigung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 800000,
+      "ein2027": 0,
+      "aus2027": 2450000
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Abwasserbeseitigung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Abwasserbeseitigung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 1910000,
+      "ein2027": 0,
+      "aus2027": 2350000
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Abwasserbeseitigung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 1820000,
+      "ein2027": 0,
+      "aus2027": 4250000
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Abwasserbeseitigung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 3800000,
+      "ein2027": 0,
+      "aus2027": 4470000
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Abwasserbeseitigung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 2050000,
+      "ein2027": 0,
+      "aus2027": 2450000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Bäder",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 403450,
+      "ein2027": 0,
+      "aus2027": 590300
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Bäder",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 253450,
+      "ein2027": 0,
+      "aus2027": 90300
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Bäder",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 253450,
+      "ein2027": 0,
+      "aus2027": 590300
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Bäder",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 253450,
+      "ein2027": 0,
+      "aus2027": 90300
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Bäder",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 323450,
+      "ein2027": 0,
+      "aus2027": 190300
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Bäder",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 493450,
+      "ein2027": 0,
+      "aus2027": 90300
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Bereitstellung von Verkehrsflächen und -anlagen",
+      "bezirksspezifisch": true,
+      "ein2026": 5430000,
+      "aus2026": 9760000,
+      "ein2027": 5590000,
+      "aus2027": 11180000
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Bereitstellung von Verkehrsflächen und -anlagen",
+      "bezirksspezifisch": true,
+      "ein2026": 2700000,
+      "aus2026": 7450000,
+      "ein2027": 1500000,
+      "aus2027": 6000000
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Bereitstellung von Verkehrsflächen und -anlagen",
+      "bezirksspezifisch": true,
+      "ein2026": 1280000,
+      "aus2026": 5170000,
+      "ein2027": 1000000,
+      "aus2027": 6100000
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Bereitstellung von Verkehrsflächen und -anlagen",
+      "bezirksspezifisch": true,
+      "ein2026": 1000000,
+      "aus2026": 4350000,
+      "ein2027": 1000000,
+      "aus2027": 5215000
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Bereitstellung von Verkehrsflächen und -anlagen",
+      "bezirksspezifisch": true,
+      "ein2026": 1000000,
+      "aus2026": 3500000,
+      "ein2027": 1130000,
+      "aus2027": 3700000
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Bereitstellung von Verkehrsflächen und -anlagen",
+      "bezirksspezifisch": true,
+      "ein2026": 2000000,
+      "aus2026": 8295000,
+      "ein2027": 2000000,
+      "aus2027": 8000000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Brandschutz und feuerwehrtechnische Hilfeleistung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 150000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Brandschutz und feuerwehrtechnische Hilfeleistung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 150000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Brandschutz und feuerwehrtechnische Hilfeleistung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 150000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Brandschutz und feuerwehrtechnische Hilfeleistung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 250000,
+      "ein2027": 0,
+      "aus2027": 200000
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Brandschutz und feuerwehrtechnische Hilfeleistung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 8526000,
+      "ein2027": 0,
+      "aus2027": 16112000
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Brandschutz und feuerwehrtechnische Hilfeleistung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 3930000,
+      "ein2027": 0,
+      "aus2027": 470000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Fließende Gewässer",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 200000,
+      "ein2027": 0,
+      "aus2027": 200000
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Fließende Gewässer",
+      "bezirksspezifisch": true,
+      "ein2026": 500000,
+      "aus2026": 800000,
+      "ein2027": 1100000,
+      "aus2027": 1500000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Förderung von Kindern in Tagesbetreuung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 3889800,
+      "ein2027": 0,
+      "aus2027": 2481800
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Förderung von Kindern in Tagesbetreuung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 2204800,
+      "ein2027": 0,
+      "aus2027": 2324800
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Förderung von Kindern in Tagesbetreuung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 4805030,
+      "ein2027": 0,
+      "aus2027": 2324800
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Förderung von Kindern in Tagesbetreuung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 2800620,
+      "ein2027": 0,
+      "aus2027": 2324800
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Förderung von Kindern in Tagesbetreuung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 7297200,
+      "ein2027": 0,
+      "aus2027": 2324800
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Förderung von Kindern in Tagesbetreuung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 3154800,
+      "ein2027": 0,
+      "aus2027": 2324800
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Friedhöfe",
+      "bezirksspezifisch": false,
+      "ein2026": 0,
+      "aus2026": 63270,
+      "ein2027": 0,
+      "aus2027": 63270
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Friedhöfe",
+      "bezirksspezifisch": false,
+      "ein2026": 0,
+      "aus2026": 63270,
+      "ein2027": 0,
+      "aus2027": 63270
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Friedhöfe",
+      "bezirksspezifisch": false,
+      "ein2026": 0,
+      "aus2026": 63270,
+      "ein2027": 0,
+      "aus2027": 63270
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Friedhöfe",
+      "bezirksspezifisch": false,
+      "ein2026": 0,
+      "aus2026": 63270,
+      "ein2027": 0,
+      "aus2027": 63270
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Friedhöfe",
+      "bezirksspezifisch": false,
+      "ein2026": 0,
+      "aus2026": 63270,
+      "ein2027": 0,
+      "aus2027": 63270
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Friedhöfe",
+      "bezirksspezifisch": false,
+      "ein2026": 0,
+      "aus2026": 63270,
+      "ein2027": 0,
+      "aus2027": 63270
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Gewerberechtliche Angelegenheiten",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Grün- und Freiflächen",
+      "bezirksspezifisch": true,
+      "ein2026": 373000,
+      "aus2026": 1339500,
+      "ein2027": 30000,
+      "aus2027": 954500
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Grün- und Freiflächen",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 125000,
+      "ein2027": 0,
+      "aus2027": 425000
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Grün- und Freiflächen",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 185490,
+      "ein2027": 0,
+      "aus2027": 525490
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Grün- und Freiflächen",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 160740,
+      "ein2027": 0,
+      "aus2027": 865740
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Grün- und Freiflächen",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 155970,
+      "ein2027": 0,
+      "aus2027": 555970
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Grün- und Freiflächen",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 1176770,
+      "ein2027": 0,
+      "aus2027": 386770
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Immobilienmanagement",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Immobilienmanagement",
+      "bezirksspezifisch": true,
+      "ein2026": 1000000,
+      "aus2026": 2750000,
+      "ein2027": 2450000,
+      "aus2027": 4500000
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Immobilienmanagement",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 450000,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Immobilienmanagement",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Kinder- und Jugendarbeit",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 100000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Kinder- und Jugendarbeit",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 100000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Kinder- und Jugendarbeit",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 100000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Kinder- und Jugendarbeit",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 100000,
+      "ein2027": 0,
+      "aus2027": 100000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Kulturmanagement/Kulturförderung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Kulturmanagement/Kulturförderung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Leistungen für Schulen",
+      "bezirksspezifisch": true,
+      "ein2026": 330000,
+      "aus2026": 57940670,
+      "ein2027": 330000,
+      "aus2027": 56104300
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Leistungen für Schulen",
+      "bezirksspezifisch": true,
+      "ein2026": 4559450,
+      "aus2026": 20080000,
+      "ein2027": 3522570,
+      "aus2027": 36616000
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Leistungen für Schulen",
+      "bezirksspezifisch": true,
+      "ein2026": 330000,
+      "aus2026": 18708290,
+      "ein2027": 330000,
+      "aus2027": 41120000
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Leistungen für Schulen",
+      "bezirksspezifisch": true,
+      "ein2026": 330000,
+      "aus2026": 21834430,
+      "ein2027": 330000,
+      "aus2027": 33990560
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Leistungen für Schulen",
+      "bezirksspezifisch": true,
+      "ein2026": 330000,
+      "aus2026": 16225000,
+      "ein2027": 330000,
+      "aus2027": 28439350
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Leistungen für Schulen",
+      "bezirksspezifisch": true,
+      "ein2026": 330000,
+      "aus2026": 50189130,
+      "ein2027": 330000,
+      "aus2027": 63650740
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Natur, Landschaft, Erholung, Wasserschutz",
+      "bezirksspezifisch": true,
+      "ein2026": 4500,
+      "aus2026": 4500,
+      "ein2027": 4500,
+      "aus2027": 4500
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Natur, Landschaft, Erholung, Wasserschutz",
+      "bezirksspezifisch": true,
+      "ein2026": 4500,
+      "aus2026": 4500,
+      "ein2027": 4500,
+      "aus2027": 4500
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Natur, Landschaft, Erholung, Wasserschutz",
+      "bezirksspezifisch": true,
+      "ein2026": 4550,
+      "aus2026": 4550,
+      "ein2027": 4550,
+      "aus2027": 4550
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Natur, Landschaft, Erholung, Wasserschutz",
+      "bezirksspezifisch": true,
+      "ein2026": 4550,
+      "aus2026": 4550,
+      "ein2027": 4550,
+      "aus2027": 74550
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Natur, Landschaft, Erholung, Wasserschutz",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 81000,
+      "ein2027": 0,
+      "aus2027": 127000
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Natur, Landschaft, Erholung, Wasserschutz",
+      "bezirksspezifisch": true,
+      "ein2026": 9000,
+      "aus2026": 9000,
+      "ein2027": 9000,
+      "aus2027": 9000
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Rettungsdienst",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Rettungsdienst",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 200000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Sicherung besonderer sozialer Bedarfe",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 0
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Sicherung des Lebensunterhalts",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 470000,
+      "ein2027": 0,
+      "aus2027": 2324000
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Sportinfrastruktur/Sportförderung/Sportveranstaltungen",
+      "bezirksspezifisch": true,
+      "ein2026": 801460,
+      "aus2026": 6184910,
+      "ein2027": 106000,
+      "aus2027": 4006500
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Sportinfrastruktur/Sportförderung/Sportveranstaltungen",
+      "bezirksspezifisch": true,
+      "ein2026": 106000,
+      "aus2026": 3888500,
+      "ein2027": 106000,
+      "aus2027": 4856500
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Sportinfrastruktur/Sportförderung/Sportveranstaltungen",
+      "bezirksspezifisch": true,
+      "ein2026": 106000,
+      "aus2026": 2938500,
+      "ein2027": 106000,
+      "aus2027": 2856500
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Sportinfrastruktur/Sportförderung/Sportveranstaltungen",
+      "bezirksspezifisch": true,
+      "ein2026": 423180,
+      "aus2026": 2938500,
+      "ein2027": 106000,
+      "aus2027": 2856500
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Sportinfrastruktur/Sportförderung/Sportveranstaltungen",
+      "bezirksspezifisch": true,
+      "ein2026": 106000,
+      "aus2026": 2938500,
+      "ein2027": 106000,
+      "aus2027": 2856500
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Sportinfrastruktur/Sportförderung/Sportveranstaltungen",
+      "bezirksspezifisch": true,
+      "ein2026": 106000,
+      "aus2026": 4698500,
+      "ein2027": 106000,
+      "aus2027": 2856500
+    },
+    {
+      "bezirk": "Mitte",
+      "fachthema": "Stadt- und Regionalentwicklung, Stadtplanung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 0,
+      "ein2027": 0,
+      "aus2027": 185000
+    },
+    {
+      "bezirk": "Nord",
+      "fachthema": "Stadt- und Regionalentwicklung, Stadtplanung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 400000,
+      "ein2027": 0,
+      "aus2027": 270000
+    },
+    {
+      "bezirk": "Ost",
+      "fachthema": "Stadt- und Regionalentwicklung, Stadtplanung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 115000,
+      "ein2027": 0,
+      "aus2027": 25000
+    },
+    {
+      "bezirk": "Südost",
+      "fachthema": "Stadt- und Regionalentwicklung, Stadtplanung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 15000,
+      "ein2027": 0,
+      "aus2027": 15000
+    },
+    {
+      "bezirk": "Hiltrup",
+      "fachthema": "Stadt- und Regionalentwicklung, Stadtplanung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 50000,
+      "ein2027": 0,
+      "aus2027": 50000
+    },
+    {
+      "bezirk": "West",
+      "fachthema": "Stadt- und Regionalentwicklung, Stadtplanung",
+      "bezirksspezifisch": true,
+      "ein2026": 0,
+      "aus2026": 70000,
+      "ein2027": 0,
+      "aus2027": 35000
+    }
+  ]
+}

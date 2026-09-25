@@ -8,6 +8,10 @@ import VChart from 'vue-echarts'
 import type { EChartsOption } from 'echarts'
 import { CHART_THEME } from '@/charts/echartsTheme'
 
+const emit = defineEmits<{
+  chartClick: [params: unknown]
+}>()
+
 withDefaults(
   defineProps<{
     /** ECharts-Konfiguration des Diagramms. */
@@ -17,6 +21,13 @@ withDefaults(
   }>(),
   { hoehe: '320px' },
 )
+
+/*
+ * Alles, was nicht Prop ist — vor allem Ereignis-Listener wie
+ * @legendselectchanged — gehört an das Diagramm, nicht an den Rahmen-<div>.
+ * Ohne das landen Listener auf einem Element, das sie nie auslöst.
+ */
+defineOptions({ inheritAttrs: false })
 
 const rahmen = ref<HTMLElement | null>(null)
 const hatBreite = ref(false)
@@ -44,7 +55,14 @@ onBeforeUnmount(() => beobachter?.disconnect())
 
 <template>
   <div ref="rahmen" class="mm-chart" :style="{ height: hoehe }">
-    <VChart v-if="hatBreite" :option="option" :theme="CHART_THEME" autoresize />
+    <VChart
+      v-if="hatBreite"
+      v-bind="$attrs"
+      :option="option"
+      :theme="CHART_THEME"
+      autoresize
+      @click="(params: unknown) => emit('chartClick', params)"
+    />
   </div>
 </template>
 

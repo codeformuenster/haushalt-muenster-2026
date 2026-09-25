@@ -86,13 +86,13 @@ Inhalte
 |------------|------------|------------|------------|------------|
 | Vorbericht | | 5-34 | 1-30 | |
 | Stellenplan | | 35-68 | 31-64 | |
-| | Beamte & Beamtinnen | 37-38 | 33-34 | [stellenplan-beta.csv](daten/stellenplan-beta.csv) |
+| | Beamte & Beamtinnen | 37-38 | 33-34 |  |
 | | Tariflich Beschäftigte | 39-40 | 35-36 | |
 | | Stellen nach Haushaltsgliederung: Beamte & Beamtinnen 2026 | 41-45 | 37-41 | [Stellenplan_2026_2027.csv](daten/agg_tables/Stellenplan_2026_2027.csv), [Stellenplan_2026_2027_nach_Besoldungsgruppen.csv](daten/agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv) |
 | | Stellen nach Haushaltsgliederung: Tariflich Beschäftigte 2026 | 46-53 | 42-49 | (s.o.) |
 | | Stellen nach Haushaltsgliederung: Beamte & Beamtinnen 2027 | 54-58 | 50-54 | (s.o.) |
 | | Stellen nach Haushaltsgliederung: Tariflich Beschäftigte 2027 | 59-66 | 55-62 | (s.o.) |
-| Haushaltsquerschnitt | | 69-80 | 65-76 | [haushaltsquerschnitt.csv](daten/haushaltsquerschnitt.csv), [Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv](daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv) |
+| Haushaltsquerschnitt | | 69-80 | 65-76 | [Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv](daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv) |
 | | Ergebnisplanung 2026 | 71-73 | 67-69 | |
 | | Ergebnisplanung 2027 | 74-76 | 70-72 | |
 | | Finanzplanung 2026 | 77-78 | 73-74 | |
@@ -103,7 +103,7 @@ Inhalte
 | Ergebnisrechnung, Finanzrechnung und Bilanz 2024 | | 93-100 | 89-96 | |
 | Wirtschaftspläne und Jahresabschlüsse der Sondervermögen | AWM, citeq, Münster Marketing, Theater Münster | 101-136 | 97-132 | |
 | Übersicht über die Wirtschaftslage der Unternehmen | | 137-146 | 133-142 | |
-| Bezirksbezogene Haushaltsangaben | Bezirksvertretungen Mitte, Nord, Ost, Südost, Hiltrup, West (Teilergebnisplan PG 01 01, Investitionsmaßnahmen im Bezirk) | 147-328 | 143-324 | |
+| Bezirksbezogene Haushaltsangaben | Bezirksvertretungen Mitte, Nord, Ost, Südost, Hiltrup, West (Teilergebnisplan PG 01 01, Investitionsmaßnahmen im Bezirk) | 147-328 | 143-324 | [Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv](daten/agg_tables/Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv) |
 | Übersicht über die Zuwendungen an die Fraktionen | | 329-344 | 325-340 | |
 | Zuschussbericht | Zuwendungen an Dritte | 345-366 | 341-362 | |
 | Maßnahmenprogramm des Amtes für Mobilität und Tiefbau | | 367-370 | 363-366 | |
@@ -114,12 +114,31 @@ Inhalte
 
 `daten/raw_table_extraction/` enthält unbereinigte, automatisch extrahierte Tabellen aus beiden Bänden (ca. 1900 CSV-Dateien). Namensschema: `band<N>_p<PDF-Seite>_<Abschnitt>_<Typ>_t<Tabellen-Nr>.csv`, z.B. `band1_p700_PG0111_Immobilienmanagement_Investitionsmassnahmen_t0.csv`. Die Qualität ist gemischt: fehlende Leerzeichen, mehrzeilige Kopfzeilen, Fließtext statt Tabellen und teils falsche Abschnittskürzel (z.B. `PG12` für den Ergebnis- und Finanzplan, `PG03`/`PG05`/`PG13` für Produktbereichsseiten).
 
+## Geodaten
+
+`daten/geo/` enthält Kartengrundlagen, die nicht aus dem Haushaltsplan stammen,
+sondern aus dem [Open-Data-Portal der Stadt Münster](https://opendata.stadt-muenster.de/).
+Herkunft, Stand und Lizenz je Datei stehen in [`daten/geo/README.md`](daten/geo/README.md).
+
+## Skripte
+
+Python-Skripte zur Prüfung und Auswertung der Daten liegen in [`scripts/`](scripts/README.md). `scripts/pipeline/build_agg_tables.py` erzeugt alle Tabellen in `daten/agg_tables/` aus `daten/raw_table_extraction/` neu und prüft sie anschließend auf Konsistenz. Die Konsistenzprüfung der bereinigten CSVs schreibt ihren Bericht nach [`daten/pruefberichte/konsistenz.md`](daten/pruefberichte/konsistenz.md). Die manuell untersuchten Abweichungen sind in [`daten/pruefberichte/befunde.md`](daten/pruefberichte/befunde.md) dokumentiert.
+
 
 ## Die Anwendung
 
 Vue 3 + TypeScript + Vite in `vue-project/`. UI-Komponenten von
 [Web Awesome](https://webawesome.com), Diagramme mit
 [ECharts](https://echarts.apache.org) über `vue-echarts`.
+
+Die Gehaltskostenschätzung im Stellenatlas kombiniert die TVöD-VKA-Tabellen mit den
+[NRW-Grundgehaltssätzen ab April 2026](https://www.finanzverwaltung.nrw.de/system/files/media/document/file/grundgehaelter-a-b-r-und-w-01.04.26_0.pdf).
+TVöD-Festentgelte werden mit dem gewichteten Mittel der übrigen Tarifstellen ihrer Produktgruppe
+angesetzt. S10 wird als Mittel aus S9 und S11b geschätzt; für die fehlende Stufe 1 von P7–P9 wird
+der Abstand zwischen Stufe 2 und 3 zurückgerechnet. Bei A-Besoldungsgruppen wird die gewählte
+Besoldungsstufe verwendet oder, falls sie dort nicht existiert, die nächstgelegene verfügbare
+Stufe. A9Z enthält nur das A9-Grundgehalt ohne Amtszulage. Die Rechnung enthält keine
+Jahressonderzahlungen, Zulagen, Zuschläge, Arbeitgeberanteile oder Versorgungskosten.
 
 ```
 cd vue-project
@@ -138,7 +157,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Überblick (das große Ganze) | `/ueberblick` | `src/pages/UeberblickPage.vue` |
 | Ein- & Ausgaben | `/ein-ausgaben` | `src/pages/EinAusgabenPage.vue` |
 | Stellenplan | `/stellenplan` | `src/pages/StellenplanPage.vue` |
-| Freiwillige Leistungen | `/freiwillige-leistungen` | `src/pages/FreiwilligeLeistungenPage.vue` |
+| Zuschüsse an Vereine und Verbände | `/zuschuesse` | `src/pages/ZuschuessePage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
 | Glossar (PB/PG-Nummern, Rohdaten-Dateinamen) | `/glossar` | `src/pages/GlossarPage.vue` |
 
@@ -174,13 +193,36 @@ bleiben, auf hellem wie dunklem Hintergrund.
 
 ### Stand
 
-Alle sechs Seiten stehen mit Layout, Diagrammen und Navigation — die Zahlen
-darin sind aber **erfunden** und nur Platzhalter. Jede solche Seite zeigt einen
-`DemoHinweis`; der wird entfernt, sobald sie echte Daten aus `daten/` liest.
+Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
+(siehe [preprocessing/README.md](preprocessing/README.md)):
 
-Offen: Anbindung der CSVs aus `daten/`, ein GeoJSON der Stadtbezirke für die
-Karte, und die Abgrenzung freiwillige gegen pflichtige Leistungen — die
-kennzeichnet der Haushaltsplan nicht selbst.
+* **Zuschüsse** (`/zuschuesse`) — der Zuschussbericht aus Band 2.
+* **Bezirke** (`/bezirke`) — die bezirksbezogenen Haushaltsangaben aus Band 2,
+  auf einer Karte der sechs Stadtbezirke.
+
+**Ein- & Ausgaben** und **Stellenplan** lesen ihre Zahlen direkt aus CSV bzw.
+JSON unter `vue-project/src/`, ohne Skript in `preprocessing/`.
+
+Nur noch **Überblick** (`/ueberblick`) zeigt **erfundene** Platzhalterzahlen und
+trägt deshalb einen `DemoHinweis`. Der wird entfernt, sobald die Seite echte
+Daten aus `daten/` liest — dann kann auch `src/components/ui/DemoHinweis.vue`
+weg.
+
+Die Abgrenzung freiwillige gegen pflichtige Leistungen ist für die Zuschüsse
+**geklärt**: der Zuschussbericht führt dafür selbst eine Spalte
+`verpflichtend_freiwillig` mit vier Stufen (`freiwillig`, `dem Grunde nach`,
+`der Höhe nach`, `Höhe und Grund nach`). Für den restlichen Haushalt — Personal,
+Bau, Sozialtransfers — kennzeichnet der Plan sie weiterhin nicht.
+
+Räumlich geht der Haushalt nur bis zu den sechs **Stadtbezirken**. Eine Karte der
+45 Stadtteile ist deshalb nicht möglich — es gibt dafür keine Zahlen, auch wenn
+die Geometrie im Open-Data-Portal läge. Was die Bezirke-Seite zeigt, sind
+Investitionen *im* Bezirk; entschieden werden sie überwiegend gesamtstädtisch.
+
+Offen: Anbindung der übrigen CSVs aus `daten/`. Für die Bezirke wäre der nächste
+Schritt die einzelne Investitionsmaßnahme — 283 benannte Vorhaben („Ludgerikirchplatz“,
+„Kita Sonnenstraße“) stecken in den 635 Roh-CSVs unter
+`daten/raw_table_extraction/band2_*Bezirksvertretung*`.
 
 
 ## A message to our robotic friends (LLMs)

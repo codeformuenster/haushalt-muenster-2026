@@ -109,3 +109,8 @@ $RECYCLE.BIN/
 
 # ignore pdfs in daten folder
 daten/**/*.pdf
+
+# Python virtual environments
+.venv/
+
+__pycache__/
