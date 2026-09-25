@@ -1,35 +1,41 @@
-@import './base.css';
+/*
+ * Globales Styling für Münster Money.
+ *
+ * Das meiste kommt aus dem Web-Awesome-Theme (siehe main.ts). Hier stehen nur
+ * die projektweiten Ergänzungen. Seiten-spezifisches CSS gehört in die jeweilige
+ * Seite unter src/pages/ — bitte nicht hier.
+ */
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+:root {
+  /* Maximale Textbreite für Fließtext, damit Absätze lesbar bleiben. */
+  --mm-lesebreite: 68ch;
+  /* Einheitlicher vertikaler Abstand zwischen den Blöcken einer Seite. */
+  --mm-block-abstand: var(--wa-space-2xl);
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+body {
+  margin: 0;
+  font-family: var(--wa-font-family-body);
+  color: var(--wa-color-text-normal);
+  background-color: var(--wa-color-surface-default);
 }
 
-@media (hover: hover) {
-  a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  }
+/*
+ * Jede Seite unter src/pages/ rendert ihren Inhalt in dieses Raster.
+ * Dadurch haben alle Seiten dieselben Abstände, ohne dass jede Seite sie setzt.
+ */
+.mm-seite {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-block-abstand);
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: var(--wa-space-xl) var(--wa-space-l) var(--wa-space-3xl);
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
-
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+/* Zwei- bis dreispaltiges Raster für Karten, bricht von allein um. */
+.mm-raster {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--wa-space-l);
 }

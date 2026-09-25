@@ -22,5 +22,19 @@ export default defineConfigWithVueTs(
 
   ...pluginOxlint.buildFromOxlintConfigFile('.oxlintrc.json'),
 
+  {
+    name: 'app/web-awesome',
+    files: ['**/*.vue'],
+    rules: {
+      /*
+       * Web Awesome liefert echte Web Components. Dort ist `slot="name"` das
+       * korrekte Standard-Attribut — `<template v-slot:name>` funktioniert nur
+       * bei Vue-Komponenten und erzeugt hier kaputtes Markup. Die Regel gilt
+       * deshalb weiterhin, aber nicht für Kinder von <wa-*>-Elementen.
+       */
+      'vue/no-deprecated-slot-attribute': ['error', { ignoreParents: ['/^wa-/'] }],
+    },
+  },
+
   skipFormatting,
 )

@@ -1,85 +1,47 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+/**
+ * App-Rahmen. Kopf- und Fußzeile sind hier einmal gesetzt und gelten damit für
+ * jede Seite. `<wa-page>` von Web Awesome übernimmt das Grundraster und hält die
+ * Fußzeile unten, auch wenn eine Seite wenig Inhalt hat.
+ *
+ * Geteilte Datei — bitte nicht für einzelne Seiten anpassen.
+ */
+import { RouterView } from 'vue-router'
+import TheHeader from '@/components/layout/TheHeader.vue'
+import TheFooter from '@/components/layout/TheFooter.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <wa-page disable-navigation-toggle>
+    <header slot="header" class="mm-shell__header">
+      <TheHeader />
+    </header>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <RouterView />
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+    <footer slot="footer" class="mm-shell__footer">
+      <TheFooter />
+    </footer>
+  </wa-page>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
+.mm-shell__header {
+  /* <wa-page> setzt seine slotted Kopf- und Fusszeile auf display:flex und
+     zentriert sie. Dadurch schrumpfen sie auf Inhaltsbreite und sitzen nicht
+     mehr buendig ueber dem Seiteninhalt — deshalb hier zurueck auf block. */
   display: block;
-  margin: 0 auto 2rem;
+  /* <wa-page> gibt den Slot-Bereichen eigenes Padding, das sich zu dem der
+     Kopfzeile addieren würde — dann stünde sie nicht mehr bündig zum Inhalt. */
+  padding: 0;
+  border-bottom: 1px solid var(--wa-color-surface-border);
+  background-color: var(--wa-color-surface-raised);
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+.mm-shell__footer {
+  display: block;
+  padding: 0;
+  border-top: 1px solid var(--wa-color-surface-border);
+  background-color: var(--wa-color-surface-raised);
 }
 </style>

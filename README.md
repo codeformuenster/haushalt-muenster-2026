@@ -86,6 +86,73 @@ Inhalte
 `daten/raw_table_extraction/` enthält unbereinigte, automatisch extrahierte Tabellen aus beiden Bänden (ca. 1900 CSV-Dateien). Namensschema: `band<N>_p<PDF-Seite>_<Abschnitt>_<Typ>_t<Tabellen-Nr>.csv`, z.B. `band1_p700_PG0111_Immobilienmanagement_Investitionsmassnahmen_t0.csv`. Die Qualität ist gemischt: fehlende Leerzeichen, mehrzeilige Kopfzeilen, Fließtext statt Tabellen und teils falsche Abschnittskürzel (z.B. `PG12` für den Ergebnis- und Finanzplan, `PG03`/`PG05`/`PG13` für Produktbereichsseiten).
 
 
+## Die Anwendung
+
+Vue 3 + TypeScript + Vite in `vue-project/`. UI-Komponenten von
+[Web Awesome](https://webawesome.com), Diagramme mit
+[ECharts](https://echarts.apache.org) über `vue-echarts`.
+
+```
+cd vue-project
+npm install
+npm run dev
+```
+
+### Wer arbeitet wo?
+
+Jede Seite ist genau eine Datei in `src/pages/`. Wer eine Seite baut, arbeitet
+nur dort — dann kommen sich mehrere Leute nicht in die Quere.
+
+| Seite | URL | Datei |
+|---|---|---|
+| Start | `/` | `src/pages/StartPage.vue` |
+| Überblick (das große Ganze) | `/ueberblick` | `src/pages/UeberblickPage.vue` |
+| Ein- & Ausgaben | `/ein-ausgaben` | `src/pages/EinAusgabenPage.vue` |
+| Stellenplan | `/stellenplan` | `src/pages/StellenplanPage.vue` |
+| Freiwillige Leistungen | `/freiwillige-leistungen` | `src/pages/FreiwilligeLeistungenPage.vue` |
+| Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
+
+Wird eine Seite zu groß für eine Datei, kommen ihre Bestandteile in einen
+eigenen Ordner `src/components/<seite>/`.
+
+### Bitte nicht allein ändern
+
+Diese Dateien gelten für alle Seiten. Änderungen daran kurz im Team abstimmen:
+
+| Datei | Wofür |
+|---|---|
+| `src/App.vue` | Rahmen mit Kopf- und Fußzeile |
+| `src/router/index.ts` | URL → Seite. Neue Seite = ein Eintrag hier, die Navigation baut sich daraus selbst |
+| `src/components/layout/` | Kopf- und Fußzeile |
+| `src/components/ui/` | `PageIntro`, `ChartCard`, `BaseChart` — das gemeinsame Seitengerüst |
+| `src/charts/echartsTheme.ts` | Farben und Achsen aller Diagramme |
+| `src/charts/format.ts` | Zahlen- und Euroformate |
+
+So sieht eine Seite aus:
+
+```vue
+<PageIntro titel="..." beschreibung="..." />
+<ChartCard titel="..." quelle="Haushaltsplan 2026/27, Band 2, S. ...">
+  <BaseChart :option="meineOption" />
+</ChartCard>
+```
+
+Farben nicht selbst wählen: `KATEGORIE_FARBEN` aus `echartsTheme.ts` ist in
+fester Reihenfolge zu verwenden (Serie 1 nimmt Farbe 1 usw.). Die Abstände sind
+so gesetzt, dass benachbarte Farben auch bei Rot-Grün-Sehschwäche unterscheidbar
+bleiben, auf hellem wie dunklem Hintergrund.
+
+### Stand
+
+Alle sechs Seiten stehen mit Layout, Diagrammen und Navigation — die Zahlen
+darin sind aber **erfunden** und nur Platzhalter. Jede solche Seite zeigt einen
+`DemoHinweis`; der wird entfernt, sobald sie echte Daten aus `daten/` liest.
+
+Offen: Anbindung der CSVs aus `daten/`, ein GeoJSON der Stadtbezirke für die
+Karte, und die Abgrenzung freiwillige gegen pflichtige Leistungen — die
+kennzeichnet der Haushaltsplan nicht selbst.
+
+
 ## A message to our robotic friends (LLMs)
 - Never force-push
 - Use feature-branches for non trivial additions
