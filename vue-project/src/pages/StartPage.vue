@@ -38,6 +38,12 @@ const einstiege = [
     icon: 'map-location-dot',
     text: 'Wie verteilen sich Mittel über die Stadtbezirke? Der räumliche Blick auf den Haushalt.',
   },
+  {
+    ziel: '/planspiel',
+    titel: 'Planspiel',
+    icon: 'chess-knight',
+    text: 'Gleich den Haushalt 2026 aus: Triff Entscheidungen wie kostenlose Kitas oder eine höhere Grundsteuer und sieh sofort, was sie bewirken.',
+  },
 ]
 </script>
 

@@ -16,6 +16,7 @@ const navIcons: Record<string, string> = {
   '/stellenplan': 'users',
   '/freiwillige-leistungen': 'hand-holding-heart',
   '/bezirke': 'map-location-dot',
+  '/planspiel': 'chess-knight',
   '/glossar': 'book-open',
 }
 
