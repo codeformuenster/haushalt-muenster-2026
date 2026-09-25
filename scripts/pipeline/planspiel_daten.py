@@ -9,10 +9,12 @@ Die Roh-CSVs aus Band 2 mit "PG0101_Teilergebnisplan" im Namen sind Auszüge je
 Bezirksvertretung (Bezirksbezogene Haushaltsangaben) und werden nicht gelesen.
 
 Dazu kommen Einzelwerte für die Entscheidungskarten: die Summe der
-freiwilligen Zuschüsse an Vereine und Verbände (aus der Zuschusstabelle unter
-daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein), Grundsteuer-
-und Gewerbesteuerertrag aus dem Vorbericht (Band 2, PDF-Seite 20, dort in Mio. €
-mit einer Nachkommastelle) und die Stellen (VZÄ) einzelner Produktgruppen aus dem
+freiwilligen und aller Zuschüsse an Vereine und Verbände (aus der Zuschusstabelle
+unter daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein), Grundsteuer,
+Gewerbesteuer und sonstige kommunale Steuern aus dem Vorbericht (Band 2, PDF-Seite
+20, dort in Mio. € mit einer Nachkommastelle), Zeile 20 des Gesamtergebnisplans
+(Zinsaufwendungen), Zeile 19 des Gesamtfinanzplans (Band 1, PDF-Seite 11,
+Einzahlungen aus der Veräußerung von Sachanlagen) und die Stellen (VZÄ) einzelner Produktgruppen aus dem
 Stellenplan unter daten/agg_tables/ (agg_stellenplan.py muss vorher gelaufen
 sein) sowie die geplante Ausschüttung der Stadtwerke Münster GmbH an die Stadt
 (Band 2, PDF-Seite 143, dort in T€). PG- und PB-Bezeichnungen stammen aus der
@@ -79,6 +81,12 @@ def lies_plan(pfad: Path) -> dict[str, list[int]]:
     return {j: [round(w) for w in werte[j]] for j in JAHRE}
 
 
+def plan_zeile(pfad: Path, nummer: str) -> dict[str, int]:
+    """Eine einzelne Zeile eines Gesamtplans je Jahr in €."""
+    zeile = lies(pfad).filter(c("column_1") == nummer).select(zahl(c(s)).alias(j) for j, s in JAHR_SPALTE.items())
+    return {j: round(zeile[j][0]) for j in JAHRE}
+
+
 def steuer(daten: Path, steuerart: str) -> dict[str, int]:
     """Ertrag einer Steuerart je Jahr aus dem Vorbericht (Band 2, S. 20), umgerechnet von Mio. € in €."""
     df = lies(daten / "raw_table_extraction" / "band2_p020_Vorbericht_Ergebnisplan_t1.csv")
@@ -105,9 +113,14 @@ def stellen(daten: Path) -> dict[str, dict[str, float]]:
     return {row["Code"]: {j: row[f"Stellen_Gesamt_VZAE_{j}"] for j in JAHRE} for row in df.iter_rows(named=True)}
 
 
-def freiwillige_zuschuesse(daten: Path) -> dict[str, int]:
-    """Summe der als "freiwillig" gekennzeichneten Zuschüsse je Jahr."""
-    df = pl.read_csv(daten / ZUSCHUSS_DATEI).filter(c("verpflichtend_freiwillig") == "freiwillig")
+def zuschuesse(daten: Path, nur_freiwillig: bool) -> dict[str, int]:
+    """Summe aller oder nur der als "freiwillig" gekennzeichneten Zuschüsse je Jahr.
+
+    Die Gesamtsumme am Tabellenende hat keine LfdNr und wird nicht mitgezählt.
+    """
+    df = pl.read_csv(daten / ZUSCHUSS_DATEI).filter(c("LfdNr").is_not_null())
+    if nur_freiwillig:
+        df = df.filter(c("verpflichtend_freiwillig") == "freiwillig")
     return {j: round(df[f"Zuschuss_{j}_EUR"].sum()) for j in JAHRE}
 
 
@@ -115,7 +128,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     """Schreibt die Planspiel-Daten und prüft die PG-Summen gegen den Gesamtergebnisplan.
 
     Quelle: Band 1, PDF-Seite 9 und Teilergebnispläne der Produktgruppen (S. 15-558),
-    Band 2, PDF-Seite 20 (Grund- und Gewerbesteuer) und 143 (Stadtwerke), Zuschusstabelle,
+    Band 1, PDF-Seite 11 (Finanzplan), Band 2, PDF-Seite 20 (Steuern) und 143 (Stadtwerke), Zuschusstabelle,
     Stellenplan und Gesamtübersicht unter daten/agg_tables/.
     Ausgabe: vue-project/src/data/planspiel.json. Exit-Code 1 bei Abweichungen.
     """
@@ -127,7 +140,8 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         code = re.search(r"_PG(\d{4})_", pfad.name)[1]
         produktgruppen.append({"code": code, "name": namen[code], "werte": lies_plan(pfad)})
     produktgruppen.sort(key=lambda pg: pg["code"])
-    gesamt = lies_plan(daten / "raw_table_extraction" / "band1_p009_PG12_Ergebnisplan_t0.csv")
+    ergebnisplan = daten / "raw_table_extraction" / "band1_p009_PG12_Ergebnisplan_t0.csv"
+    gesamt = lies_plan(ergebnisplan)
 
     abweichungen = 0
     for j in JAHRE:
@@ -143,9 +157,13 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         "gesamt": gesamt,
         "produktbereiche": [{"code": pb, "name": namen[pb]} for pb in pb_codes],
         "produktgruppen": produktgruppen,
-        "freiwilligeZuschuesse": freiwillige_zuschuesse(daten),
+        "freiwilligeZuschuesse": zuschuesse(daten, nur_freiwillig=True),
+        "zuschuesseGesamt": zuschuesse(daten, nur_freiwillig=False),
         "grundsteuer": steuer(daten, "Grundsteuer"),
         "gewerbesteuer": steuer(daten, "Gewerbesteuer"),
+        "sonstigeSteuern": steuer(daten, "Sonstige kommunale Steuern"),
+        "zinsaufwand": plan_zeile(ergebnisplan, "20"),
+        "verkaufSachanlagen": plan_zeile(daten / "raw_table_extraction" / "band1_p011_PG12_Finanzplan_t0.csv", "19"),
         "stellen": stellen(daten),
         "stadtwerkeAusschuettung": stadtwerke_ausschuettung(daten),
     }

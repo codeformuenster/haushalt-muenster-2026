@@ -8,9 +8,10 @@ import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
-import { euro, euroKurz } from '@/charts/format'
+import { euro, euroKurz, zahl } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
 import {
+  anteil,
   aufwendungenProduktbereich,
   ERTRAGSARTEN,
   gesamt,
@@ -230,6 +231,29 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
                   0 € <small>keine Wirkung auf das Ergebnis</small>
                 </template>
                 <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
+              </span>
+              <span v-if="karte.posten.length" class="pl-posten">
+                <strong>Im Haushalt 2026</strong>
+                <template v-for="p in karte.posten" :key="p.name">
+                  <span class="pl-posten__zeile">
+                    <span>{{ p.name }}</span>
+                    <span>{{
+                      p.einheit ? `${zahl(p.betrag)} ${p.einheit}` : euroKurz(p.betrag)
+                    }}</span>
+                  </span>
+                  <template v-if="p.ganzes">
+                    <span class="pl-posten__zeile">
+                      <span>{{ p.ganzes.name }}</span>
+                      <span>{{ euroKurz(p.ganzes.betrag) }}</span>
+                    </span>
+                    <span class="pl-posten__zeile">
+                      <span class="pl-posten__balken" aria-hidden="true">
+                        <span :style="{ width: `${(100 * p.betrag) / p.ganzes.betrag}%` }" />
+                      </span>
+                      <span>{{ anteil(p.betrag, p.ganzes.betrag) }}</span>
+                    </span>
+                  </template>
+                </template>
               </span>
               <span class="pl-wissen">
                 <strong>Gut zu wissen</strong>
@@ -624,6 +648,55 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
   font-weight: normal;
+}
+
+/* Einordnung in Zahlen: schlichte Zeilen, bei Teil und Ganzem ein dünner Anteilsbalken. */
+.pl-posten {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-3xs);
+  padding: var(--wa-space-xs) var(--wa-space-m);
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: var(--wa-border-radius-s);
+  font-size: var(--wa-font-size-s);
+}
+
+.pl-posten strong {
+  margin-bottom: var(--wa-space-3xs);
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-xs);
+  font-weight: var(--wa-font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pl-posten__zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wa-space-s);
+  font-variant-numeric: tabular-nums;
+}
+
+.pl-posten__zeile > :last-child {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.pl-posten__balken {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background-color: var(--wa-color-neutral-fill-normal);
+  overflow: hidden;
+}
+
+.pl-posten__balken > span {
+  display: block;
+  max-width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--wa-color-brand-fill-loud);
 }
 
 .pl-wissen {
