@@ -115,6 +115,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Stellenplan | `/stellenplan` | `src/pages/StellenplanPage.vue` |
 | Freiwillige Leistungen | `/freiwillige-leistungen` | `src/pages/FreiwilligeLeistungenPage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
+| Glossar (PB/PG-Nummern, Rohdaten-Dateinamen) | `/glossar` | `src/pages/GlossarPage.vue` |
 
 Wird eine Seite zu groß für eine Datei, kommen ihre Bestandteile in einen
 eigenen Ordner `src/components/<seite>/`.
