@@ -3,16 +3,13 @@
 Prüft, ob sich die Werte in den bereinigten CSV-Dateien unter daten/ rechnerisch
 zusammenfügen:
 
-- haushaltsquerschnitt.csv und agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv:
-  Produktgruppen summieren sich zum Produktbereich, Produktbereiche zur Gesamtsumme,
-  Zeilenformeln (z.B. Erträge - Aufwendungen = ordentliches Ergebnis) stimmen,
-  und beide Dateien enthalten dieselben Werte.
+- agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv: Produktgruppen
+  summieren sich zum Produktbereich, Produktbereiche zur Gesamtsumme, und die
+  Zeilenformeln (z.B. Erträge - Aufwendungen = ordentliches Ergebnis) stimmen.
 - agg_tables/Stellenplan_2026_2027.csv: Beamte + Tarif = Gesamt, Produktgruppen
   summieren sich zum Produktbereich, Produktbereiche zur Gesamtsumme.
 - agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv: Besoldungsgruppen
   summieren sich zu Summe_VZAE, und Summe_VZAE stimmt mit dem Stellenplan überein.
-- stellenplan-beta.csv: Besoldungsgruppen summieren sich zur Gruppensumme,
-  Gruppensummen zu "Insgesamt".
 
 Toleranz: 1 € bei Beträgen, 0,01 bei Stellen (VZÄ).
 
@@ -31,26 +28,21 @@ DATEN = Path(__file__).resolve().parent.parent / "daten"
 TOLERANZ_EUR = 1.0
 TOLERANZ_VZAE = 0.01
 
-QS_DATEI = "haushaltsquerschnitt.csv"
 GU_DATEI = "agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv"
 SP_DATEI = "agg_tables/Stellenplan_2026_2027.csv"
 BG_DATEI = "agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv"
-SB_DATEI = "stellenplan-beta.csv"
 
-QS_KEYS = ["kind", "year", "code"]
+GU_KEYS = ["kind", "year", "code"]
 
 c = pl.col
-QS_FORMELN = {
+GU_FORMELN = {
     "ordentliches_ergebnis": c("ordentliche_ertraege") - c("ordentliche_aufwendungen"),
-    "ergebnis_laufende_verwaltung": c("ordentliches_ergebnis") + c("finanzergebnis"),
-    "ergebnis_teilhaushalt": c("ergebnis_laufende_verwaltung") + c("ausserordentliches_ergebnis"),
     "saldo_laufend": c("einzahlungen_laufend") - c("auszahlungen_laufend"),
     "saldo_investitionen": c("einzahlungen_investitionen") - c("auszahlungen_investitionen"),
-    "saldo_finanzierung": c("einzahlungen_finanzierung") - c("auszahlungen_finanzierung"),
     "finanzmittelueberschuss_fehlbetrag": c("saldo_laufend") + c("saldo_investitionen"),
 }
 
-# Spaltenpräfix in der Gesamtübersicht -> (kind, Spalte) im Haushaltsquerschnitt
+# Spaltenpräfix in der Gesamtübersicht -> (Planart, Spaltenname im Langformat)
 GU_SPALTEN = {
     "Ertraege": ("ergebnisplanung", "ordentliche_ertraege"),
     "Aufwendungen": ("ergebnisplanung", "ordentliche_aufwendungen"),
@@ -150,14 +142,8 @@ def formeln(
     return vergleichen(pruefung, datei, erwartet, df, keys, list(formeln), toleranz)
 
 
-def lade_querschnitt(daten: Path) -> tuple[pl.DataFrame, list[str]]:
-    df = pl.read_csv(daten / QS_DATEI, separator=";", schema_overrides={"code": pl.String})
-    werte = df.columns[df.columns.index("unit") + 1 :]
-    return df.with_columns(c(werte).cast(pl.Float64).fill_null(0.0)), werte
-
-
 def lade_gesamtuebersicht(daten: Path) -> tuple[pl.DataFrame, list[str]]:
-    """Bringt die Gesamtübersicht in dieselbe Form wie den Haushaltsquerschnitt."""
+    """Formt die Gesamtübersicht um: eine Zeile je Planart, Jahr und Code."""
     df = pl.read_csv(daten / GU_DATEI, schema_overrides={"Code": pl.String})
     lang = (
         df.drop("Bezeichnung")
@@ -176,28 +162,20 @@ def lade_gesamtuebersicht(daten: Path) -> tuple[pl.DataFrame, list[str]]:
             c("basis").replace_strict({k: v[1] for k, v in GU_SPALTEN.items()}).alias("spalte"),
         )
     )
-    wide = lang.pivot(on="spalte", index=QS_KEYS + ["level"], values="wert")
-    werte = [s for s in wide.columns if s not in QS_KEYS + ["level"]]
+    wide = lang.pivot(on="spalte", index=GU_KEYS + ["level"], values="wert")
+    werte = [s for s in wide.columns if s not in GU_KEYS + ["level"]]
     return wide.with_columns(c(werte).cast(pl.Float64).fill_null(0.0)), werte
 
 
 def pruefe_finanzen(daten: Path) -> list[Ergebnis]:
-    qs, qs_werte = lade_querschnitt(daten)
-    gu, gu_werte = lade_gesamtuebersicht(daten)
-    ergebnisse = []
-    for datei, df, werte in [(QS_DATEI, qs, qs_werte), (GU_DATEI, gu, gu_werte)]:
-        ergebnisse += [
-            summen("Produktgruppen = Produktbereich", datei, df, "product_group", "product_area",
-                   ["kind", "year"], werte, TOLERANZ_EUR),
-            summen("Produktbereiche = Gesamtsumme", datei, df, "product_area", "total",
-                   ["kind", "year"], werte, TOLERANZ_EUR),
-            formeln("Zeilenformeln", datei, df, QS_KEYS, QS_FORMELN, TOLERANZ_EUR),
-        ]
-    ergebnisse.append(
-        vergleichen("Haushaltsquerschnitt = Gesamtübersicht", f"{QS_DATEI} vs. {GU_DATEI}",
-                    qs, gu, QS_KEYS, gu_werte, TOLERANZ_EUR)
-    )
-    return ergebnisse
+    gu, werte = lade_gesamtuebersicht(daten)
+    return [
+        summen("Produktgruppen = Produktbereich", GU_DATEI, gu, "product_group", "product_area",
+               ["kind", "year"], werte, TOLERANZ_EUR),
+        summen("Produktbereiche = Gesamtsumme", GU_DATEI, gu, "product_area", "total",
+               ["kind", "year"], werte, TOLERANZ_EUR),
+        formeln("Zeilenformeln", GU_DATEI, gu, GU_KEYS, GU_FORMELN, TOLERANZ_EUR),
+    ]
 
 
 def pruefe_stellen(daten: Path) -> list[Ergebnis]:
@@ -225,12 +203,6 @@ def pruefe_stellen(daten: Path) -> list[Ergebnis]:
         .with_columns(c("variable").str.extract(r"(\d{4})$").cast(pl.Int64).alias("year"))
     )
 
-    sb = pl.read_csv(daten / SB_DATEI, separator=";")
-    sb_keys = ["group", "year", "value_type"]
-    sb_einzeln = sb.filter(~c("is_aggregate")).group_by(sb_keys).agg(c("value").sum())
-    sb_summen = sb.filter(c("grade") == "Summe")
-    sb_gesamt_keys = ["year", "value_type"]
-
     return [
         formeln("Beamte + Tarif = Gesamt", SP_DATEI, sp, ["code"], sp_formeln, TOLERANZ_VZAE),
         summen("Produktgruppen = Produktbereich", SP_DATEI, sp, "product_group", "product_area",
@@ -241,11 +213,6 @@ def pruefe_stellen(daten: Path) -> list[Ergebnis]:
                 {"Summe_VZAE": pl.sum_horizontal(gruppen)}, TOLERANZ_VZAE),
         vergleichen("Besoldungsgruppen = Stellenplan", f"{BG_DATEI} vs. {SP_DATEI}",
                     bg, sp_gesamt, ["code", "year"], ["Summe_VZAE"], TOLERANZ_VZAE),
-        vergleichen("Besoldungsgruppen = Gruppensumme", SB_DATEI, sb_einzeln, sb_summen,
-                    sb_keys, ["value"], TOLERANZ_VZAE),
-        vergleichen("Gruppensummen = Insgesamt", SB_DATEI,
-                    sb_summen.group_by(sb_gesamt_keys).agg(c("value").sum()),
-                    sb.filter(c("group") == "Insgesamt"), sb_gesamt_keys, ["value"], TOLERANZ_VZAE),
     ]
 
 

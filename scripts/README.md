@@ -14,4 +14,4 @@ uv run --project scripts scripts/<skript>.py --help
 
 | Skript | Zweck | Ausgabe |
 |---|---|---|
-| `check_konsistenz.py` | Prüft die bereinigten CSVs (`haushaltsquerschnitt.csv`, `stellenplan-beta.csv`, `agg_tables/`) auf rechnerische Konsistenz: Summen über Produktgruppen und Produktbereiche, Zeilenformeln, Abgleich zwischen Dateien. | Konsole, Markdown-Bericht `daten/pruefberichte/konsistenz.md`, Exit-Code 1 bei Abweichungen |
+| `check_konsistenz.py` | Prüft die bereinigten CSVs in `daten/agg_tables/` (Gesamtübersicht, Stellenplan) auf rechnerische Konsistenz: Summen über Produktgruppen und Produktbereiche, Zeilenformeln, Abgleich Stellenplan mit Besoldungsgruppen. | Konsole, Markdown-Bericht `daten/pruefberichte/konsistenz.md`, Exit-Code 1 bei Abweichungen |

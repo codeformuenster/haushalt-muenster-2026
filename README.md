@@ -57,13 +57,13 @@ Inhalte
 |------------|------------|------------|------------|------------|
 | Vorbericht | | 5-34 | 1-30 | |
 | Stellenplan | | 35-68 | 31-64 | |
-| | Beamte & Beamtinnen | 37-38 | 33-34 | [stellenplan-beta.csv](daten/stellenplan-beta.csv) |
+| | Beamte & Beamtinnen | 37-38 | 33-34 |  |
 | | Tariflich Beschäftigte | 39-40 | 35-36 | |
 | | Stellen nach Haushaltsgliederung: Beamte & Beamtinnen 2026 | 41-45 | 37-41 | [Stellenplan_2026_2027.csv](daten/agg_tables/Stellenplan_2026_2027.csv), [Stellenplan_2026_2027_nach_Besoldungsgruppen.csv](daten/agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv) |
 | | Stellen nach Haushaltsgliederung: Tariflich Beschäftigte 2026 | 46-53 | 42-49 | (s.o.) |
 | | Stellen nach Haushaltsgliederung: Beamte & Beamtinnen 2027 | 54-58 | 50-54 | (s.o.) |
 | | Stellen nach Haushaltsgliederung: Tariflich Beschäftigte 2027 | 59-66 | 55-62 | (s.o.) |
-| Haushaltsquerschnitt | | 69-80 | 65-76 | [haushaltsquerschnitt.csv](daten/haushaltsquerschnitt.csv), [Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv](daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv) |
+| Haushaltsquerschnitt | | 69-80 | 65-76 | [Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv](daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv) |
 | | Ergebnisplanung 2026 | 71-73 | 67-69 | |
 | | Ergebnisplanung 2027 | 74-76 | 70-72 | |
 | | Finanzplanung 2026 | 77-78 | 73-74 | |
