@@ -159,10 +159,15 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Stellenplan | `/stellenplan` | `src/pages/StellenplanPage.vue` |
 | Zuschüsse an Vereine und Verbände | `/zuschuesse` | `src/pages/ZuschuessePage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
+| Planspiel (Haushalt 2026 ausgleichen) | `/planspiel` | `src/pages/PlanspielPage.vue` |
 | Glossar (PB/PG-Nummern, Rohdaten-Dateinamen) | `/glossar` | `src/pages/GlossarPage.vue` |
 
 Wird eine Seite zu groß für eine Datei, kommen ihre Bestandteile in einen
 eigenen Ordner `src/components/<seite>/`.
+
+Das Planspiel liest `src/data/planspiel.json`, erzeugt von
+`scripts/pipeline/planspiel_daten.py`; die Entscheidungskarten stehen in
+`src/components/planspiel/karten.ts`.
 
 ### Bitte nicht allein ändern
 
