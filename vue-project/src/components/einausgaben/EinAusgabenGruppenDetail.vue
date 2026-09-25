@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
-import { euro, euroKurz } from '@/charts/format'
+import { euro } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
 
 type DetailRow = {
@@ -25,35 +25,80 @@ const option = computed<EChartsOption>(() => {
     .filter((row) => row.Gruppe === props.groupCode)
     .sort((a, b) => b.Aufwendungen2026Num - a.Aufwendungen2026Num)
 
+  const mitteNode = "Mitte"
+  const ueberschussNode = `Überschuss ${props.groupName}`
+  const subventionNode = `Subvention aus anderen Bereichen`
+
+  const sumErtraege = products.reduce((sum, row) => sum + row.Ertraege2026Num, 0)
+  const sumAufwendungen = products.reduce((sum, row) => sum + row.Aufwendungen2026Num, 0)
+  const saldo = sumErtraege - sumAufwendungen
+
+  const productNodes = products.map((p) => `${p.Code} ${p.Bezeichnung}`)
+  const nodes: Array<{ name: string; itemStyle?: { color: string } }> = [
+    { name: mitteNode, itemStyle: { color: POL_FARBEN.positiv } },
+    ...productNodes.map((name) => ({ name })),
+	...productNodes.map((name) => ({ name: "E " + name })),
+  ]
+
+  if (saldo > 0) {
+    nodes.push({ name: ueberschussNode, itemStyle: { color: POL_FARBEN.positiv } })
+  }
+  if (saldo < 0) {
+    nodes.push({ name: subventionNode, itemStyle: { color: POL_FARBEN.neutral } })
+  }
+
+  const links: Array<{ source: string; target: string; value: number }> = [
+    ...products
+      .filter((p) => p.Ertraege2026Num > 0)
+      .map((p) => ({
+        target: mitteNode,
+        source: `E ${p.Code} ${p.Bezeichnung}`,
+        value: p.Ertraege2026Num,
+      })),
+    ...products
+      .filter((p) => p.Aufwendungen2026Num > 0)
+      .map((p) => ({
+        target: `${p.Code} ${p.Bezeichnung}`,
+        source: mitteNode,
+        value: p.Aufwendungen2026Num,
+      })),
+  ]
+
+  if (saldo > 0) {
+    links.push({
+      source: mitteNode,
+      target: ueberschussNode,
+      value: saldo,
+    })
+  }
+
+  if (saldo < 0) {
+    links.push({
+      source: subventionNode,
+      target: mitteNode,
+      value: Math.abs(saldo),
+    })
+  }
+
   return {
     tooltip: {
-      trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      trigger: 'item',
       valueFormatter: (v) => euro(Number(v)),
-    },
-    legend: { bottom: 0 },
-    grid: { left: 72, right: 24, top: 24, bottom: 56 },
-    xAxis: {
-      type: 'category',
-      data: products.map((p) => `${p.Code} ${p.Bezeichnung}`),
-      axisLabel: { interval: 0, rotate: 45 },
-    },
-    yAxis: {
-      type: 'value',
-      axisLabel: { formatter: (v: number) => euroKurz(v) },
     },
     series: [
       {
-        name: 'Einnahmen 2026',
-        type: 'bar',
-        data: products.map((p) => p.Ertraege2026Num),
-        itemStyle: { color: POL_FARBEN.positiv },
-      },
-      {
-        name: 'Aufwendungen 2026',
-        type: 'bar',
-        data: products.map((p) => p.Aufwendungen2026Num),
-        itemStyle: { color: POL_FARBEN.negativ },
+        type: 'sankey',
+        left: 16,
+        right: 24,
+        top: 24,
+        bottom: 24,
+        emphasis: { focus: 'adjacency' },
+        nodeAlign: 'justify',
+        nodeGap: 14,
+        lineStyle: { color: 'source', curveness: 0.5 },
+        label: { formatter: ({ name }: { name: string }) => name },
+        data: nodes,
+        links,
       },
     ],
   }

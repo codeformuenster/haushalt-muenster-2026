@@ -115,15 +115,11 @@ function clearSelection(): void {
   <div class="mm-seite">
     <PageIntro
       titel="Ein- und Ausgaben"
-      beschreibung="Sankey-Diagramm für 2026: Detaillierte Einnahmen werden zu Gruppen und zur Gesamtsumme aggregiert, dann über die Gesamtausgaben wieder auf Gruppen und Details verteilt."
+      beschreibung=""
     />
 
     <ChartCard
-      :titel="selectedGroup ? `Produkte in Gruppe ${selectedGroup}` : 'Erträge und Aufwendungen als Sankey (2026)'"
-      :beschreibung="selectedGroup
-        ? `Säulendiagramm für ${selectedGroupName}: Einnahmen und Aufwendungen je Produkt.`
-        : 'Gruppenansicht: Klick auf eine Gruppe öffnet die Produktansicht.'"
-      quelle="Haushaltsplan 2026/27, Gesamtübersicht Einnahmen/Ausgaben"
+      titel="Erträge und Aufwendungen als Sankey (2026)"
     >
       <template v-if="selectedGroup">
         <wa-button size="small" variant="neutral" @click="clearSelection">Zurück</wa-button>

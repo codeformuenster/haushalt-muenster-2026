@@ -84,7 +84,7 @@ const sankeyOption = computed<EChartsOption>(() => {
   })
 
   return {
-    title: { text: 'Einnahmen und Ausgaben 2026 (Sankey)' },
+    title: { text: 'Einnahmen und Ausgaben 2026' },
     tooltip: {
       trigger: 'item',
       triggerOn: 'mousemove',
