@@ -58,6 +58,12 @@ const router = createRouter({
       meta: { nav: 'Bezirke' },
     },
     {
+      path: '/planspiel',
+      name: 'planspiel',
+      component: () => import('@/pages/PlanspielPage.vue'),
+      meta: { nav: 'Planspiel' },
+    },
+    {
       path: '/glossar',
       name: 'glossar',
       component: () => import('@/pages/GlossarPage.vue'),
