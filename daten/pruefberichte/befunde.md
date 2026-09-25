@@ -44,6 +44,6 @@ Auf Ebene der Produktgruppen stimmen beide Dateien überein. Wahrscheinlich Rund
 
 **Betrifft:** `agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv`, Spalten `Tarif_S02` und `Tarif_TVOEDFEST` (30 Zeilen).
 
-Die ursprünglich eingecheckte Tabelle hatte die TVÖD-FEST-Stellen zur Spalte S02 addiert, `Tarif_TVOEDFEST` war überall 0. Im PDF stehen diese Werte in der Spalte "TVÖD FEST" (Band 2, S. 46-53 und 59-66). Die Summenzeile auf S. 53 bestätigt das: S02 = 54,41, TVÖD FEST = 10,82 (alte Tabelle: 65,23 / 0,00). Seit dem Neuaufbau mit `scripts/build_agg_tables.py` ist die Tabelle korrigiert. `Summe_VZAE` und alle anderen Spalten sind unverändert.
+Die ursprünglich eingecheckte Tabelle hatte die TVÖD-FEST-Stellen zur Spalte S02 addiert, `Tarif_TVOEDFEST` war überall 0. Im PDF stehen diese Werte in der Spalte "TVÖD FEST" (Band 2, S. 46-53 und 59-66). Die Summenzeile auf S. 53 bestätigt das: S02 = 54,41, TVÖD FEST = 10,82 (alte Tabelle: 65,23 / 0,00). Seit dem Neuaufbau mit `scripts/pipeline/build_agg_tables.py` ist die Tabelle korrigiert. `Summe_VZAE` und alle anderen Spalten sind unverändert.
 
 Außerdem übernimmt `Stellenplan_2026_2027.csv` die Bezeichnung von Produktbereich 09 jetzt wie im Stellenplan gedruckt ("Räumliche Planung, Entwicklung/GeoInfo" statt vorher "Räumliche Planung und Entwicklung").

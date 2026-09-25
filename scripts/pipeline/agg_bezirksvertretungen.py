@@ -21,7 +21,7 @@ import typer
 
 from rohdaten import lies, roh_dateien, schreibe, zahl
 
-DATEN = Path(__file__).resolve().parent.parent / "daten"
+DATEN = Path(__file__).resolve().parents[2] / "daten"
 AUSGABE = "agg_tables/Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv"
 
 # Die Fachthemen stehen in den Roh-CSVs nur als Dateinamenteil (ohne Umlaute und

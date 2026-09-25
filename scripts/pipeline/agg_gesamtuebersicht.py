@@ -21,7 +21,7 @@ import typer
 
 from rohdaten import lies, roh_dateien, schreibe, zahl
 
-DATEN = Path(__file__).resolve().parent.parent / "daten"
+DATEN = Path(__file__).resolve().parents[2] / "daten"
 AUSGABE = "agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv"
 
 c = pl.col

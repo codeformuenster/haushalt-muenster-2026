@@ -87,7 +87,7 @@ Inhalte
 
 ## Skripte
 
-Python-Skripte zur Prüfung und Auswertung der Daten liegen in [`scripts/`](scripts/README.md). `scripts/build_agg_tables.py` erzeugt alle Tabellen in `daten/agg_tables/` aus `daten/raw_table_extraction/` neu und prüft sie anschließend auf Konsistenz. Die Konsistenzprüfung der bereinigten CSVs schreibt ihren Bericht nach [`daten/pruefberichte/konsistenz.md`](daten/pruefberichte/konsistenz.md). Die manuell untersuchten Abweichungen sind in [`daten/pruefberichte/befunde.md`](daten/pruefberichte/befunde.md) dokumentiert.
+Python-Skripte zur Prüfung und Auswertung der Daten liegen in [`scripts/`](scripts/README.md). `scripts/pipeline/build_agg_tables.py` erzeugt alle Tabellen in `daten/agg_tables/` aus `daten/raw_table_extraction/` neu und prüft sie anschließend auf Konsistenz. Die Konsistenzprüfung der bereinigten CSVs schreibt ihren Bericht nach [`daten/pruefberichte/konsistenz.md`](daten/pruefberichte/konsistenz.md). Die manuell untersuchten Abweichungen sind in [`daten/pruefberichte/befunde.md`](daten/pruefberichte/befunde.md) dokumentiert.
 
 
 ## Die Anwendung

@@ -23,7 +23,7 @@ import typer
 from agg_gesamtuebersicht import AUSGABE as GU_DATEI
 from rohdaten import lies, roh_dateien, schreibe, zahl
 
-DATEN = Path(__file__).resolve().parent.parent / "daten"
+DATEN = Path(__file__).resolve().parents[2] / "daten"
 AUSGABE = "agg_tables/Zuschuesse_Vereine_Verbaende_2026_2027.csv"
 AUSGABE_PG = "agg_tables/Zuschuesse_Vereine_Verbaende_2026_2027_nach_Produktgruppe.csv"
 

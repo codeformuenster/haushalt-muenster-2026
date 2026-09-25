@@ -23,7 +23,7 @@ import typer
 
 from rohdaten import lies, roh_dateien, schreibe, seite, zahl
 
-DATEN = Path(__file__).resolve().parent.parent / "daten"
+DATEN = Path(__file__).resolve().parents[2] / "daten"
 AUSGABE_SP = "agg_tables/Stellenplan_2026_2027.csv"
 AUSGABE_BG = "agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv"
 GESAMT = "Gesamtsumme Stadt Münster"
