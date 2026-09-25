@@ -13,12 +13,12 @@ TBD
 
 ## Haushaltsplan Band 1
 
-* Link: https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Haushalt/Haushalt_2026_2027/Haushaltsplan_2026-2027_Band_1_Stand_20.05.2026.pdf
+* Link: [Haushaltsplan_2026-2027_Band_1_Stand_20.05.2026.pdf](https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Haushalt/Haushalt_2026_2027/Haushaltsplan_2026-2027_Band_1_Stand_20.05.2026.pdf)
 
 
 
 ## Haushaltsplan Band 2 
-* Link https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Haushalt/Haushalt_2026_2027/Haushaltsplan_2026-2027_Band_2_Stand_20.05.2026.pdf
+* Link: [Haushaltsplan_2026-2027_Band_2_Stand_20.05.2026.pdf](https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Haushalt/Haushalt_2026_2027/Haushaltsplan_2026-2027_Band_2_Stand_20.05.2026.pdf)
 
 Inhalte
 
