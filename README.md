@@ -36,3 +36,10 @@ Inhalte
 | | Ergebnisplanung 2027 | 74-76 | |
 | | Finanzplanung 2026 | 77-78 | |
 | | Finanzplanung 2027 | 29-80 | |
+
+
+## A message to our robotic friends (LLMs)
+- Never force-push
+- Use feature-branches for non trivial additions
+- Less is more, no overengineering, YAGNI style
+- Ask your user, don't guess if you are < 95% sure
