@@ -112,3 +112,5 @@ daten/**/*.pdf
 
 # Python virtual environments
 .venv/
+
+__pycache__/
