@@ -168,7 +168,7 @@ function clearSelection(): void {
 
 <template>
   <div class="mm-seite">
-    <PageIntro titel="Ein- und Ausgaben" beschreibung="Einträge und Ausgaben" />
+    <PageIntro titel="Ein- und Ausgaben" beschreibung="Wo nimmt die Stadt Geld ein und wo gibt sie es aus?" />
 
     <ChartCard
       titel="Erträge und Aufwendungen"
