@@ -56,6 +56,12 @@ const router = createRouter({
       meta: { nav: 'Bezirke' },
     },
     {
+      path: '/glossar',
+      name: 'glossar',
+      component: () => import('@/pages/GlossarPage.vue'),
+      meta: { nav: 'Glossar' },
+    },
+    {
       // Unbekannte Adressen landen auf der Startseite statt auf einer leeren Seite.
       path: '/:pfad(.*)*',
       redirect: { name: 'start' },
