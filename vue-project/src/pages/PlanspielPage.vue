@@ -227,7 +227,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
                 :class="{ gut: karte.wirkung > 0, schlecht: karte.wirkung < 0 }"
               >
                 <template v-if="karte.wirkung === 0">
-                  0 € <small>keine Wirkung auf den Haushalt</small>
+                  0 € <small>keine Wirkung auf das Ergebnis</small>
                 </template>
                 <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
               </span>

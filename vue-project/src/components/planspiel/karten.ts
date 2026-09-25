@@ -3,11 +3,12 @@
  *
  * ENTWURF: Auswahl, Texte und Annahmen der Karten sind ein Vorschlag und müssen
  * im Team geprüft werden. Die Beträge werden aus src/data/planspiel.json
- * berechnet (erzeugt von scripts/pipeline/planspiel_daten.py), nicht eingetippt.
+ * berechnet (erzeugt von scripts/pipeline/planspiel_daten.py). Nur Werte, die nicht
+ * im Haushaltsplan stehen, sind unten als Konstanten mit Quelle eingetragen.
  * Seitenangaben sind PDF-Seiten.
  */
 import daten from '@/data/planspiel.json'
-import { euroKurz } from '@/charts/format'
+import { euroKurz, zahl } from '@/charts/format'
 
 /** Nur das Haushaltsjahr 2026 zählt im Spiel. */
 const JAHR = '2026'
@@ -17,6 +18,7 @@ export const ZEILE = {
   zuwendungen: 1,
   oeffentlicheEntgelte: 3,
   privateEntgelte: 4,
+  sonstigeErtraege: 6,
   ertraege: 9,
   personal: 10,
   sachleistungen: 12,
@@ -54,6 +56,7 @@ export const GRUPPEN = [
   { id: 'einnehmen', titel: 'Mehr einnehmen' },
   { id: 'sparen', titel: 'Sparen' },
   { id: 'ausgeben', titel: 'Mehr ausgeben' },
+  { id: 'investieren', titel: 'Schulden und Investitionen' },
 ] as const
 
 export interface Karte {
@@ -72,6 +75,18 @@ export interface Karte {
 const kitaKosten = produktgruppe('0601', ZEILE.aufwendungen)
 /** Durchschnittliche Personalaufwendungen je Vollzeitstelle bei den Bürgerangelegenheiten. */
 const stelleBuergeramt = produktgruppe('0204', ZEILE.personal) / daten.stellen['0204'][JAHR]
+
+// Werte außerhalb des Haushaltsplans, Quellen in den Karten.
+/** Investitionsvolumen der neuen Grundschule im York-Quartier (Stadt Münster, 2024). */
+const schulKosten = 45_000_000
+/** Angenommene Nutzungsdauer, Mitte des NRW-Rahmens für Schulgebäude (40 bis 80 Jahre). */
+const schulNutzungsdauer = 60
+/** Angenommener Zinssatz, nur zur Erläuterung. */
+const schulZins = 0.03
+/** Umsatz der Verkehrsbetriebe der Stadtwerke Münster 2024 (Beteiligungsbericht 2024). */
+const busUmsatz = 39_800_000
+/** Hundesteuer pro Jahr laut Stadt Münster (2026, gerundet). */
+const hundesteuer = 1_500_000
 
 export const KARTEN: Karte[] = [
   {
@@ -119,6 +134,56 @@ export const KARTEN: Karte[] = [
     annahme:
       'Die Gebühren decken schon die zulässigen Kosten. Mehreinnahmen müssten in den Folgejahren über niedrigere Gebühren ausgeglichen werden.',
     quelle: 'Haushaltsplan Band 1, S. 445 (PDF), Zeile 04',
+  },
+  {
+    id: 'stadtwerke',
+    gruppe: 'einnehmen',
+    titel: 'Stadtwerke sollen mehr abführen',
+    text: 'Die Stadtwerke Münster zahlen der Stadt 50 % mehr von ihrem Gewinn aus.',
+    // Ausschüttungen sind Finanzerträge (Zeile 19) und zählen nicht zum ordentlichen Ergebnis.
+    wirkung: 0,
+    wissen: `Die Stadtwerke Münster GmbH gehört der Stadt und schüttet 2026 voraussichtlich ${euroKurz(daten.stadtwerkeAusschuettung[JAHR])} an sie aus. Solche Ausschüttungen bucht die Stadt wie Zinsen als Finanzerträge, getrennt vom laufenden Betrieb. Sie ändern das ordentliche Ergebnis deshalb nicht. Mit Gewinnen aus dem Energiegeschäft gleichen die Stadtwerke außerdem Verluste im Busverkehr aus (Querverbund).`,
+    annahme: `Auch 50 % mehr Ausschüttung (rund ${euroKurz(0.5 * daten.stadtwerkeAusschuettung[JAHR])}) landen im Finanzergebnis. Das Planspiel zählt nur das ordentliche Ergebnis.`,
+    quelle:
+      'Haushaltsplan Band 2, S. 143 (PDF), Übersicht zur Wirtschaftslage der Unternehmen; Band 1, S. 516 (PDF), Zeile 19; Querverbund: ms-aktuell.de, 2026 (https://ms-aktuell.de/muenster/oepnv-mit-millionenpublikum-muenster-plant/)',
+  },
+  {
+    id: 'vhs-musikschule',
+    gruppe: 'einnehmen',
+    titel: 'VHS und Musikschule teurer',
+    text: 'Kurse der Volkshochschule und Unterricht an der Musikschule werden 20 % teurer.',
+    wirkung:
+      0.2 *
+      (produktgruppe('0402', ZEILE.privateEntgelte) +
+        produktgruppe('0403', ZEILE.oeffentlicheEntgelte)),
+    wissen: `Die Kursentgelte decken rund ${anteil(produktgruppe('0402', ZEILE.privateEntgelte), produktgruppe('0402', ZEILE.aufwendungen))} der Kosten der Volkshochschule, die Gebühren der Westfälischen Schule für Musik rund ${anteil(produktgruppe('0403', ZEILE.oeffentlicheEntgelte), produktgruppe('0403', ZEILE.aufwendungen))}. Höhere Preise können dazu führen, dass weniger Menschen teilnehmen.`,
+    annahme:
+      'Die privatrechtlichen Leistungsentgelte der Produktgruppe 04 02 (Volkshochschule) und die öffentlich-rechtlichen Leistungsentgelte der Produktgruppe 04 03 (Westfälische Schule für Musik) steigen um 20 %. Es kommen gleich viele Teilnehmende wie bisher.',
+    quelle: 'Haushaltsplan Band 1, S. 226 (PDF), Zeile 05; S. 236 (PDF), Zeile 04',
+  },
+  {
+    id: 'blitzer',
+    gruppe: 'einnehmen',
+    titel: 'Mehr Blitzer aufstellen',
+    text: 'Die Stadt kontrolliert häufiger, wie schnell gefahren wird.',
+    wirkung: 0.1 * produktgruppe('0203', ZEILE.sonstigeErtraege),
+    wissen:
+      'Bußgelder sind eine Strafe für Verstöße und sollen die Verkehrssicherheit erhöhen. Wirken die Kontrollen, fahren mehr Menschen langsamer, und die Einnahmen sinken wieder.',
+    annahme:
+      'Die sonstigen ordentlichen Erträge der Produktgruppe 02 03 (Straßenverkehrsrechtliche Angelegenheiten) steigen um 10 %. Dazu zählen vermutlich vor allem Verwarnungs- und Bußgelder aus der Verkehrsüberwachung (auch für Parkverstöße), der Plan schlüsselt das nicht auf. Kosten für Geräte und Personal sind nicht eingerechnet. Ob die Einnahmen wirklich steigen, ist unsicher, weil sich die Menschen anpassen.',
+    quelle: 'Haushaltsplan Band 1, S. 120 (PDF), Zeile 07; Produktbeschreibung S. 119 (PDF)',
+  },
+  {
+    id: 'hundesteuer',
+    gruppe: 'einnehmen',
+    titel: 'Hundesteuer erhöhen',
+    text: 'Die Hundesteuer steigt um 20 %, bei einem Hund von 120 € auf 144 € im Jahr.',
+    wirkung: 0.2 * hundesteuer,
+    wissen: `Die Hundesteuer ist eine kleine örtliche Steuer. Den Steuersatz legt der Rat in einer Satzung fest. Sie bringt rund ${euroKurz(hundesteuer)} im Jahr, die Grundsteuer zum Vergleich ${euroKurz(daten.grundsteuer[JAHR])}.`,
+    annahme:
+      'Die Einnahmen steigen im selben Verhältnis wie der Steuersatz, und es werden gleich viele Hunde angemeldet. Der Haushaltsplan weist die Hundesteuer nicht einzeln aus, deshalb gilt die gerundete Angabe der Stadt.',
+    quelle:
+      'Stadt Münster, Hundesteuer: Stadt führt Bestandsaufnahme durch, 2026 (https://www.stadt-muenster.de/aktuelles/newsdetail/hundesteuer-stadt-fuehrt-bestandsaufnahme-durch); Steuersätze: Stadt Münster, Hundesteuer, 2026 (https://www.stadt-muenster.de/finanzen/steuern-und-gebuehren/hundesteuer)',
   },
   {
     id: 'wiederbesetzungssperre',
@@ -178,6 +243,29 @@ export const KARTEN: Karte[] = [
     quelle: 'Haushaltsplan Band 1, S. 282 (PDF), Zeile 17',
   },
   {
+    id: 'tarif',
+    gruppe: 'sparen',
+    titel: 'Tariferhöhung ablehnen',
+    text: 'Die Beschäftigten der Stadt bekommen keine Lohnerhöhung.',
+    wirkung: 0,
+    wissen: `Die Löhne der Tarifbeschäftigten handeln Gewerkschaften, Bund und kommunale Arbeitgeberverbände für ganz Deutschland im TVöD aus. Die Besoldung der Beamtinnen und Beamten legt das Land NRW per Gesetz fest. Die Stadt muss beides zahlen, und Personal macht 2026 rund ${anteil(gesamt(ZEILE.personal), gesamt(ZEILE.aufwendungen))} aller ordentlichen Aufwendungen aus.`,
+    annahme:
+      'Die Stadt ist an Tarifvertrag und Besoldungsgesetz gebunden. Ein Ratsbeschluss kann Lohnerhöhungen nicht verhindern.',
+    quelle: 'Haushaltsplan Band 1, S. 9 (PDF), Zeilen 11 und 17',
+  },
+  {
+    id: 'feuerwehr',
+    gruppe: 'sparen',
+    titel: 'Feuerwehr verkleinern',
+    text: 'Die Feuerwehr bekommt weniger Personal und Fahrzeuge.',
+    wirkung: 0,
+    wissen:
+      'Brandschutz ist eine Pflichtaufgabe. Nach dem Brandschutzgesetz NRW (BHKG) muss die Stadt eine leistungsfähige Feuerwehr unterhalten. Wie schnell und mit wie vielen Kräften sie am Einsatzort sein soll, legt der Brandschutzbedarfsplan fest, den der Rat beschließt.',
+    annahme: `Die Feuerwehr erfüllt gerade die Vorgaben des Brandschutzbedarfsplans. Kürzen ließe sich erst, wenn der Plan geändert wird. 2026 sind für Brandschutz und Hilfeleistung ${euroKurz(produktgruppe('0209', ZEILE.aufwendungen))} eingeplant.`,
+    quelle:
+      'Haushaltsplan Band 1, S. 163 (PDF), Zeile 17; BHKG NRW, § 3, 2021 (https://recht.nrw.de/lrgv/gesetz/01072021-gesetz-ueber-den-brandschutz-die-hilfeleistung-und-den-katastrophenschutz-bhkg/)',
+  },
+  {
     id: 'kita-beitragsfrei',
     gruppe: 'ausgeben',
     titel: 'Kita-Beiträge abschaffen',
@@ -209,5 +297,85 @@ export const KARTEN: Karte[] = [
     annahme:
       'Die zehn neuen Stellen kosten so viel wie der Durchschnitt der bisherigen (Personalaufwendungen der Produktgruppe 02 04 geteilt durch ihre Stellen laut Stellenplan). Zusätzliche Gebühreneinnahmen gibt es nicht.',
     quelle: 'Haushaltsplan Band 1, S. 129 (PDF), Zeile 11; Band 2, S. 42 und 46 (PDF), Stellenplan',
+  },
+  {
+    id: 'bus-kostenlos',
+    gruppe: 'ausgeben',
+    titel: 'Busfahren kostenlos',
+    text: 'In den Stadtbussen fahren alle umsonst. Die Stadt ersetzt den Stadtwerken die fehlenden Einnahmen.',
+    wirkung: -busUmsatz,
+    wissen:
+      'Die Stadtbusse fahren die Stadtwerke Münster, eine Tochter der Stadt. Verluste im Busverkehr gleichen die Stadtwerke mit Gewinnen aus dem Energiegeschäft aus (Querverbund). Im Haushalt der Stadt tauchen die Busse deshalb kaum auf.',
+    annahme: `Die Stadt ersetzt den Stadtwerken den ganzen Umsatz der Verkehrsbetriebe 2024 (${euroKurz(busUmsatz)}). Darin steckt neben Fahrgeld auch Geld, das schon heute von der Stadt kommt, etwa für Schülertickets, sowie Ausgleichszahlungen für das Deutschlandticket. Die echten Mehrkosten wären deshalb niedriger. Zusätzliche Busse für mehr Fahrgäste sind nicht eingerechnet.`,
+    quelle:
+      'Stadt Münster, Beteiligungsbericht 2024, S. 102 (https://www.stadt-muenster.de/fileadmin/user_upload/stadt-muenster/20_finanzen_und_beteiligungen/pdf/Beteiligungen/BB2024_Master_Beteiligungsbericht_-_Internetversion.pdf)',
+  },
+  {
+    id: 'buecherei',
+    gruppe: 'ausgeben',
+    titel: 'Stadtbücherei kostenlos',
+    text: 'Die Stadtbücherei verlangt keine Gebühren mehr.',
+    wirkung: -produktgruppe('0404', ZEILE.oeffentlicheEntgelte),
+    wissen: `Die Gebühren decken nur rund ${anteil(produktgruppe('0404', ZEILE.oeffentlicheEntgelte), produktgruppe('0404', ZEILE.aufwendungen))} der Kosten der Stadtbücherei. Rund ${anteil(produktgruppe('0404', ZEILE.aufwendungen) - produktgruppe('0404', ZEILE.ertraege), produktgruppe('0404', ZEILE.aufwendungen))} zahlt die Stadt aus dem allgemeinen Haushalt.`,
+    annahme:
+      'Die öffentlich-rechtlichen Leistungsentgelte der Produktgruppe 04 04 (Stadtbücherei) fallen vollständig weg. Mehrkosten durch zusätzliche Nutzer sind nicht eingerechnet.',
+    quelle: 'Haushaltsplan Band 1, S. 244 (PDF), Zeile 04',
+  },
+  {
+    id: 'stadtgruen',
+    gruppe: 'ausgeben',
+    titel: 'Mehr Pflege für Parks und Grün',
+    text: 'Parks und Grünanlagen werden häufiger gepflegt.',
+    wirkung: -0.1 * produktgruppe('1301', ZEILE.aufwendungen),
+    wissen: `Pflege kostet jedes Jahr wieder Geld. 2026 sind für Grün- und Freiflächen ${euroKurz(produktgruppe('1301', ZEILE.aufwendungen))} eingeplant, rund ${anteil(produktgruppe('1301', ZEILE.personal), produktgruppe('1301', ZEILE.aufwendungen))} davon für Personal.`,
+    annahme:
+      'Die ordentlichen Aufwendungen der Produktgruppe 13 01 (Grün- und Freiflächen) steigen um 10 %.',
+    quelle: 'Haushaltsplan Band 1, S. 469 (PDF), Zeile 17',
+  },
+  {
+    id: 'bezirksvertretungen',
+    gruppe: 'ausgeben',
+    titel: 'Mehr Geld für die Bezirksvertretungen',
+    text: 'Die Bezirksvertretungen bekommen doppelt so viel Geld zur freien Verfügung.',
+    wirkung: -produktgruppe('0101', ZEILE.aufwendungen),
+    wissen: `Münster hat sechs Stadtbezirke mit je einer gewählten Bezirksvertretung. Sie entscheiden über Angelegenheiten ihres Bezirks, etwa die Gestaltung von Grünanlagen oder die Unterstützung örtlicher Vereine. 2026 haben sie zusammen ${euroKurz(produktgruppe('0101', ZEILE.aufwendungen))} zur freien Verfügung.`,
+    annahme:
+      'Die ordentlichen Aufwendungen der Produktgruppe 01 01 (Bezirksvertretungen, frei verfügbare Mittel) verdoppeln sich.',
+    quelle: 'Haushaltsplan Band 1, S. 19 und 22 (PDF), Zeile 17',
+  },
+  {
+    id: 'kredit',
+    gruppe: 'investieren',
+    titel: 'Kredit aufnehmen',
+    text: 'Die Stadt leiht sich Geld, um das Minus zu stopfen.',
+    wirkung: 0,
+    wissen:
+      'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im Ergebnis bleibt, und die Zinsen belasten die folgenden Jahre. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
+    annahme: 'Ein Kredit ändert das ordentliche Ergebnis nicht, er steht nur im Finanzplan.',
+    quelle:
+      'Gemeindeordnung NRW, §§ 86 und 89, 2026 (https://recht.nrw.de/lrgv/gesetz/01012026-gemeindeordnung-fuer-das-land-nordrhein-westfalen-bekanntmachung-der/)',
+  },
+  {
+    id: 'schule',
+    gruppe: 'investieren',
+    titel: 'Neue Grundschule bauen',
+    text: `Die Stadt baut eine neue Grundschule mit Sporthalle für ${euroKurz(schulKosten)}.`,
+    wirkung: -schulKosten / schulNutzungsdauer,
+    wissen: `Eine Investition belastet das Ergebnis nicht auf einmal. Der Wert des Gebäudes wird über seine Nutzungsdauer verteilt abgeschrieben, hier ${euroKurz(schulKosten / schulNutzungsdauer)} im Jahr. Deshalb wirken große Bauprojekte im ordentlichen Ergebnis klein. Zinsen für Kredite kommen im Finanzergebnis hinzu.`,
+    annahme: `Die Schule kostet so viel wie die neue vierzügige Grundschule im York-Quartier und ist 2026 ein volles Jahr in Betrieb. Die Stadt schreibt sie gleichmäßig über ${schulNutzungsdauer} Jahre ab (in NRW sind für Schulgebäude 40 bis 80 Jahre erlaubt). Fördermittel und Betriebskosten sind nicht eingerechnet. Zinsen zählen im Planspiel nicht mit, weil sie außerhalb des ordentlichen Ergebnisses stehen. Bei einem Kredit zu ${zahl(schulZins * 100)} % wären es im ersten Jahr rund ${euroKurz(schulZins * schulKosten)}.`,
+    quelle:
+      'Stadt Münster, Neue Grundschule York, 2024 (https://www.presse-service.de/data.aspx/static/1170051.html); NKF-Rahmentabelle der Gesamtnutzungsdauer, 2025 (https://recht.nrw.de/system/files/BA/54831-53146-smbl_6300_20250312_a_anlage18.pdf)',
+  },
+  {
+    id: 'grundstuecke',
+    gruppe: 'investieren',
+    titel: 'Städtische Grundstücke verkaufen',
+    text: 'Die Stadt verkauft Grundstücke, um das Minus zu verkleinern.',
+    wirkung: 0,
+    wissen:
+      'Der Kaufpreis fließt in die Kasse. Im Ergebnis zählt aber nur der Teil, der über dem Wert des Grundstücks in der Bilanz liegt, und das nur einmal. Im nächsten Jahr ist das Minus wieder da, und das Grundstück fehlt, etwa für Wohnungen oder Schulen.',
+    annahme:
+      'Wie hoch die Bilanzwerte der Grundstücke sind, steht nicht im Haushaltsplan. Deshalb wird kein Gewinn angesetzt. Für 2026 plant die Stadt nur geringe Einzahlungen aus dem Verkauf von Sachanlagen.',
+    quelle: 'Haushaltsplan Band 1, S. 11 (PDF), Finanzplan Zeile 19',
   },
 ]

@@ -14,7 +14,9 @@ daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein), Grundsteuer-
 und Gewerbesteuerertrag aus dem Vorbericht (Band 2, PDF-Seite 20, dort in Mio. €
 mit einer Nachkommastelle) und die Stellen (VZÄ) einzelner Produktgruppen aus dem
 Stellenplan unter daten/agg_tables/ (agg_stellenplan.py muss vorher gelaufen
-sein). PG- und PB-Bezeichnungen stammen aus der Gesamtübersicht.
+sein) sowie die geplante Ausschüttung der Stadtwerke Münster GmbH an die Stadt
+(Band 2, PDF-Seite 143, dort in T€). PG- und PB-Bezeichnungen stammen aus der
+Gesamtübersicht.
 
 Prüft, ob die Summe über alle Produktgruppen je Zeile und Jahr dem
 Gesamtergebnisplan entspricht (Toleranz 1 €).
@@ -86,6 +88,16 @@ def steuer(daten: Path, steuerart: str) -> dict[str, int]:
     return {j: round(zeile[j][0] * 1_000_000) for j in JAHRE}
 
 
+def stadtwerke_ausschuettung(daten: Path) -> dict[str, int]:
+    """Gewinnausschüttung der Stadtwerke Münster GmbH an die Stadt je Jahr (Band 2, S. 143), von T€ in €."""
+    datei = "band2_p143_Uebersicht_Wirtschaftslage_Unternehmen_Tabelle_t0.csv"
+    df = lies(daten / "raw_table_extraction" / datei)
+    zeile = df.filter((c("column_1") == "Stadtwerke Münster GmbH") & (c("column_2") == "(1)")).select(
+        zahl(c(f"column_{i}")).alias(j) for i, j in ((4, "2026"), (5, "2027"))
+    )
+    return {j: round(zeile[j][0] * 1000) for j in JAHRE}
+
+
 def stellen(daten: Path) -> dict[str, dict[str, float]]:
     """Stellen (VZÄ) je Jahr für die Produktgruppen in STELLEN_PG."""
     df = pl.read_csv(daten / STELLENPLAN_DATEI, schema_overrides={"Code": pl.String})
@@ -103,8 +115,8 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     """Schreibt die Planspiel-Daten und prüft die PG-Summen gegen den Gesamtergebnisplan.
 
     Quelle: Band 1, PDF-Seite 9 und Teilergebnispläne der Produktgruppen (S. 15-558),
-    Band 2, PDF-Seite 20 (Grund- und Gewerbesteuer), Zuschusstabelle, Stellenplan und
-    Gesamtübersicht unter daten/agg_tables/.
+    Band 2, PDF-Seite 20 (Grund- und Gewerbesteuer) und 143 (Stadtwerke), Zuschusstabelle,
+    Stellenplan und Gesamtübersicht unter daten/agg_tables/.
     Ausgabe: vue-project/src/data/planspiel.json. Exit-Code 1 bei Abweichungen.
     """
     namen = pl.read_csv(daten / GU_DATEI, schema_overrides={"Code": pl.String})
@@ -135,6 +147,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         "grundsteuer": steuer(daten, "Grundsteuer"),
         "gewerbesteuer": steuer(daten, "Gewerbesteuer"),
         "stellen": stellen(daten),
+        "stadtwerkeAusschuettung": stadtwerke_ausschuettung(daten),
     }
     AUSGABE.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(daten_json, ensure_ascii=False, separators=(",", ":"))
