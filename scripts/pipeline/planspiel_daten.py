@@ -8,11 +8,13 @@ Liest die Zeilen 01-17 (Erträge und Aufwendungen) der Jahre 2026 und 2027 aus
 Die Roh-CSVs aus Band 2 mit "PG0101_Teilergebnisplan" im Namen sind Auszüge je
 Bezirksvertretung (Bezirksbezogene Haushaltsangaben) und werden nicht gelesen.
 
-Dazu kommen zwei Einzelwerte für die Entscheidungskarten: die Summe der
+Dazu kommen Einzelwerte für die Entscheidungskarten: die Summe der
 freiwilligen Zuschüsse an Vereine und Verbände (aus der Zuschusstabelle unter
-daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein) und der
-Grundsteuerertrag aus dem Vorbericht (Band 2, PDF-Seite 20, dort in Mio. € mit
-einer Nachkommastelle). PG- und PB-Bezeichnungen stammen aus der Gesamtübersicht.
+daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein), Grundsteuer-
+und Gewerbesteuerertrag aus dem Vorbericht (Band 2, PDF-Seite 20, dort in Mio. €
+mit einer Nachkommastelle) und die Stellen (VZÄ) einzelner Produktgruppen aus dem
+Stellenplan unter daten/agg_tables/ (agg_stellenplan.py muss vorher gelaufen
+sein). PG- und PB-Bezeichnungen stammen aus der Gesamtübersicht.
 
 Prüft, ob die Summe über alle Produktgruppen je Zeile und Jahr dem
 Gesamtergebnisplan entspricht (Toleranz 1 €).
@@ -28,6 +30,7 @@ import polars as pl
 import typer
 
 from agg_gesamtuebersicht import AUSGABE as GU_DATEI
+from agg_stellenplan import AUSGABE_SP as STELLENPLAN_DATEI
 from agg_zuschuesse import AUSGABE as ZUSCHUSS_DATEI
 from rohdaten import lies, roh_dateien, zahl
 
@@ -38,6 +41,8 @@ TOLERANZ_EUR = 1.0
 JAHRE = ("2026", "2027")
 # Spalten der Roh-CSVs: Zeilennummer, Bezeichnung, 2024, 2025, 2026, 2027, ...
 JAHR_SPALTE = {"2026": "column_5", "2027": "column_6"}
+# Produktgruppen, deren Stellen eine Entscheidungskarte braucht (Bürgerangelegenheiten).
+STELLEN_PG = ("0204",)
 
 # Die Roh-CSVs schreiben die Bezeichnungen ohne Leerzeichen, deshalb stehen sie hier.
 ZEILEN = [
@@ -72,13 +77,20 @@ def lies_plan(pfad: Path) -> dict[str, list[int]]:
     return {j: [round(w) for w in werte[j]] for j in JAHRE}
 
 
-def grundsteuer(daten: Path) -> dict[str, int]:
-    """Grundsteuerertrag je Jahr aus dem Vorbericht (Band 2, S. 20), umgerechnet von Mio. € in €."""
+def steuer(daten: Path, steuerart: str) -> dict[str, int]:
+    """Ertrag einer Steuerart je Jahr aus dem Vorbericht (Band 2, S. 20), umgerechnet von Mio. € in €."""
     df = lies(daten / "raw_table_extraction" / "band2_p020_Vorbericht_Ergebnisplan_t1.csv")
-    zeile = df.filter(c("column_1") == "Grundsteuer").select(
+    zeile = df.filter(c("column_1") == steuerart).select(
         zahl(c(f"column_{i}")).alias(j) for i, j in ((4, "2026"), (5, "2027"))
     )
     return {j: round(zeile[j][0] * 1_000_000) for j in JAHRE}
+
+
+def stellen(daten: Path) -> dict[str, dict[str, float]]:
+    """Stellen (VZÄ) je Jahr für die Produktgruppen in STELLEN_PG."""
+    df = pl.read_csv(daten / STELLENPLAN_DATEI, schema_overrides={"Code": pl.String})
+    df = df.filter(c("Code").is_in(STELLEN_PG) & (c("Ebene") == "PG"))
+    return {row["Code"]: {j: row[f"Stellen_Gesamt_VZAE_{j}"] for j in JAHRE} for row in df.iter_rows(named=True)}
 
 
 def freiwillige_zuschuesse(daten: Path) -> dict[str, int]:
@@ -91,7 +103,8 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     """Schreibt die Planspiel-Daten und prüft die PG-Summen gegen den Gesamtergebnisplan.
 
     Quelle: Band 1, PDF-Seite 9 und Teilergebnispläne der Produktgruppen (S. 15-558),
-    Band 2, PDF-Seite 20 (Grundsteuer), Zuschusstabelle und Gesamtübersicht unter daten/agg_tables/.
+    Band 2, PDF-Seite 20 (Grund- und Gewerbesteuer), Zuschusstabelle, Stellenplan und
+    Gesamtübersicht unter daten/agg_tables/.
     Ausgabe: vue-project/src/data/planspiel.json. Exit-Code 1 bei Abweichungen.
     """
     namen = pl.read_csv(daten / GU_DATEI, schema_overrides={"Code": pl.String})
@@ -119,7 +132,9 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         "produktbereiche": [{"code": pb, "name": namen[pb]} for pb in pb_codes],
         "produktgruppen": produktgruppen,
         "freiwilligeZuschuesse": freiwillige_zuschuesse(daten),
-        "grundsteuer": grundsteuer(daten),
+        "grundsteuer": steuer(daten, "Grundsteuer"),
+        "gewerbesteuer": steuer(daten, "Gewerbesteuer"),
+        "stellen": stellen(daten),
     }
     AUSGABE.parent.mkdir(parents=True, exist_ok=True)
     text = json.dumps(daten_json, ensure_ascii=False, separators=(",", ":"))

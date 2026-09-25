@@ -14,6 +14,7 @@ import {
   aufwendungenProduktbereich,
   ERTRAGSARTEN,
   gesamt,
+  GRUPPEN,
   KARTEN,
   PRODUKTBEREICHE,
   ZEILE,
@@ -60,6 +61,11 @@ const ergebnis = computed(() => START + veraenderung.value)
 const geschafft = computed(() => ergebnis.value >= 0)
 // Anteil des Wegs vom Planwert bis zur Null, für den Fortschrittsbalken.
 const fortschritt = computed(() => Math.min(1, Math.max(0, veraenderung.value / -START)))
+
+const kartenJeGruppe = GRUPPEN.map((g) => ({
+  ...g,
+  karten: KARTEN.filter((k) => k.gruppe === g.id),
+}))
 
 function mitVorzeichen(wert: number): string {
   return `${wert > 0 ? '+' : ''}${euroKurz(wert)}`
@@ -113,7 +119,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   <div class="mm-seite">
     <PageIntro
       titel="Planspiel: Gleich den Haushalt aus!"
-      beschreibung="Im Jahr 2026 plant Münster mehr auszugeben, als es einnimmt. Schaffst du es, das Minus auf null zu bringen? Verschiebe die Regler oder triff Entscheidungen und sieh sofort, was sich ändert."
+      beschreibung="Im Jahr 2026 plant Münster mehr auszugeben, als es einnimmt. Schaffst du es, das Minus auf null zu bringen? Triff Entscheidungen und sieh sofort, was sich ändert."
     />
 
     <!-- PLATZHALTER: Text vom Team noch abzustimmen. -->
@@ -167,70 +173,6 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
       </p>
     </section>
 
-    <div class="mm-raster">
-      <wa-card>
-        <div slot="header" class="pl-kopf">
-          <h2>Einnahmen</h2>
-          <p>Mehr Einnahmen verkleinern das Minus.</p>
-        </div>
-        <div class="pl-regler">
-          <label v-for="i in ERTRAG_REGLER" :key="i" class="pl-regler__zeile">
-            <span :id="`pl-ertrag-${i}`" class="pl-regler__name">
-              {{ ertraege[i]?.name }}
-              <small>{{ ERTRAG_HILFE[i] }}</small>
-            </span>
-            <input
-              v-model.number="ertragProzent[i]"
-              type="range"
-              :min="-GRENZE"
-              :max="GRENZE"
-              step="1"
-              :aria-labelledby="`pl-ertrag-${i}`"
-              :aria-valuetext="prozent(ertragProzent[i] ?? 0)"
-            />
-            <span
-              class="pl-regler__wert"
-              :class="{ gut: ertragDelta(i) > 0, schlecht: ertragDelta(i) < 0 }"
-            >
-              {{ prozent(ertragProzent[i] ?? 0) }}
-              <small>{{ mitVorzeichen(ertragDelta(i)) }}</small>
-            </span>
-          </label>
-        </div>
-      </wa-card>
-
-      <wa-card>
-        <div slot="header" class="pl-kopf">
-          <h2>Ausgaben</h2>
-          <p>Weniger Ausgaben verkleinern das Minus.</p>
-        </div>
-        <div class="pl-regler">
-          <label v-for="i in BEREICH_REGLER" :key="i" class="pl-regler__zeile">
-            <span :id="`pl-bereich-${i}`" class="pl-regler__name">
-              {{ bereiche[i]?.name }}
-              <small>{{ euroKurz(bereiche[i]?.betrag ?? 0) }}</small>
-            </span>
-            <input
-              v-model.number="bereichProzent[i]"
-              type="range"
-              :min="-GRENZE"
-              :max="GRENZE"
-              step="1"
-              :aria-labelledby="`pl-bereich-${i}`"
-              :aria-valuetext="prozent(bereichProzent[i] ?? 0)"
-            />
-            <span
-              class="pl-regler__wert"
-              :class="{ gut: bereichDelta(i) < 0, schlecht: bereichDelta(i) > 0 }"
-            >
-              {{ prozent(bereichProzent[i] ?? 0) }}
-              <small>{{ mitVorzeichen(bereichDelta(i)) }}</small>
-            </span>
-          </label>
-        </div>
-      </wa-card>
-    </div>
-
     <section class="pl-entscheidungen">
       <div class="pl-kopf">
         <h2>Entscheidungen</h2>
@@ -238,33 +180,125 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
           Tippe eine Karte an, um die Entscheidung zu treffen. Noch einmal tippen nimmt sie zurück.
         </p>
       </div>
-      <div class="mm-raster">
-        <label
-          v-for="karte in KARTEN"
-          :key="karte.id"
-          class="pl-karte"
-          :class="{ 'pl-karte--aktiv': kartenAktiv[karte.id] }"
-        >
-          <input
-            v-model="kartenAktiv[karte.id]"
-            type="checkbox"
-            class="pl-karte__schalter"
-            :aria-labelledby="`pl-karte-${karte.id}`"
-          />
-          <span :id="`pl-karte-${karte.id}`" class="pl-karte__titel">{{ karte.titel }}</span>
-          <span class="pl-karte__wirkung" :class="karte.wirkung >= 0 ? 'gut' : 'schlecht'">
-            {{ mitVorzeichen(karte.wirkung) }}
-          </span>
-          <span>{{ karte.text }}</span>
-          <small><strong>Annahme:</strong> {{ karte.annahme }}</small>
-          <small class="pl-leise">Quelle: {{ karte.quelle }}</small>
-        </label>
+      <div v-for="gruppe in kartenJeGruppe" :key="gruppe.id" class="pl-gruppe">
+        <h3>{{ gruppe.titel }}</h3>
+        <div class="mm-raster">
+          <article
+            v-for="karte in gruppe.karten"
+            :key="karte.id"
+            class="pl-karte"
+            :class="{ 'pl-karte--aktiv': kartenAktiv[karte.id] }"
+          >
+            <!-- Nur der obere Teil ist Label, damit "Wie gerechnet?" die Karte nicht umschaltet. -->
+            <label class="pl-karte__haupt">
+              <input
+                v-model="kartenAktiv[karte.id]"
+                type="checkbox"
+                class="pl-karte__schalter"
+                :aria-labelledby="`pl-karte-${karte.id}`"
+                :aria-describedby="`pl-wirkung-${karte.id}`"
+              />
+              <span :id="`pl-karte-${karte.id}`" class="pl-karte__titel">{{ karte.titel }}</span>
+              <span>{{ karte.text }}</span>
+              <span
+                :id="`pl-wirkung-${karte.id}`"
+                class="pl-karte__wirkung"
+                :class="{ gut: karte.wirkung > 0, schlecht: karte.wirkung < 0 }"
+              >
+                <template v-if="karte.wirkung === 0">
+                  0 € <small>keine Wirkung auf den Haushalt</small>
+                </template>
+                <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
+              </span>
+              <span class="pl-wissen">
+                <strong>Gut zu wissen</strong>
+                {{ karte.wissen }}
+              </span>
+            </label>
+            <details class="pl-rechnung">
+              <summary>Wie gerechnet?</summary>
+              <p><strong>Annahme:</strong> {{ karte.annahme }}</p>
+              <p class="pl-leise">Quelle: {{ karte.quelle }}</p>
+            </details>
+          </article>
+        </div>
       </div>
     </section>
 
     <div>
       <wa-button appearance="outlined" @click="zuruecksetzen">Alles zurücksetzen</wa-button>
     </div>
+
+    <details class="pl-fein">
+      <summary>Feinsteuerung: alle Posten einzeln</summary>
+      <p class="pl-fein__hinweis">
+        Zum Ausprobieren: Hier drehst du jede Ertragsart und jeden Aufgabenbereich um bis zu 20 %
+        rauf oder runter. Die Regler zählen zusätzlich zu den Karten.
+      </p>
+      <div class="mm-raster">
+        <wa-card>
+          <div slot="header" class="pl-kopf">
+            <h3>Einnahmen</h3>
+            <p>Mehr Einnahmen verkleinern das Minus.</p>
+          </div>
+          <div class="pl-regler">
+            <label v-for="i in ERTRAG_REGLER" :key="i" class="pl-regler__zeile">
+              <span :id="`pl-ertrag-${i}`" class="pl-regler__name">
+                {{ ertraege[i]?.name }}
+                <small>{{ ERTRAG_HILFE[i] }}</small>
+              </span>
+              <input
+                v-model.number="ertragProzent[i]"
+                type="range"
+                :min="-GRENZE"
+                :max="GRENZE"
+                step="1"
+                :aria-labelledby="`pl-ertrag-${i}`"
+                :aria-valuetext="prozent(ertragProzent[i] ?? 0)"
+              />
+              <span
+                class="pl-regler__wert"
+                :class="{ gut: ertragDelta(i) > 0, schlecht: ertragDelta(i) < 0 }"
+              >
+                {{ prozent(ertragProzent[i] ?? 0) }}
+                <small>{{ mitVorzeichen(ertragDelta(i)) }}</small>
+              </span>
+            </label>
+          </div>
+        </wa-card>
+
+        <wa-card>
+          <div slot="header" class="pl-kopf">
+            <h3>Ausgaben</h3>
+            <p>Weniger Ausgaben verkleinern das Minus.</p>
+          </div>
+          <div class="pl-regler">
+            <label v-for="i in BEREICH_REGLER" :key="i" class="pl-regler__zeile">
+              <span :id="`pl-bereich-${i}`" class="pl-regler__name">
+                {{ bereiche[i]?.name }}
+                <small>{{ euroKurz(bereiche[i]?.betrag ?? 0) }}</small>
+              </span>
+              <input
+                v-model.number="bereichProzent[i]"
+                type="range"
+                :min="-GRENZE"
+                :max="GRENZE"
+                step="1"
+                :aria-labelledby="`pl-bereich-${i}`"
+                :aria-valuetext="prozent(bereichProzent[i] ?? 0)"
+              />
+              <span
+                class="pl-regler__wert"
+                :class="{ gut: bereichDelta(i) < 0, schlecht: bereichDelta(i) > 0 }"
+              >
+                {{ prozent(bereichProzent[i] ?? 0) }}
+                <small>{{ mitVorzeichen(bereichDelta(i)) }}</small>
+              </span>
+            </label>
+          </div>
+        </wa-card>
+      </div>
+    </details>
   </div>
 </template>
 
@@ -281,7 +315,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   color: var(--wa-color-text-quiet);
 }
 
-.pl-kopf h2 {
+.pl-kopf :is(h2, h3) {
   margin: 0;
   font-size: var(--wa-font-size-l);
 }
@@ -292,7 +326,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   font-size: var(--wa-font-size-s);
 }
 
-/* Bleibt beim Scrollen oben stehen, damit man beim Schieben der Regler das Ergebnis sieht. */
+/* Bleibt beim Scrollen oben stehen, damit man beim Wählen von Karten und Reglern das Ergebnis sieht. */
 .pl-bilanz {
   position: sticky;
   /* Unter dem ebenfalls klebenden Seitenkopf von wa-page. */
@@ -374,7 +408,7 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   color: v-bind('POL_FARBEN.positiv');
 }
 
-/* Auf dem Handy kompakter, damit die klebende Box nicht die Regler verdeckt. */
+/* Auf dem Handy kompakter, damit die klebende Box nicht Karten und Regler verdeckt. */
 @media (max-width: 40rem) {
   .pl-bilanz {
     padding: var(--wa-space-s) var(--wa-space-m);
@@ -452,19 +486,20 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 .pl-entscheidungen {
   display: flex;
   flex-direction: column;
-  gap: var(--wa-space-m);
+  gap: var(--wa-space-xl);
+}
+
+.pl-gruppe h3 {
+  margin: 0 0 var(--wa-space-s);
+  font-size: var(--wa-font-size-l);
 }
 
 .pl-karte {
-  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--wa-space-xs);
-  padding: var(--wa-space-l);
   border: 2px solid var(--wa-color-surface-border);
   border-radius: var(--wa-border-radius-l);
   background-color: var(--wa-color-surface-raised);
-  cursor: pointer;
   transition:
     border-color 0.2s,
     background-color 0.2s;
@@ -477,6 +512,16 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
 .pl-karte--aktiv {
   border-color: var(--wa-color-brand-border-loud);
   background-color: var(--wa-color-brand-fill-quiet);
+}
+
+.pl-karte__haupt {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--wa-space-xs);
+  padding: var(--wa-space-l) var(--wa-space-l) var(--wa-space-s);
+  cursor: pointer;
 }
 
 .pl-karte__schalter {
@@ -500,7 +545,65 @@ const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
   font-variant-numeric: tabular-nums;
 }
 
-.pl-karte small {
+.pl-karte__wirkung small {
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  font-weight: normal;
+}
+
+.pl-wissen {
+  margin-top: var(--wa-space-2xs);
+  padding: var(--wa-space-s) var(--wa-space-m);
+  border-left: 3px solid var(--wa-color-brand-border-loud);
+  border-radius: var(--wa-border-radius-s);
+  background-color: var(--wa-color-neutral-fill-quiet);
+  font-size: var(--wa-font-size-s);
+  line-height: 1.5;
+}
+
+.pl-wissen strong {
+  display: block;
+  margin-bottom: var(--wa-space-3xs);
+  color: var(--wa-color-brand-on-quiet);
   font-size: var(--wa-font-size-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Die nativen Stile von Web Awesome machen aus <details> ein Panel; in der Karte soll es ein schlichter Link sein. */
+.pl-rechnung,
+.pl-rechnung[open] {
+  padding: 0 var(--wa-space-l) var(--wa-space-m);
+  border: none;
+  background: none;
+  font-size: var(--wa-font-size-xs);
+}
+
+.pl-rechnung summary {
+  justify-content: flex-start;
+  gap: var(--wa-space-2xs);
+  width: fit-content;
+  margin: 0;
+  padding: 0;
+  color: var(--wa-color-brand-on-quiet);
+}
+
+.pl-rechnung p {
+  margin: var(--wa-space-xs) 0 0;
+}
+
+.pl-fein {
+  background-color: var(--wa-color-surface-raised);
+}
+
+.pl-fein summary {
+  font-size: var(--wa-font-size-l);
+  font-weight: var(--wa-font-weight-semibold);
+}
+
+.pl-fein__hinweis {
+  margin: 0 0 var(--wa-space-m);
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
 }
 </style>
