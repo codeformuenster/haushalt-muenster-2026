@@ -7,25 +7,42 @@
  */
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import logoUrl from '/src/assets/images/Logo.svg'
+
+const navIcons: Record<string, string> = {
+  '/': 'house',
+  '/ueberblick': 'chart-pie',
+  '/ein-ausgaben': 'scale-balanced',
+  '/stellenplan': 'users',
+  '/freiwillige-leistungen': 'hand-holding-heart',
+  '/bezirke': 'map-location-dot',
+  '/glossar': 'book-open',
+}
 
 const router = useRouter()
 
 const links = computed(() =>
   router.options.routes
     .filter((route) => route.meta?.nav)
-    .map((route) => ({ ziel: route.path, text: route.meta!.nav as string })),
+    .map((route) => ({
+      ziel: route.path,
+      text: route.meta!.nav as string,
+      icon: navIcons[route.path] ?? 'circle',
+    })),
 )
 </script>
 
 <template>
   <div class="mm-header">
     <RouterLink to="/" class="mm-header__marke">
+      <img :src="logoUrl" alt="" class="mm-header__logo" aria-hidden="true" />
       Münster<span>Money</span>
     </RouterLink>
 
     <nav class="mm-header__nav" aria-label="Hauptnavigation">
       <RouterLink v-for="link in links" :key="link.ziel" :to="link.ziel">
-        {{ link.text }}
+        <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
+        <span>{{ link.text }}</span>
       </RouterLink>
     </nav>
   </div>
@@ -43,11 +60,20 @@ const links = computed(() =>
 }
 
 .mm-header__marke {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-2xs);
   font-size: var(--wa-font-size-l);
   font-weight: var(--wa-font-weight-bold);
   color: var(--wa-color-text-normal);
   text-decoration: none;
   white-space: nowrap;
+}
+
+.mm-header__logo {
+  width: 2.6rem;
+  height: 2.6rem;
+  object-fit: contain;
 }
 
 .mm-header__marke span {
@@ -69,12 +95,20 @@ const links = computed(() =>
 }
 
 .mm-header__nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-2xs);
   padding-block: var(--wa-space-2xs);
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
   text-decoration: none;
   white-space: nowrap;
   border-bottom: 2px solid transparent;
+}
+
+.mm-header__nav-icon {
+  font-size: 0.95em;
+  color: currentColor;
 }
 
 .mm-header__nav a:hover {
