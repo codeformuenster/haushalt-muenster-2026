@@ -43,7 +43,7 @@
   --wa-color-brand-10: var(--mm-deep-twilight);
   --wa-color-brand-05: var(--mm-deep-twilight);
   /* "Die" Markenfarbe, wenn ein einzelner Wert gebraucht wird (z. B. Icons). */
-  --wa-color-brand: var(--mm-princeton-orange);
+  --wa-color-brand: var(--mm-blaze-orange);
 
   /* --- Korrekturen für die lauten/leisen Zustände (Light) -----------------
      Unsere zehn Markenfarben sind alle voll gesättigt. Das Theme geht aber
@@ -62,7 +62,7 @@
   --wa-color-brand-border-quiet: color-mix(in oklab, var(--mm-amber-glow) 45%, white);
   /* Text/Icons auf quiet Flächen: blaze-orange, etwas abgedunkelt, damit sie
      auch auf dem Tint mindestens 3:1 halten. */
-  --wa-color-brand-on-quiet: var(--mm-princeton-orange);
+  --wa-color-brand-on-quiet: color-mix(in oklab, var(--mm-blaze-orange) 80%, black);
 }
 
 body {
