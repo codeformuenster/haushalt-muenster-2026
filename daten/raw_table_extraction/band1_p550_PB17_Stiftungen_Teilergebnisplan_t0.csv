@@ -1,0 +1,31 @@
+Teilergebnisplan Ertrags-undAufwandsarten,,Ergebnis(€),Haushaltsansatz(€),,,Planung(€),,
+,,2024,2025,2026,2027,2028,2029,2030
+01,SteuernundähnlicheAbgaben,"0,00",0,0,0,0,0,0
+02,+ ZuwendungenundallgemeineUmlagen,"0,00",0,0,0,0,0,0
+03,+ SonstigeTransfererträge,"0,00",0,0,0,0,0,0
+04,+ Öffentlich-rechtlicheLeistungsentgelte,"0,00",0,0,0,0,0,0
+05,+ PrivatrechtlicheLeistungsentgelte,"0,00",0,0,0,0,0,0
+06,+ KostenerstattungenundKostenumlagen,"0,00",0,0,0,0,0,0
+07,+ SonstigeordentlicheErträge,"162.742,25",17.000,17.000,17.000,17.000,17.000,17.000
+08,+ AktivierteEigenleistungen,"0,00",0,0,0,0,0,0
+09,+/- Bestandsveränderungen,"0,00",0,0,0,0,0,0
+10,= OrdentlicheErträge,"162.742,25",17.000,17.000,17.000,17.000,17.000,17.000
+11,- Personalaufwendungen,"0,00",0,0,0,0,0,0
+12,- Versorgungsaufwendungen,"0,00",0,0,0,0,0,0
+13,- AufwendungenfürSach-undDienstleistungen,"0,00",0,0,0,0,0,0
+14,- BilanzielleAbschreibungen,"0,00",0,0,0,0,0,0
+15,- Transferaufwendungen,"0,00",0,0,0,0,0,0
+16,- SonstigeordentlicheAufwendungen,"0,00",31.680,31.680,31.680,31.680,31.680,31.680
+17,= OrdentlicheAufwendungen,"0,00",31.680,31.680,31.680,31.680,31.680,31.680
+18,= OrdentlichesErgebnis(=Zeilen10und17),"162.742,25",14.680-,14.680-,14.680-,14.680-,14.680-,14.680-
+19,+ Finanzerträge,"0,00",0,0,0,0,0,0
+20,- ZinsenundsonstigeFinanzaufwendungen,"0,00",0,0,0,0,0,0
+21,= Finanzergebnis (=Zeilen19und20),"0,00",0,0,0,0,0,0
+22,= ErgebnisderlaufendenVerwaltungstätigkeit (=Zeilen18und21),"162.742,25",14.680-,14.680-,14.680-,14.680-,14.680-,14.680-
+23,+ AußerordentlicheErträge,"0,00",0,0,0,0,0,0
+24,- AußerordentlicheAufwendungen,"0,00",0,0,0,0,0,0
+25,= AußerordentlichesErgebnis(=Zeilen23und24),"0,00",0,0,0,0,0,0
+26,= ErgebnisvorBerücksichtigungderinternen Leistungsbeziehungen(=Zeilen22und25),"162.742,25",14.680-,14.680-,14.680-,14.680-,14.680-,14.680-
+27,+ ErträgeausinternenLeistungsbeziehungen,"0,00",0,0,0,0,0,0
+28,- AufwendungenausinternenLeistungsbeziehungen,"0,00",0,0,0,0,0,0
+29,"= Ergebnis(=Zeilen26,27,28)","162.742,25",14.680-,14.680-,14.680-,14.680-,14.680-,14.680-

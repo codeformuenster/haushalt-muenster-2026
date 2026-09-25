@@ -1,0 +1,31 @@
+Teilergebnisplan Ertrags-undAufwandsarten,,Ergebnis(€),Haushaltsansatz(€),,,Planung(€),,
+,,2024,2025,2026,2027,2028,2029,2030
+01,SteuernundähnlicheAbgaben,"0,00",0,0,0,0,0,0
+02,+ ZuwendungenundallgemeineUmlagen,"4.510.906,42",3.168.700,2.900.040,2.982.070,2.944.200,2.910.500,2.591.020
+03,+ SonstigeTransfererträge,"0,00",0,0,0,0,0,0
+04,+ Öffentlich-rechtlicheLeistungsentgelte,"6.006,00",3.300,5.000,5.000,5.000,5.000,5.000
+05,+ PrivatrechtlicheLeistungsentgelte,"161.631,50",460.800,603.050,603.050,603.050,603.050,603.050
+06,+ KostenerstattungenundKostenumlagen,"202.597,37",90.950,58.860,49.900,23.410,8.870,8.870
+07,+ SonstigeordentlicheErträge,"224.715,28",406.500,966.500,716.500,591.500,466.500,466.500
+08,+ AktivierteEigenleistungen,"0,00",0,0,0,0,0,0
+09,+/- Bestandsveränderungen,"0,00",0,0,0,0,0,0
+10,= OrdentlicheErträge,"5.105.856,57",4.130.250,4.533.450,4.356.520,4.167.160,3.993.920,3.674.440
+11,- Personalaufwendungen,"23.395.720,32",24.758.500,25.619.310,26.009.460,26.473.350,27.061.250,27.693.300
+12,- Versorgungsaufwendungen,"1.082.976,61",786.000,794.520,695.100,709.010,724.820,740.990
+13,- AufwendungenfürSach-undDienstleistungen,"16.638.332,46",18.851.140,18.285.740,18.285.890,18.060.340,18.354.910,18.511.910
+14,- BilanzielleAbschreibungen,"3.431.003,86",3.000.860,2.589.220,2.440.740,2.353.780,2.298.860,2.358.390
+15,- Transferaufwendungen,"4.397.474,53",4.358.920,4.988.480,5.194.330,5.273.710,5.217.080,5.301.320
+16,- SonstigeordentlicheAufwendungen,"6.844.095,93",6.314.070,6.323.300,6.334.230,6.348.480,6.359.480,6.381.090
+17,= OrdentlicheAufwendungen,"55.789.603,71",58.069.490,58.600.570,58.959.750,59.218.670,60.016.400,60.987.000
+18,= OrdentlichesErgebnis(=Zeilen10und17),"50.683.747,14-",53.939.240-,54.067.120-,54.603.230-,55.051.510-,56.022.480-,57.312.560-
+19,+ Finanzerträge,"0,00",0,0,0,0,0,0
+20,- ZinsenundsonstigeFinanzaufwendungen,"1.790,04",0,0,0,0,0,0
+21,= Finanzergebnis (=Zeilen19und20),"1.790,04-",0,0,0,0,0,0
+22,= ErgebnisderlaufendenVerwaltungstätigkeit (=Zeilen18und21),"50.685.537,18-",53.939.240-,54.067.120-,54.603.230-,55.051.510-,56.022.480-,57.312.560-
+23,+ AußerordentlicheErträge,"0,00",0,0,0,0,0,0
+24,- AußerordentlicheAufwendungen,"0,00",0,0,0,0,0,0
+25,= AußerordentlichesErgebnis(=Zeilen23und24),"0,00",0,0,0,0,0,0
+26,= ErgebnisvorBerücksichtigungderinternen Leistungsbeziehungen(=Zeilen22und25),"50.685.537,18-",53.939.240-,54.067.120-,54.603.230-,55.051.510-,56.022.480-,57.312.560-
+27,+ ErträgeausinternenLeistungsbeziehungen,"243.990,82",242.870,247.730,252.680,257.730,262.880,268.140
+28,- AufwendungenausinternenLeistungsbeziehungen,"43.866.761,32",43.409.270,42.858.810,43.158.810,43.458.810,43.758.810,44.058.810
+29,"= Ergebnis(=Zeilen26,27,28)","94.308.307,68-",97.105.640-,96.678.200-,97.509.360-,98.252.590-,99.518.410-,101.103.230-

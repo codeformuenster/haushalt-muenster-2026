@@ -1,0 +1,31 @@
+Teilergebnisplan Ertrags-undAufwandsarten,,Ergebnis(€),Haushaltsansatz(€),,,Planung(€),,
+,,2024,2025,2026,2027,2028,2029,2030
+01,SteuernundähnlicheAbgaben,"0,00",0,0,0,0,0,0
+02,+ ZuwendungenundallgemeineUmlagen,"0,00",0,0,0,0,0,0
+03,+ SonstigeTransfererträge,"0,00",0,0,0,0,0,0
+04,+ Öffentlich-rechtlicheLeistungsentgelte,"716,10",0,0,0,0,0,0
+05,+ PrivatrechtlicheLeistungsentgelte,"2.194,60",0,0,0,0,0,0
+06,+ KostenerstattungenundKostenumlagen,"508.855,69",470.000,0,489.500,0,1.000.000,0
+07,+ SonstigeordentlicheErträge,"0,00",0,0,0,0,0,0
+08,+ AktivierteEigenleistungen,"0,00",0,0,0,0,0,0
+09,+/- Bestandsveränderungen,"0,00",0,0,0,0,0,0
+10,= OrdentlicheErträge,"511.766,39",470.000,0,489.500,0,1.000.000,0
+11,- Personalaufwendungen,"358.576,32",346.050,0,360.620,0,378.710,387.610
+12,- Versorgungsaufwendungen,"0,00",0,0,0,0,0,0
+13,- AufwendungenfürSach-undDienstleistungen,"45.102,51",500,0,0,0,0,0
+14,- BilanzielleAbschreibungen,"363,62",390,90,90,90,90,90
+15,- Transferaufwendungen,"0,00",0,0,0,0,0,0
+16,- SonstigeordentlicheAufwendungen,"324.396,81",974.790,2.420,512.420,2.420,1.002.420,502.420
+17,= OrdentlicheAufwendungen,"728.439,26",1.321.730,2.510,873.130,2.510,1.381.220,890.120
+18,= OrdentlichesErgebnis(=Zeilen10und17),"216.672,87-",851.730-,2.510-,383.630-,2.510-,381.220-,890.120-
+19,+ Finanzerträge,"0,00",0,0,0,0,0,0
+20,- ZinsenundsonstigeFinanzaufwendungen,"0,00",0,0,0,0,0,0
+21,= Finanzergebnis (=Zeilen19und20),"0,00",0,0,0,0,0,0
+22,= ErgebnisderlaufendenVerwaltungstätigkeit (=Zeilen18und21),"216.672,87-",851.730-,2.510-,383.630-,2.510-,381.220-,890.120-
+23,+ AußerordentlicheErträge,"0,00",0,0,0,0,0,0
+24,- AußerordentlicheAufwendungen,"0,00",0,0,0,0,0,0
+25,= AußerordentlichesErgebnis(=Zeilen23und24),"0,00",0,0,0,0,0,0
+26,= ErgebnisvorBerücksichtigungderinternen Leistungsbeziehungen(=Zeilen22und25),"216.672,87-",851.730-,2.510-,383.630-,2.510-,381.220-,890.120-
+27,+ ErträgeausinternenLeistungsbeziehungen,"0,00",0,0,0,0,0,0
+28,- AufwendungenausinternenLeistungsbeziehungen,"52.280,00",52.280,49.670,49.670,49.670,49.670,49.670
+29,"= Ergebnis(=Zeilen26,27,28)","268.952,87-",904.010-,52.180-,433.300-,52.180-,430.890-,939.790-
