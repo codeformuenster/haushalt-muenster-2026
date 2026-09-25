@@ -4,7 +4,7 @@ Python-Skripte zur Prüfung und Auswertung der Haushaltsdaten unter `daten/`.
 
 ## Einrichtung
 
-Benötigt [uv](https://docs.astral.sh/uv/). uv installiert Python und die Abhängigkeiten (`polars`, `typer`) beim ersten Aufruf selbst:
+Benötigt [uv](https://docs.astral.sh/uv/). uv installiert Python und die Abhängigkeiten (`pdfplumber`, `polars`, `typer`) beim ersten Aufruf selbst:
 
 ```sh
 uv run --project scripts scripts/<skript>.py --help
@@ -15,6 +15,7 @@ uv run --project scripts scripts/pipeline/<skript>.py --help
 
 | Skript | Zweck | Ausgabe |
 |---|---|---|
+| `pipeline/extrahiere_tabellen.py` | Extrahiert alle Tabellen aus den beiden PDFs (`daten/pdfs/`, nicht im Repo, Download-Links im Haupt-README) mit pdfplumber. Dateinamen aus `pipeline/tabellennamen.csv`. Reproduziert 1883 von 1888 Roh-CSVs byte-identisch; abweichend sind 5 Tabellen mit ungewöhnlichen Kopfzeilen (Band 1 S. 397, Band 2 S. 117, 126, 364, 365), die von keinem `agg_*`-Skript gelesen werden. | CSVs in `daten/raw_table_extraction/`; Exit-Code 1, wenn eine erwartete Tabelle fehlt |
 | `pipeline/build_agg_tables.py` | Führt die vier `agg_*`-Skripte in der richtigen Reihenfolge aus und danach `check_konsistenz.py`. | Alle CSVs in `daten/agg_tables/`, Bericht `daten/pruefberichte/konsistenz.md`; Exit-Code 1 nur, wenn ein Erzeugungsschritt fehlschlägt |
 | `pipeline/agg_gesamtuebersicht.py` | Erträge/Aufwendungen und Ein-/Auszahlungen 2026/2027 je Produktgruppe, Produktbereich und Stadt aus dem Haushaltsquerschnitt (Band 2, S. 71-80). | `daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` |
 | `pipeline/agg_stellenplan.py` | Stellen (VZÄ) 2026/2027 je Produktgruppe und je Besoldungs-/Entgeltgruppe aus "Stellen nach Haushaltsgliederung" (Band 2, S. 41-66). | `daten/agg_tables/Stellenplan_2026_2027.csv`, `daten/agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv` |
@@ -25,6 +26,12 @@ uv run --project scripts scripts/pipeline/<skript>.py --help
 `pipeline/rohdaten.py` enthält gemeinsame Hilfsfunktionen (Roh-CSVs finden und lesen, deutsche Zahlen umwandeln) und wird nicht direkt aufgerufen.
 
 ## Pipeline
+
+Optional zuerst die Roh-CSVs neu aus den PDFs extrahieren (dauert ca. 3 Minuten):
+
+```sh
+uv run --project scripts scripts/pipeline/extrahiere_tabellen.py
+```
 
 Alle Tabellen in `daten/agg_tables/` neu erzeugen und prüfen:
 
