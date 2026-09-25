@@ -11,6 +11,56 @@
   --mm-lesebreite: 68ch;
   /* Einheitlicher vertikaler Abstand zwischen den Blöcken einer Seite. */
   --mm-block-abstand: var(--wa-space-2xl);
+
+  /* Münster Money Markenfarben — die einzige Stelle, an der sie definiert sind.
+     Komponenten und Diagramme dürfen nur darauf zugreifen. */
+  --mm-blaze-orange: #ff5400ff;
+  --mm-pumpkin-spice: #ff6d00ff;
+  --mm-princeton-orange: #ff8500ff;
+  --mm-deep-saffron: #ff9100ff;
+  --mm-amber-glow: #ff9e00ff;
+  --mm-turquoise-surf: #00b4d8ff;
+  --mm-blue-green: #0096c7ff;
+  --mm-bright-teal-blue: #0077b6ff;
+  --mm-french-blue: #023e8aff;
+  --mm-deep-twilight: #03045eff;
+
+  /* Web Awesome Brand-Skala (95 = hellste … 05 = dunkelste), aus den Markenfarben
+     befüllt: Orange 95–60, dann Blau 50–10 (abgestimmte Reihenfolge). So ziehen
+     automatisch alle brand-Elemente mit — Buttons, Links, Fokus, Callouts.
+     Stufe 05 ist vertieft nicht vorhanden und wird mit deep-twilight gefüllt. */
+  --wa-color-brand-95: var(--mm-amber-glow);
+  --wa-color-brand-90: var(--mm-deep-saffron);
+  --wa-color-brand-80: var(--mm-princeton-orange);
+  --wa-color-brand-70: var(--mm-pumpkin-spice);
+  --wa-color-brand-60: var(--mm-blaze-orange);
+  --wa-color-brand-50: var(--mm-turquoise-surf);
+  --wa-color-brand-40: var(--mm-blue-green);
+  --wa-color-brand-30: var(--mm-bright-teal-blue);
+  --wa-color-brand-20: var(--mm-french-blue);
+  --wa-color-brand-10: var(--mm-deep-twilight);
+  --wa-color-brand-05: var(--mm-deep-twilight);
+  /* "Die" Markenfarbe, wenn ein einzelner Wert gebraucht wird (z. B. Icons). */
+  --wa-color-brand: var(--mm-blaze-orange);
+
+  /* --- Korrekturen für die lauten/leisen Zustände (Light) -----------------
+     Unsere zehn Markenfarben sind alle voll gesättigt. Das Theme geht aber
+     davon aus, dass Stufe 50 ein Mittelton mit weißem Text und Stufe 95 ein
+     heller Tint ist — das stimmt hier nicht. Deshalb nur diese semantischen
+     Tokens nachregeln; die Skala oben bleibt unangetastet. */
+
+  /* Laut (CTA-Button): Weiß auf turquoise-surf hätte nur 2,5:1. Ein Schritt
+     dunkler (bright-teal-blue) erfüllt WCAG AA mit 4,9:1. */
+  --wa-color-brand-fill-loud: var(--mm-bright-teal-blue);
+  --wa-color-brand-on-loud: white;
+
+  /* Leise (dezent hinterlegen, Hover): Aus der hellsten Markenfarbe einen
+     Tint mischen — gesättigtes amber-glow wäre als Hintergrund zu laut. */
+  --wa-color-brand-fill-quiet: color-mix(in oklab, var(--mm-amber-glow) 16%, white);
+  --wa-color-brand-border-quiet: color-mix(in oklab, var(--mm-amber-glow) 45%, white);
+  /* Text/Icons auf quiet Flächen: blaze-orange, etwas abgedunkelt, damit sie
+     auch auf dem Tint mindestens 3:1 halten. */
+  --wa-color-brand-on-quiet: color-mix(in oklab, var(--mm-blaze-orange) 80%, black);
 }
 
 body {
