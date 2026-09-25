@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import EinAusgabenSankey from '@/components/einausgaben/EinAusgabenSankey.vue'
+import EinAusgabenGruppenDetail from '@/components/einausgaben/EinAusgabenGruppenDetail.vue'
 import rawData from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv?raw'
 import rawGroups from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_gruppen.csv?raw'
 
@@ -93,6 +94,21 @@ const rows = computed(() =>
     .filter((row) => row.Ertraege2026Num > 0 || row.Aufwendungen2026Num > 0),
 )
 
+const selectedGroup = ref<string | null>(null)
+
+const selectedGroupName = computed(() => {
+  if (!selectedGroup.value) return ''
+  return groupMap.get(selectedGroup.value) ?? selectedGroup.value
+})
+
+function onGroupSelect(groupCode: string): void {
+  selectedGroup.value = groupCode
+}
+
+function clearSelection(): void {
+  selectedGroup.value = null
+}
+
 </script>
 
 <template>
@@ -103,11 +119,21 @@ const rows = computed(() =>
     />
 
     <ChartCard
-      titel="Erträge und Aufwendungen als Sankey (2026)"
-      beschreibung="Gruppenansicht ohne Drilldown: aggregierte Einnahmen und Ausgaben je Gruppe."
+      :titel="selectedGroup ? `Produkte in Gruppe ${selectedGroup}` : 'Erträge und Aufwendungen als Sankey (2026)'"
+      :beschreibung="selectedGroup
+        ? `Säulendiagramm für ${selectedGroupName}: Einnahmen und Aufwendungen je Produkt.`
+        : 'Gruppenansicht: Klick auf eine Gruppe öffnet die Produktansicht.'"
       quelle="Haushaltsplan 2026/27, Gesamtübersicht Einnahmen/Ausgaben"
     >
-      <EinAusgabenSankey :rows="rows" />
+      <template v-if="selectedGroup">
+        <wa-button size="small" variant="neutral" @click="clearSelection">Zurück</wa-button>
+        <EinAusgabenGruppenDetail
+          :rows="rows"
+          :group-code="selectedGroup"
+          :group-name="selectedGroupName"
+        />
+      </template>
+      <EinAusgabenSankey v-else :rows="rows" @group-select="onGroupSelect" />
     </ChartCard>
   </div>
 </template>

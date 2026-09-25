@@ -15,6 +15,18 @@ const props = defineProps<{
   rows: SankeyInputRow[]
 }>()
 
+const emit = defineEmits<{
+  groupSelect: [groupCode: string]
+}>()
+
+function onChartClick(params: unknown): void {
+  const data = (params as { dataType?: string; data?: { nodeType?: string; groupCode?: string } })
+  if (data?.dataType !== 'node') return
+  if (data?.data?.nodeType !== 'group') return
+  if (!data.data.groupCode) return
+  emit('groupSelect', data.data.groupCode)
+}
+
 const sankeyOption = computed<EChartsOption>(() => {
   const totalEinnahmenNode = 'Einnahmen 2026 gesamt'
   const totalAusgabenNode = 'Ausgaben 2026 gesamt'
@@ -88,7 +100,19 @@ const sankeyOption = computed<EChartsOption>(() => {
         type: 'sankey',
         layout: 'none',
         emphasis: { focus: 'adjacency' },
-        data: Array.from(nodeNames).map((name) => ({ name })),
+        data: Array.from(nodeNames).map((name) => {
+          const isEinnahmenGroup = name.startsWith('Einnahmen Gruppe: ')
+          const isAusgabenGroup = name.startsWith('Ausgaben Gruppe: ')
+          const isGroup = isEinnahmenGroup || isAusgabenGroup
+          const prefix = isEinnahmenGroup ? 'Einnahmen Gruppe: ' : 'Ausgaben Gruppe: '
+          const groupCode = isGroup ? name.replace(prefix, '').slice(0, 2) : undefined
+
+          return {
+            name,
+            nodeType: isGroup ? 'group' : 'other',
+            groupCode,
+          }
+        }),
         links,
         levels: [
           { depth: 0, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
@@ -107,5 +131,5 @@ const sankeyOption = computed<EChartsOption>(() => {
 </script>
 
 <template>
-  <BaseChart :option="sankeyOption" hoehe="700px" />
+  <BaseChart :option="sankeyOption" hoehe="700px" @chart-click="onChartClick" />
 </template>
