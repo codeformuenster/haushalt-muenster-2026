@@ -25,7 +25,7 @@ const option = computed<EChartsOption>(() => {
     .filter((row) => row.Gruppe === props.groupCode)
     .sort((a, b) => b.Aufwendungen2026Num - a.Aufwendungen2026Num)
 
-  const mitteNode = "Mitte"
+  const mitteNode = "Haushalt"
   const ueberschussNode = `Überschuss ${props.groupName}`
   const subventionNode = `Subvention aus anderen Bereichen`
 
@@ -33,11 +33,11 @@ const option = computed<EChartsOption>(() => {
   const sumAufwendungen = products.reduce((sum, row) => sum + row.Aufwendungen2026Num, 0)
   const saldo = sumErtraege - sumAufwendungen
 
-  const productNodes = products.map((p) => `${p.Code} ${p.Bezeichnung}`)
+  const productNodes = products.map((p) => `${p.Bezeichnung} (${p.Code})`)
   const nodes: Array<{ name: string; itemStyle?: { color: string } }> = [
     { name: mitteNode, itemStyle: { color: POL_FARBEN.positiv } },
-    ...productNodes.map((name) => ({ name })),
-	...productNodes.map((name) => ({ name: "E " + name })),
+    ...productNodes.map((name) => ({ name: "Ausgaben für " + name })),
+	...productNodes.map((name) => ({ name: "Einnahmen aus " + name })),
   ]
 
   if (saldo > 0) {
@@ -52,13 +52,13 @@ const option = computed<EChartsOption>(() => {
       .filter((p) => p.Ertraege2026Num > 0)
       .map((p) => ({
         target: mitteNode,
-        source: `E ${p.Code} ${p.Bezeichnung}`,
+        source: `Einnahmen aus ${p.Bezeichnung} (${p.Code})`,
         value: p.Ertraege2026Num,
       })),
     ...products
       .filter((p) => p.Aufwendungen2026Num > 0)
       .map((p) => ({
-        target: `${p.Code} ${p.Bezeichnung}`,
+        target: `Ausgaben für ${p.Bezeichnung} (${p.Code})`,
         source: mitteNode,
         value: p.Aufwendungen2026Num,
       })),
