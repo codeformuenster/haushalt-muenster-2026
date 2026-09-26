@@ -46,6 +46,11 @@ const router = createRouter({
       meta: { nav: 'Stellenplan' },
     },
     {
+      path: '/stellenplan/gesamtuebersicht',
+      name: 'stellenplan-gesamt',
+      component: () => import('@/pages/StellenplanGesamtPage.vue'),
+    },
+    {
       path: '/zuschuesse',
       name: 'zuschuesse',
       component: () => import('@/pages/ZuschuessePage.vue'),

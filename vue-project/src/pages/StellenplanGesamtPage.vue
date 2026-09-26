@@ -1,0 +1,557 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
+import PageIntro from '@/components/ui/PageIntro.vue'
+import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
+import { euroKurz, vzae } from '@/charts/format'
+import daten from '@/data/stellenplan.json'
+import { schaetzung } from '@/lib/entgelt'
+
+const ICICLE_BLAU = KATEGORIE_FARBEN[0]
+
+type Kennzahl = 'vzae' | 'entgelt'
+type Stelle = {
+  code: string
+  name: string
+  year: string
+  total: number
+  grades: Record<string, number>
+}
+type Gruppe = { code: string; name: string; value: number }
+type Bereich = { code: string; name: string; value: number; gruppen: Gruppe[] }
+type Knoten = {
+  key: string
+  code: string
+  name: string
+  value: number
+  x: number
+  width: number
+  y: number
+  height: number
+  level: 'root' | 'area' | 'group'
+  areaCode?: string
+}
+
+const route = useRoute()
+const stellen: Stelle[] = daten.rows.map((row) => ({
+  ...row,
+  grades: Object.fromEntries(
+    Object.entries(row.grades).filter(
+      (entry): entry is [string, number] => typeof entry[1] === 'number',
+    ),
+  ),
+}))
+const jahr = ref(route.query.jahr === '2027' ? '2027' : '2026')
+const kennzahl = ref<Kennzahl>(route.query.kennzahl === 'entgelt' ? 'entgelt' : 'vzae')
+const stufe = ref(3)
+const besoldungsStufe = ref(6)
+const bereich = ref('')
+const produktgruppe = ref('')
+const zoom = ref(1)
+const suche = ref('')
+
+const wert = (row: Stelle) =>
+  kennzahl.value === 'vzae'
+    ? row.total
+    : schaetzung(row.grades, row.year, stufe.value, besoldungsStufe.value).euro
+const wertFormat = (value: number) =>
+  kennzahl.value === 'vzae' ? `${vzae(value)} VZÄ` : euroKurz(value)
+const titelName = (name: string) =>
+  name
+    .toLocaleLowerCase('de-DE')
+    .replace(/(^|[\s/-])\p{L}/gu, (treffer) => treffer.toLocaleUpperCase('de-DE'))
+
+const bereiche = computed<Bereich[]>(() =>
+  Object.entries(daten.areas)
+    .map(([code, name]) => {
+      const gruppen = stellen
+        .filter((row) => row.year === jahr.value && row.code.startsWith(code))
+        .map((row) => ({ code: row.code, name: titelName(row.name), value: wert(row) }))
+        .filter((row) => row.value > 0)
+      return {
+        code,
+        name,
+        value: gruppen.reduce((summe, gruppe) => summe + gruppe.value, 0),
+        gruppen,
+      }
+    })
+    .filter((row) => row.value > 0),
+)
+const aktuellerBereich = computed(() => bereiche.value.find((row) => row.code === bereich.value))
+const aktuelleGruppe = computed(() =>
+  bereiche.value.flatMap((row) => row.gruppen).find((row) => row.code === produktgruppe.value),
+)
+const gesamt = computed(() => bereiche.value.reduce((summe, row) => summe + row.value, 0))
+const diagrammHoehe = computed(() => (bereich.value ? 230 : 340))
+
+const knoten = computed<Knoten[]>(() => {
+  const result: Knoten[] = []
+  const sichtbar = aktuellerBereich.value ? [aktuellerBereich.value] : bereiche.value
+  const summe = sichtbar.reduce((wert, row) => wert + row.value, 0)
+  result.push({
+    key: 'root',
+    code: '',
+    name: aktuellerBereich.value?.name ?? 'Stadt Münster',
+    value: summe,
+    x: 0,
+    width: 1000,
+    y: 0,
+    height: 72,
+    level: 'root',
+  })
+
+  let x = 0
+  for (const area of sichtbar) {
+    const breite = (area.value / summe) * 1000
+    if (!aktuellerBereich.value) {
+      result.push({
+        key: `area-${area.code}`,
+        code: area.code,
+        name: area.name,
+        value: area.value,
+        x,
+        width: breite,
+        y: 72,
+        height: 102,
+        level: 'area',
+      })
+    }
+    let gruppenX = x
+    for (const gruppe of area.gruppen) {
+      const gruppenBreite = (gruppe.value / summe) * 1000
+      result.push({
+        key: `group-${gruppe.code}`,
+        code: gruppe.code,
+        name: gruppe.name,
+        value: gruppe.value,
+        x: gruppenX,
+        width: gruppenBreite,
+        y: aktuellerBereich.value ? 72 : 174,
+        height: aktuellerBereich.value ? 146 : 156,
+        level: 'group',
+        areaCode: area.code,
+      })
+      gruppenX += gruppenBreite
+    }
+    x += breite
+  }
+  return result
+})
+
+const suchtreffer = computed(() => {
+  const query = suche.value.trim().toLocaleLowerCase('de-DE')
+  if (!query) return []
+  return bereiche.value
+    .flatMap((area) =>
+      area.gruppen.map((gruppe) => ({ ...gruppe, areaCode: area.code, areaName: area.name })),
+    )
+    .filter((row) => `${row.code} ${row.name}`.toLocaleLowerCase('de-DE').includes(query))
+    .slice(0, 8)
+})
+
+function beschriften(name: string, width: number) {
+  const laenge = Math.max(3, Math.floor(width / 7.4))
+  return name.length > laenge ? `${name.slice(0, Math.max(2, laenge - 1))}…` : name
+}
+function knotenWaehlen(knoten: Knoten) {
+  if (knoten.level === 'area') {
+    bereich.value = knoten.code
+    produktgruppe.value = ''
+    zoom.value = 1
+  } else if (knoten.level === 'group') {
+    if (!bereich.value && knoten.areaCode) bereich.value = knoten.areaCode
+    produktgruppe.value = knoten.code
+    zoom.value = 1
+  }
+}
+function gruppeWaehlen(code: string, areaCode: string) {
+  bereich.value = areaCode
+  produktgruppe.value = code
+  suche.value = ''
+  zoom.value = 1
+}
+function zuruecksetzen() {
+  bereich.value = ''
+  produktgruppe.value = ''
+  zoom.value = 1
+}
+</script>
+
+<template>
+  <div class="mm-seite icicle-seite">
+    <RouterLink class="icicle-zurueck" :to="{ name: 'stellenplan', query: { jahr, kennzahl } }">
+      ← Zurück zum Stellenatlas
+    </RouterLink>
+    <PageIntro
+      titel="Gesamtübersicht Stellenplan"
+      beschreibung="Das Icicle-Diagramm zeigt die vollständige Hierarchie von der Stadt über die Themenbereiche bis zu den Produktgruppen. Die Breite entspricht dem Stellenumfang."
+    />
+
+    <div class="icicle-filter">
+      <div role="group" aria-label="Kennzahl">
+        <button type="button" :aria-pressed="kennzahl === 'vzae'" @click="kennzahl = 'vzae'">
+          VZÄ
+        </button>
+        <button type="button" :aria-pressed="kennzahl === 'entgelt'" @click="kennzahl = 'entgelt'">
+          Gehaltskosten
+        </button>
+      </div>
+      <label
+        >Planjahr<select v-model="jahr">
+          <option>2026</option>
+          <option>2027</option>
+        </select></label
+      >
+      <label class="icicle-suche"
+        >Produktgruppe suchen<input v-model="suche" type="search" placeholder="Code oder Name"
+      /></label>
+    </div>
+    <div v-if="kennzahl === 'entgelt'" class="icicle-stufen">
+      <label
+        >TVöD-Stufe<select v-model.number="stufe">
+          <option v-for="nr in 6" :key="nr" :value="nr">Stufe {{ nr }}</option>
+        </select></label
+      >
+      <label
+        >Besoldungsstufe<select v-model.number="besoldungsStufe">
+          <option v-for="nr in 10" :key="nr + 2" :value="nr + 2">Stufe {{ nr + 2 }}</option>
+        </select></label
+      >
+    </div>
+    <ul v-if="suchtreffer.length" class="icicle-treffer" aria-label="Suchergebnisse">
+      <li v-for="row in suchtreffer" :key="row.code">
+        <button type="button" @click="gruppeWaehlen(row.code, row.areaCode)">
+          <span>{{ row.code }} · {{ row.name }}</span
+          ><small>{{ row.areaName }} · {{ wertFormat(row.value) }}</small>
+        </button>
+      </li>
+    </ul>
+
+    <section class="icicle-karte" aria-labelledby="icicle-titel">
+      <div class="icicle-kopf">
+        <div>
+          <h2 id="icicle-titel">{{ aktuellerBereich?.name ?? 'Stadt Münster' }}</h2>
+          <p>{{ wertFormat(aktuellerBereich?.value ?? gesamt) }} · {{ jahr }}</p>
+        </div>
+        <div class="icicle-zoom" role="group" aria-label="Diagrammgröße">
+          <button
+            type="button"
+            aria-label="Verkleinern"
+            :disabled="zoom <= 1"
+            @click="zoom = Math.max(1, zoom - 0.5)"
+          >
+            −
+          </button>
+          <button type="button" @click="zoom = 1">Zurücksetzen</button>
+          <button
+            type="button"
+            aria-label="Vergrößern"
+            :disabled="zoom >= 2.5"
+            @click="zoom = Math.min(2.5, zoom + 0.5)"
+          >
+            +
+          </button>
+        </div>
+      </div>
+      <nav class="icicle-pfad" aria-label="Diagrammpfad">
+        <button type="button" :aria-current="bereich ? undefined : 'page'" @click="zuruecksetzen">
+          Stadt Münster
+        </button>
+        <template v-if="aktuellerBereich"
+          ><span aria-hidden="true">›</span><strong>{{ aktuellerBereich.name }}</strong></template
+        >
+      </nav>
+      <p class="icicle-anleitung">
+        Themenbereich auswählen, um seine Produktgruppen über die volle Breite aufzufächern.
+      </p>
+      <div class="icicle-scroll" tabindex="0" aria-label="Icicle-Diagramm, horizontal scrollbar">
+        <svg
+          class="icicle-diagramm"
+          :class="{ 'icicle-diagramm--gesamt': !bereich }"
+          :style="{ width: `${zoom * 100}%` }"
+          :viewBox="`0 0 1000 ${diagrammHoehe}`"
+          role="img"
+          :aria-label="`Hierarchie des Stellenplans ${jahr}`"
+        >
+          <g
+            v-for="node in knoten"
+            :key="node.key"
+            class="icicle-knoten"
+            :class="[
+              `icicle-knoten--${node.level}`,
+              { 'icicle-knoten--aktiv': node.code === produktgruppe },
+            ]"
+            :tabindex="node.level === 'root' ? undefined : 0"
+            :role="node.level === 'root' ? undefined : 'button'"
+            @click="knotenWaehlen(node)"
+            @keydown.enter.prevent="knotenWaehlen(node)"
+            @keydown.space.prevent="knotenWaehlen(node)"
+          >
+            <title>{{ node.name }}: {{ wertFormat(node.value) }}</title>
+            <rect
+              :x="node.x + 1"
+              :y="node.y + 1"
+              :width="Math.max(0, node.width - 2)"
+              :height="node.height - 2"
+              rx="3"
+            />
+            <text v-if="node.width > 22" :x="node.x + 7" :y="node.y + 22">
+              <tspan>
+                {{
+                  node.level === 'group' && node.width < 62
+                    ? node.code
+                    : beschriften(node.name, node.width - 12)
+                }}
+              </tspan>
+              <tspan v-if="node.width > 58" :x="node.x + 7" dy="18">
+                {{ wertFormat(node.value) }}
+              </tspan>
+            </text>
+          </g>
+        </svg>
+      </div>
+      <div v-if="aktuelleGruppe" class="icicle-detail" aria-live="polite">
+        <span>Ausgewählte Produktgruppe</span>
+        <strong>{{ aktuelleGruppe.code }} · {{ aktuelleGruppe.name }}</strong>
+        <b>{{ wertFormat(aktuelleGruppe.value) }}</b>
+      </div>
+    </section>
+
+    <details>
+      <summary>Gesamtübersicht als Tabelle</summary>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Themenbereich / Produktgruppe</th>
+            <th scope="col">{{ kennzahl === 'vzae' ? 'VZÄ' : 'Tabellenentgelt/Jahr' }}</th>
+          </tr>
+        </thead>
+        <tbody v-for="area in bereiche" :key="area.code">
+          <tr class="icicle-tabellenbereich">
+            <th scope="row">{{ area.code }} · {{ area.name }}</th>
+            <td>{{ wertFormat(area.value) }}</td>
+          </tr>
+          <tr v-for="gruppe in area.gruppen" :key="gruppe.code">
+            <td>{{ gruppe.code }} · {{ gruppe.name }}</td>
+            <td>{{ wertFormat(gruppe.value) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+  </div>
+</template>
+
+<style scoped>
+.icicle-zurueck {
+  color: var(--wa-color-text-link);
+  width: fit-content;
+}
+.icicle-filter,
+.icicle-filter > div,
+.icicle-stufen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--wa-space-s);
+}
+.icicle-filter > div {
+  flex: 0 0 auto;
+}
+.icicle-filter label {
+  width: 10rem;
+}
+.icicle-filter .icicle-suche {
+  flex: 1 1 16rem;
+  width: auto;
+}
+.icicle-stufen label {
+  width: 11rem;
+}
+label {
+  display: grid;
+  gap: var(--wa-space-2xs);
+}
+button,
+select,
+input {
+  min-height: 44px;
+  padding: var(--wa-space-s);
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: var(--wa-border-radius-m);
+  background: var(--wa-color-surface-default);
+  color: inherit;
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button[aria-pressed='true'] {
+  color: var(--wa-color-brand-on-loud);
+  background: var(--wa-color-brand-fill-loud);
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.icicle-treffer {
+  display: grid;
+  gap: var(--wa-space-2xs);
+  margin: calc(-1 * var(--wa-space-xl)) 0 0;
+  padding: var(--wa-space-s);
+  list-style: none;
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: var(--wa-border-radius-m);
+  background: var(--wa-color-surface-default);
+}
+.icicle-treffer button {
+  display: grid;
+  width: 100%;
+  text-align: left;
+  border: 0;
+}
+.icicle-treffer small {
+  color: var(--wa-color-text-quiet);
+}
+.icicle-karte {
+  padding: var(--wa-space-l);
+  border: 1px solid var(--wa-color-surface-border);
+  border-radius: var(--wa-border-radius-l);
+  background: var(--wa-color-surface-default);
+}
+.icicle-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wa-space-l);
+}
+.icicle-kopf h2,
+.icicle-kopf p {
+  margin: 0;
+}
+.icicle-kopf p,
+.icicle-anleitung {
+  color: var(--wa-color-text-quiet);
+}
+.icicle-zoom {
+  display: flex;
+  gap: var(--wa-space-2xs);
+}
+.icicle-pfad {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--wa-space-xs);
+  margin-top: var(--wa-space-m);
+}
+.icicle-pfad button {
+  min-height: 36px;
+  padding: var(--wa-space-xs) var(--wa-space-s);
+  color: var(--wa-color-text-link);
+}
+.icicle-anleitung {
+  margin: var(--wa-space-s) 0;
+  font-size: var(--wa-font-size-s);
+}
+.icicle-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: var(--wa-border-radius-m);
+}
+.icicle-diagramm {
+  display: block;
+  min-width: 100%;
+  height: auto;
+}
+.icicle-knoten {
+  cursor: pointer;
+  outline: none;
+}
+.icicle-knoten rect {
+  stroke: #fff;
+  stroke-width: 2;
+  fill: color-mix(in srgb, v-bind(ICICLE_BLAU) 76%, white);
+}
+.icicle-knoten--root {
+  cursor: default;
+}
+.icicle-knoten--root rect {
+  fill: #31333d;
+}
+.icicle-knoten--area rect {
+  fill: v-bind(ICICLE_BLAU);
+}
+.icicle-knoten--group rect {
+  fill: #9dbeec;
+}
+.icicle-knoten:not(.icicle-knoten--root):hover rect,
+.icicle-knoten:focus rect,
+.icicle-knoten--aktiv rect {
+  stroke: var(--mm-princeton-orange);
+  stroke-width: 5;
+}
+.icicle-knoten text {
+  pointer-events: none;
+  fill: #1f2937;
+  font:
+    14px system-ui,
+    sans-serif;
+}
+.icicle-knoten--root text,
+.icicle-knoten--area text {
+  fill: #fff;
+  font-weight: 650;
+}
+.icicle-detail {
+  display: grid;
+  gap: var(--wa-space-2xs);
+  margin-top: var(--wa-space-m);
+  padding: var(--wa-space-m);
+  border-left: 4px solid var(--mm-princeton-orange);
+  background: var(--wa-color-brand-fill-quiet);
+}
+.icicle-detail span {
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--wa-font-size-s);
+}
+th,
+td {
+  padding: var(--wa-space-s);
+  text-align: left;
+  border-bottom: 1px solid var(--wa-color-surface-border);
+}
+th:last-child,
+td:last-child {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.icicle-tabellenbereich {
+  background: var(--wa-color-brand-fill-quiet);
+}
+summary {
+  cursor: pointer;
+  padding-block: var(--wa-space-s);
+}
+@media (max-width: 700px) {
+  .icicle-kopf {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .icicle-zoom button:nth-child(2) {
+    flex: 1;
+  }
+  .icicle-diagramm--gesamt {
+    min-width: 56rem;
+  }
+  .icicle-filter label,
+  .icicle-filter .icicle-suche {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+</style>
