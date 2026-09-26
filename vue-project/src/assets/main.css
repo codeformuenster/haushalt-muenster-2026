@@ -11,6 +11,9 @@
   --mm-lesebreite: 68ch;
   /* Einheitlicher vertikaler Abstand zwischen den Blöcken einer Seite. */
   --mm-block-abstand: var(--wa-space-2xl);
+  /* Links durchgezogen unterstreichen (Web Awesome: gepunktet). Gepunktet sind
+     nur Fachwörter mit Erklärung (GlossarBegriff), sonst sehen beide gleich aus. */
+  --wa-link-decoration-default: underline color-mix(in oklab, currentColor 70%, transparent) solid;
 
   /* Münster Money Markenfarben — die einzige Stelle, an der sie definiert sind.
      Komponenten und Diagramme dürfen nur darauf zugreifen. */
