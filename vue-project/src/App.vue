@@ -9,6 +9,7 @@
 import { RouterView } from 'vue-router'
 import TheHeader from '@/components/layout/TheHeader.vue'
 import TheFooter from '@/components/layout/TheFooter.vue'
+import MuensterhackBadge from '@/components/layout/MuensterhackBadge.vue'
 </script>
 
 <template>
@@ -23,6 +24,8 @@ import TheFooter from '@/components/layout/TheFooter.vue'
       <TheFooter />
     </footer>
   </wa-page>
+
+  <MuensterhackBadge />
 </template>
 
 <style scoped>
