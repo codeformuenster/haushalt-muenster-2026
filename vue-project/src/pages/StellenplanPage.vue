@@ -450,29 +450,36 @@ function zurUebersicht() {
       titel="Stellenatlas Münster"
       beschreibung="Wo arbeitet die Stadt? Der Stellenatlas zeigt geplante Stellen in Vollzeitäquivalenten (VZÄ) – nicht tatsächliche Beschäftigtenzahlen."
     />
-    <div class="stellen-kennzahlen" aria-live="polite">
-      <div>
-        <span>Stadt insgesamt · {{ jahr }}</span>
-        <strong v-if="kennzahl === 'vzae'"
-          >{{ vzae(kennzahlGesamt) }} <GlossarBegriff id="vzae">VZÄ</GlossarBegriff></strong
-        >
-        <strong v-else>{{ euroKurz(kennzahlGesamt) }}</strong>
-      </div>
-      <div>
-        <span>Veränderung 2026 → 2027 · Stadt insgesamt</span
-        ><strong>{{
-          kennzahl === 'vzae' ? `${vorzeichen(kennzahlDelta)} VZÄ` : geldVorzeichen(kennzahlDelta)
-        }}</strong>
-      </div>
-      <div v-if="kennzahl === 'vzae'">
-        <span>Aufgaben der Stadt</span><strong>63 Produktgruppen</strong>
-      </div>
-      <div v-else>
-        <span>Davon mit Näherungswert</span
-        ><strong>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</strong>
-        <small>{{ vzae(bewertungsquote) }} % der Stellen bewertet</small>
-      </div>
-    </div>
+    <wa-card class="mm-kennzahlen-band">
+      <dl class="mm-kennzahlen" aria-live="polite">
+        <div class="mm-kennzahl">
+          <dt>Stadt insgesamt · {{ jahr }}</dt>
+          <dd v-if="kennzahl === 'vzae'">
+            {{ vzae(kennzahlGesamt) }} <GlossarBegriff id="vzae">VZÄ</GlossarBegriff>
+          </dd>
+          <dd v-else>{{ euroKurz(kennzahlGesamt) }}</dd>
+        </div>
+        <div class="mm-kennzahl">
+          <dt>Veränderung 2026 → 2027 · Stadt insgesamt</dt>
+          <dd>
+            {{
+              kennzahl === 'vzae'
+                ? `${vorzeichen(kennzahlDelta)} VZÄ`
+                : geldVorzeichen(kennzahlDelta)
+            }}
+          </dd>
+        </div>
+        <div v-if="kennzahl === 'vzae'" class="mm-kennzahl">
+          <dt>Aufgaben der Stadt</dt>
+          <dd>63 Produktgruppen</dd>
+        </div>
+        <div v-else class="mm-kennzahl">
+          <dt>Davon mit Näherungswert</dt>
+          <dd>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</dd>
+          <p>{{ vzae(bewertungsquote) }} % der Stellen bewertet</p>
+        </div>
+      </dl>
+    </wa-card>
     <div class="stellen-filter" aria-label="Darstellung filtern">
       <div class="stellen-metrik" role="group" aria-label="Kennzahl">
         <button type="button" :aria-pressed="kennzahl === 'vzae'" @click="kennzahl = 'vzae'">
@@ -513,21 +520,23 @@ function zurUebersicht() {
           Stufe {{ nr + 2 }}
         </wa-option>
       </wa-select>
-      <wa-select label="Planjahr" :value="jahr" @change="jahr = auswahlWert($event)">
-        <wa-option value="2026">2026</wa-option>
-        <wa-option value="2027">2027</wa-option>
-      </wa-select>
-      <wa-select
-        class="stellen-bereich"
-        label="Produktbereich"
-        :value="bereich"
-        @change="bereich = auswahlWert($event)"
-      >
-        <wa-option value="all">Alle Produktbereiche</wa-option>
-        <wa-option v-for="(name, code) in daten.areas" :key="code" :value="code">
-          {{ name }}
-        </wa-option>
-      </wa-select>
+      <div class="stellen-filter__rechts">
+        <wa-select label="Planjahr" :value="jahr" @change="jahr = auswahlWert($event)">
+          <wa-option value="2026">2026</wa-option>
+          <wa-option value="2027">2027</wa-option>
+        </wa-select>
+        <wa-select
+          class="stellen-bereich"
+          label="Produktbereich"
+          :value="bereich"
+          @change="bereich = auswahlWert($event)"
+        >
+          <wa-option value="all">Alle Produktbereiche</wa-option>
+          <wa-option v-for="(name, code) in daten.areas" :key="code" :value="code">
+            {{ name }}
+          </wa-option>
+        </wa-select>
+      </div>
     </div>
     <ChartCard
       :titel="titel"
@@ -723,23 +732,23 @@ function zurUebersicht() {
           angesetzt.
         </p>
       </div>
-      <div class="entgelt-kennzahlen" aria-live="polite">
-        <div>
-          <span>Stadt insgesamt · {{ jahr }}</span>
-          <strong>{{ euro(stadtSchaetzung.euro) }}</strong>
-          <small>{{ vzae(stadtSchaetzung.bewertet) }} bewertete VZÄ</small>
+      <dl class="mm-kennzahlen entgelt-kennzahlen" aria-live="polite">
+        <div class="mm-kennzahl">
+          <dt>Stadt insgesamt · {{ jahr }}</dt>
+          <dd>{{ euro(stadtSchaetzung.euro) }}</dd>
+          <p>{{ vzae(stadtSchaetzung.bewertet) }} bewertete VZÄ</p>
         </div>
-        <div>
-          <span>Ausgewählte Produktgruppe</span>
-          <strong>{{ euro(aktuelleSchaetzung.euro) }}</strong>
-          <small v-if="aktuell">{{ aktuell.code }} · {{ anzeigeName(aktuell.name) }}</small>
+        <div class="mm-kennzahl">
+          <dt>Ausgewählte Produktgruppe</dt>
+          <dd>{{ euro(aktuelleSchaetzung.euro) }}</dd>
+          <p v-if="aktuell">{{ aktuell.code }} · {{ anzeigeName(aktuell.name) }}</p>
         </div>
-        <div>
-          <span>Näherungswerte</span>
-          <strong>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</strong>
-          <small>{{ vzae(bewertungsquote) }} % der Stellen bewertet</small>
+        <div class="mm-kennzahl">
+          <dt>Näherungswerte</dt>
+          <dd>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</dd>
+          <p>{{ vzae(bewertungsquote) }} % der Stellen bewertet</p>
         </div>
-      </div>
+      </dl>
       <p class="stellen-hinweis">
         Enthalten ist nur das monatliche Tabellenentgelt × 12 beziehungsweise der monatsgenaue
         Tarifwechsel 2026. Jahressonderzahlung, Zulagen, Zuschläge, Arbeitgeberanteile und
@@ -774,33 +783,44 @@ function zurUebersicht() {
 </template>
 
 <style scoped>
-.stellen-kennzahlen {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--wa-space-xl);
+/* Die großen Zahlen als Blickfang über der Seite — wie auf der Zuschüsse-Seite. */
+.mm-kennzahlen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--wa-space-l);
+  margin: 0;
 }
-.stellen-kennzahlen > div {
-  flex: 1;
-  min-width: 12rem;
+
+.mm-kennzahl dt {
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
 }
-.stellen-kennzahlen span,
-.stellen-kennzahlen strong,
-.stellen-kennzahlen small {
-  display: block;
+
+.mm-kennzahl dd {
+  margin: var(--wa-space-3xs) 0 0;
+  font-size: var(--wa-font-size-2xl);
+  font-weight: var(--wa-font-weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
 }
-.stellen-kennzahlen span,
-.stellen-kennzahlen small,
+
+.mm-kennzahl p {
+  margin: var(--wa-space-2xs) 0 0;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+}
+
 .stellen-hinweis {
   color: var(--wa-color-text-quiet);
 }
-.stellen-kennzahlen strong,
 .stellen-detailzahl {
   font-size: var(--wa-font-size-xl);
   font-variant-numeric: tabular-nums;
 }
 .stellen-filter,
 .stellen-ansichten,
-.stellen-metrik {
+.stellen-metrik,
+.stellen-filter__rechts {
   display: flex;
   flex-wrap: wrap;
   align-items: end;
@@ -809,14 +829,18 @@ function zurUebersicht() {
 .stellen-filter {
   flex-wrap: wrap;
 }
-.stellen-filter > wa-select {
+/* Planjahr und Produktbereich bleiben als Paar am rechten Rand. */
+.stellen-filter__rechts {
+  margin-left: auto;
+}
+.stellen-filter wa-select {
   flex: 0 1 auto;
   width: 8rem;
   min-width: 0;
   max-width: 100%;
 }
-.stellen-filter > .stellen-bereich {
-  flex: 1 1 16rem;
+.stellen-filter .stellen-bereich {
+  flex: 0 1 16rem;
   width: auto;
   max-width: min(22rem, 36vw);
 }
@@ -991,8 +1015,7 @@ summary {
   color: var(--wa-color-text-link);
 }
 .stellen-leise,
-.entgelt-kopf p,
-.entgelt-kennzahlen small {
+.entgelt-kopf p {
   color: var(--wa-color-text-quiet);
 }
 td .stellen-leise {
@@ -1011,18 +1034,7 @@ td .stellen-leise {
   margin: 0;
 }
 .entgelt-kennzahlen {
-  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--wa-space-l);
-}
-.entgelt-kennzahlen span,
-.entgelt-kennzahlen strong,
-.entgelt-kennzahlen small {
-  display: block;
-}
-.entgelt-kennzahlen strong {
-  font-size: var(--wa-font-size-xl);
-  font-variant-numeric: tabular-nums;
 }
 .sr-only {
   position: absolute;
@@ -1032,17 +1044,6 @@ td .stellen-leise {
   clip-path: inset(50%);
 }
 @media (max-width: 850px) {
-  .stellen-kennzahlen {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--wa-space-l) var(--wa-space-m);
-  }
-  .stellen-kennzahlen > div {
-    min-width: 0;
-  }
-  .stellen-kennzahlen > div:last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
   .stellen-visualisierung {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1053,6 +1054,13 @@ td .stellen-leise {
   }
   .stellen-filter {
     flex-wrap: wrap;
+  }
+  .stellen-filter__rechts {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
+  .stellen-filter__rechts > wa-select {
+    flex: 1 1 8rem;
   }
   .stellen-filter > label,
   .stellen-filter > label:last-child {
