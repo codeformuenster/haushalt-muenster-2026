@@ -12,7 +12,9 @@ Dazu kommen Einzelwerte für die Entscheidungskarten: die Summe der
 freiwilligen und aller Zuschüsse an Vereine und Verbände (aus der Zuschusstabelle
 unter daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein), Grundsteuer,
 Gewerbesteuer und sonstige kommunale Steuern aus dem Vorbericht (Band 2, PDF-Seite
-20, dort in Mio. € mit einer Nachkommastelle), Zeile 20 des Gesamtergebnisplans
+20, dort in Mio. € mit einer Nachkommastelle), die Hundesteuer aus den Erläuterungen
+der Allgemeinen Finanzwirtschaft (Band 1, PDF-Seite 545, von Hand übertragen nach
+daten/manuell/, siehe README dort), Zeile 20 des Gesamtergebnisplans
 (Zinsaufwendungen), Zeile 19 des Gesamtfinanzplans (Band 1, PDF-Seite 11,
 Einzahlungen aus der Veräußerung von Sachanlagen) und die Stellen (VZÄ) einzelner Produktgruppen aus dem
 Stellenplan unter daten/agg_tables/ (agg_stellenplan.py muss vorher gelaufen
@@ -21,7 +23,8 @@ sein) sowie die geplante Ausschüttung der Stadtwerke Münster GmbH an die Stadt
 Gesamtübersicht.
 
 Prüft, ob die Summe über alle Produktgruppen je Zeile und Jahr dem
-Gesamtergebnisplan entspricht (Toleranz 1 €).
+Gesamtergebnisplan entspricht (Toleranz 1 €), und ob die von Hand übertragenen
+Steuerarten zusammen Zeile 01 der Produktgruppe 16 01 ergeben (Rundungstoleranz).
 
 Ausgabe: vue-project/src/data/planspiel.json; Exit-Code 1 bei Abweichungen.
 """
@@ -42,6 +45,10 @@ DATEN = Path(__file__).resolve().parents[2] / "daten"
 AUSGABE = Path(__file__).resolve().parents[2] / "vue-project" / "src" / "data" / "planspiel.json"
 
 TOLERANZ_EUR = 1.0
+# Aufstellung der Steuerarten, Band 1, PDF-Seite 545 (von Hand übertragen). Die Beträge sind
+# in Mio. € auf höchstens 0,05 Mio. € gerundet, daher diese Toleranz je Zeile beim Summenvergleich.
+STEUERARTEN_DATEI = "band1_p545_PG1601_Erlaeuterungen_Steuerarten.csv"
+RUNDUNG_MIO = 0.05
 JAHRE = ("2026", "2027")
 # Spalten der Roh-CSVs: Zeilennummer, Bezeichnung, 2024, 2025, 2026, 2027, ...
 JAHR_SPALTE = {"2026": "column_5", "2027": "column_6"}
@@ -96,6 +103,15 @@ def steuer(daten: Path, steuerart: str) -> dict[str, int]:
     return {j: round(zeile[j][0] * 1_000_000) for j in JAHRE}
 
 
+def steuerarten(daten: Path) -> dict[str, dict[str, int]]:
+    """Alle Steuerarten der Aufstellung auf Band 1, S. 545 je Jahr, umgerechnet von Mio. € in €."""
+    df = pl.read_csv(daten / "manuell" / STEUERARTEN_DATEI)
+    return {
+        row["Steuerart"]: {j: round(row[f"Ansatz_{j}_Mio_EUR"] * 1_000_000) for j in JAHRE}
+        for row in df.iter_rows(named=True)
+    }
+
+
 def stadtwerke_ausschuettung(daten: Path) -> dict[str, int]:
     """Gewinnausschüttung der Stadtwerke Münster GmbH an die Stadt je Jahr (Band 2, S. 143), von T€ in €."""
     datei = "band2_p143_Uebersicht_Wirtschaftslage_Unternehmen_Tabelle_t0.csv"
@@ -128,7 +144,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     """Schreibt die Planspiel-Daten und prüft die PG-Summen gegen den Gesamtergebnisplan.
 
     Quelle: Band 1, PDF-Seite 9 und Teilergebnispläne der Produktgruppen (S. 15-558),
-    Band 1, PDF-Seite 11 (Finanzplan), Band 2, PDF-Seite 20 (Steuern) und 143 (Stadtwerke), Zuschusstabelle,
+    Band 1, PDF-Seite 11 (Finanzplan) und 545 (Steuerarten, daten/manuell/), Band 2, PDF-Seite 20 (Steuern) und 143 (Stadtwerke), Zuschusstabelle,
     Stellenplan und Gesamtübersicht unter daten/agg_tables/.
     Ausgabe: vue-project/src/data/planspiel.json. Exit-Code 1 bei Abweichungen.
     """
@@ -151,6 +167,14 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
                 abweichungen += 1
                 typer.echo(f"Abweichung {j} Zeile {i + 1:02d} {zeile}: PG-Summe {summe}, Gesamtplan {gesamt[j][i]}")
 
+    arten = steuerarten(daten)
+    zeile01 = next(pg for pg in produktgruppen if pg["code"] == "1601")["werte"]
+    for j in JAHRE:
+        summe = sum(werte[j] for werte in arten.values())
+        if abs(summe - zeile01[j][0]) > len(arten) * RUNDUNG_MIO * 1_000_000:
+            abweichungen += 1
+            typer.echo(f"Abweichung {j} Steuerarten S. 545: Summe {summe}, PG 16 01 Zeile 01 {zeile01[j][0]}")
+
     pb_codes = sorted({pg["code"][:2] for pg in produktgruppen})
     daten_json = {
         "zeilen": ZEILEN,
@@ -162,6 +186,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         "grundsteuer": steuer(daten, "Grundsteuer"),
         "gewerbesteuer": steuer(daten, "Gewerbesteuer"),
         "sonstigeSteuern": steuer(daten, "Sonstige kommunale Steuern"),
+        "hundesteuer": arten["Hundesteuer"],
         "zinsaufwand": plan_zeile(ergebnisplan, "20"),
         "verkaufSachanlagen": plan_zeile(daten / "raw_table_extraction" / "band1_p011_PG12_Finanzplan_t0.csv", "19"),
         "stellen": stellen(daten),

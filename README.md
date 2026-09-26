@@ -114,6 +114,8 @@ Inhalte
 
 `daten/raw_table_extraction/` enthält unbereinigte, automatisch extrahierte Tabellen aus beiden Bänden (ca. 1900 CSV-Dateien). Namensschema: `band<N>_p<PDF-Seite>_<Abschnitt>_<Typ>_t<Tabellen-Nr>.csv`, z.B. `band1_p700_PG0111_Immobilienmanagement_Investitionsmassnahmen_t0.csv`. Die Qualität ist gemischt: fehlende Leerzeichen, mehrzeilige Kopfzeilen, Fließtext statt Tabellen und teils falsche Abschnittskürzel (z.B. `PG12` für den Ergebnis- und Finanzplan, `PG03`/`PG05`/`PG13` für Produktbereichsseiten).
 
+`daten/manuell/` enthält die wenigen Tabellen, die die Extraktion nicht findet, von Hand abgeschrieben (Quelle und Grund im [README dort](daten/manuell/README.md)).
+
 ## Geodaten
 
 `daten/geo/` enthält Kartengrundlagen, die nicht aus dem Haushaltsplan stammen,

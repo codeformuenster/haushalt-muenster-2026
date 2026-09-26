@@ -93,6 +93,7 @@ const buergeramtStellen = daten.stellen['0204'][JAHR]
 /** Durchschnittliche Personalaufwendungen je Vollzeitstelle bei den Bürgerangelegenheiten. */
 const stelleBuergeramt = buergeramtPersonal / buergeramtStellen
 const theaterZuschuss = produktgruppe('0407', ZEILE.aufwendungen)
+const hundesteuer = daten.hundesteuer[JAHR]
 
 /** Neue Vollzeitstellen im Bürgerbüro. */
 const neueStellen = 10
@@ -119,7 +120,7 @@ function anteilVon(faktor: number, betrag: number, name: string) {
   }
 }
 
-// Werte, die nicht in src/data/planspiel.json stehen, Quellen in den Karten.
+// Werte außerhalb des Haushaltsplans, Quellen in den Karten.
 /** Investitionsvolumen der neuen Grundschule im York-Quartier (Stadt Münster, 2024). */
 const schulKosten = 45_000_000
 /** Angenommene Nutzungsdauer, Mitte des NRW-Rahmens für Schulgebäude (40 bis 80 Jahre). */
@@ -128,8 +129,6 @@ const schulNutzungsdauer = 60
 const schulZins = 0.03
 /** Umsatz der Verkehrsbetriebe der Stadtwerke Münster 2024 (Beteiligungsbericht 2024). */
 const busUmsatz = 39_800_000
-/** Ansatz Hundesteuer 2026. Steht nur in den Erläuterungen (Band 1, PDF-Seite 545), die die Pipeline nicht ausliest. */
-const hundesteuer = 1_800_000
 
 export const KARTEN: Karte[] = [
   {
