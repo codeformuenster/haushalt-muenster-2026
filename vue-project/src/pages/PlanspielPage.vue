@@ -128,6 +128,10 @@ function balken(posten: { name: string; betrag: number }[], farbe: string): ECha
         name: '2026',
         type: 'bar',
         data: sortiert.map((p) => p.betrag),
+        // Beide Diagramme sind gleich hoch, haben aber unterschiedlich viele
+        // Balken. Ohne Deckel wären die acht Ertragsarten doppelt so dick wie
+        // die siebzehn Produktbereiche daneben — die Obergrenze hält sie gleich.
+        barMaxWidth: 28,
         itemStyle: { color: farbe, borderRadius: [0, 4, 4, 0] },
       },
     ],
@@ -246,7 +250,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
         quelle="Haushaltsplan Band 1, S. 9 (PDF), Zeilen 01-08"
         :pdf="{ band: 1, seite: 9 }"
       >
-        <BaseChart :option="woher" hoehe="400px" />
+        <BaseChart :option="woher" hoehe="600px" />
       </ChartCard>
 
       <ChartCard

@@ -51,6 +51,14 @@ defineProps<{
   border-color: var(--wa-color-brand-fill-quiet);
 }
 
+/* Stehen zwei Karten nebeneinander, macht das Raster sie gleich hoch. Damit
+   dann auch die Quellenzeilen auf einer Höhe sitzen, muss der Inhalt die
+   überschüssige Höhe aufnehmen — sonst rutscht der Fuß der kürzeren Karte
+   nach oben und darunter bleibt eine Lücke. */
+.mm-card::part(body) {
+  flex: 1 1 auto;
+}
+
 .mm-card__kopf h2 {
   margin: 0;
   font-size: var(--wa-font-size-l);

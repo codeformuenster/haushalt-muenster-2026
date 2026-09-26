@@ -37,9 +37,9 @@ function onSlider(event: Event): void {
 
 const selectedYear = ref<2026 | 2027>(2026)
 
-function onYearToggle(event: Event): void {
-  const target = event.target as { checked?: boolean }
-  selectedYear.value = target.checked ? 2027 : 2026
+/** Haushaltsjahr aus einem <wa-select> übernehmen. */
+function onYearSelect(event: Event): void {
+  selectedYear.value = (event.target as HTMLInputElement).value === '2027' ? 2027 : 2026
 }
 
 /** Alle Produkte mit Zuschussbedarf (Aufwendungen > Erträge) im gewählten Jahr. */
@@ -71,11 +71,15 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
     <ChartCard titel="Betrag wählen">
       <div class="betrag-kopf">
         <output class="betrag-anzeige" for="betrag-slider">{{ euro(betrag) }}</output>
-        <div class="year-toggle">
-          2026
-          <wa-switch size="l" :checked="selectedYear === 2027" @change="onYearToggle"></wa-switch>
-          2027
-        </div>
+        <wa-select
+          class="jahr-auswahl"
+          label="Haushaltsjahr"
+          :value="String(selectedYear)"
+          @change="onYearSelect"
+        >
+          <wa-option value="2026">2026</wa-option>
+          <wa-option value="2027">2027</wa-option>
+        </wa-select>
       </div>
       <wa-slider
         id="betrag-slider"
@@ -140,7 +144,9 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
 <style scoped>
 .betrag-kopf {
   display: flex;
-  align-items: center;
+  /* Unterkanten auf eine Linie: der Betrag ist deutlich höher als das
+     Auswahlfeld, zentriert würde dessen Beschriftung darüber schweben. */
+  align-items: end;
   justify-content: space-between;
   gap: var(--wa-space-m);
   flex-wrap: wrap;
@@ -153,10 +159,8 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
   font-variant-numeric: tabular-nums;
 }
 
-.year-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.jahr-auswahl {
+  width: 9rem;
 }
 
 .skala {

@@ -236,8 +236,11 @@ const stufen = computed<EChartsOption>(() => ({
       return `<strong>${seriesName}</strong><br>${euro(value)}<br>${prozent(value / gesamt.value)} der Zuschüsse`
     },
   },
+  // Die Legende ist hier die Beschriftung des Balkens — sie steht dicht
+  // darunter. Wird sie auf schmalen Bildschirmen zwei- oder dreizeilig,
+  // wächst sie von unten nach oben und schließt den Abstand von allein.
   legend: { bottom: 0 },
-  grid: { left: 0, right: 0, top: 8, bottom: 64 },
+  grid: { left: 0, right: 0, top: 8, bottom: 34 },
   xAxis: { type: 'value', max: gesamt.value, show: false },
   yAxis: { type: 'category', data: [''], show: false },
   series: stufenGroesse.value.map((grad) => ({
@@ -319,9 +322,20 @@ const verteilung = computed<EChartsOption>(() => ({
     {
       query: { maxWidth: 559 },
       option: {
-        legend: { orient: 'horizontal', bottom: 0, type: 'scroll' },
-        title: { left: '50%', top: '34%' },
-        series: [{ radius: ['40%', '62%'], center: ['50%', '42%'] }],
+        // Untereinander statt nebeneinander: acht Bereichsnamen passen
+        // nebeneinander in keine Zeile, ECharts würde sie sonst auf Seiten
+        // mit Pfeilen verteilen. Untereinander steht die Liste vollständig da.
+        legend: {
+          orient: 'vertical',
+          type: 'plain',
+          bottom: 0,
+          left: 'center',
+          itemGap: 6,
+          itemHeight: 12,
+          textStyle: { fontSize: 12, width: 280, overflow: 'truncate' },
+        },
+        title: { left: '50%', top: '25%' },
+        series: [{ radius: ['36%', '54%'], center: ['50%', '31%'] }],
       },
     },
   ],
@@ -598,9 +612,9 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 349 }"
       >
-        <BaseChart :option="stufen" hoehe="200px" />
+        <BaseChart :option="stufen" hoehe="140px" />
 
-        <wa-details summary="Was heißt „dem Grunde nach“?">
+        <wa-details class="mm-erklaerung" summary="Was heißt „dem Grunde nach“?">
           <p>
             Das Kommunalrecht trennt beim Pflichtgrad einer Aufgabe zwei Fragen: das <em>Ob</em> —
             muss die Stadt überhaupt tätig werden? — und das <em>Wie</em> — steht auch der Betrag
@@ -650,7 +664,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           :quelle="QUELLE"
           :pdf="{ band: 2, seite: 349 }"
         >
-          <BaseChart :option="verteilung" hoehe="420px" @legendselectchanged="legendeGeaendert" />
+          <BaseChart :option="verteilung" hoehe="460px" @legendselectchanged="legendeGeaendert" />
         </ChartCard>
 
         <ChartCard
@@ -791,6 +805,13 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 <style scoped>
 .mm-laden {
   color: var(--wa-color-text-quiet);
+}
+
+/* Das Ausklapp-Element gehört nicht mehr zum Diagramm darüber — es braucht
+   sichtbar Luft, sonst liest es sich wie eine Fußnote der Legende. */
+.mm-erklaerung {
+  display: block;
+  margin-top: var(--wa-space-xl);
 }
 
 /* Die drei großen Zahlen als Blickfang über der Seite. */
