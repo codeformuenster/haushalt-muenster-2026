@@ -23,6 +23,7 @@ const navIcons: Record<string, string> = {
   '/zuschuesse': 'hand-holding-heart',
   '/bezirke': 'map-location-dot',
   '/planspiel': 'chess-knight',
+  '/eine-million': 'piggy-bank',
   '/glossar': 'book-open',
 }
 
