@@ -74,13 +74,19 @@ function geheZu(ziel: string): void {
 }
 
 const menueOffen = ref(false)
+const entdeckenOffen = ref(false)
+const ausprobierenOffen = ref(false)
 
 /* Nach einem Klick auf einen Link soll die Seitenleiste nicht offen stehen
    bleiben. Auf den Pfad zu horchen fängt auch den Fall mit ab, dass die
    Navigation von woanders kommt — etwa über die Zurück-Taste. */
 watch(
   () => route.fullPath,
-  () => (menueOffen.value = false),
+  () => {
+    menueOffen.value = false
+    entdeckenOffen.value = false
+    ausprobierenOffen.value = false
+  },
 )
 
 /* <wa-drawer> schließt sich bei Escape und Klick daneben selbst; ohne diese
@@ -114,7 +120,14 @@ function nachDemSchliessen(ereignis: Event): void {
         <span>{{ ueberblickLink.text }}</span>
       </wa-button>
 
-      <wa-dropdown class="mm-header__dropdown">
+      <wa-dropdown
+        class="mm-header__dropdown"
+        :open="entdeckenOffen"
+        @mouseenter="entdeckenOffen = true"
+        @mouseleave="entdeckenOffen = false"
+        @wa-show="entdeckenOffen = true"
+        @wa-hide="entdeckenOffen = false"
+      >
         <wa-button
           slot="trigger"
           :class="{
@@ -143,7 +156,14 @@ function nachDemSchliessen(ereignis: Event): void {
         </div>
       </wa-dropdown>
 
-      <wa-dropdown class="mm-header__dropdown">
+      <wa-dropdown
+        class="mm-header__dropdown"
+        :open="ausprobierenOffen"
+        @mouseenter="ausprobierenOffen = true"
+        @mouseleave="ausprobierenOffen = false"
+        @wa-show="ausprobierenOffen = true"
+        @wa-hide="ausprobierenOffen = false"
+      >
         <wa-button
           slot="trigger"
           :class="{
