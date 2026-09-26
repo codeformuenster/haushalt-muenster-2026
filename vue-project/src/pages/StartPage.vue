@@ -3,8 +3,11 @@
  * Landing Page: erklärt in wenigen Sätzen, was Münster Money ist, und führt
  * von dort in die einzelnen Themenseiten.
  */
+import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import heroImageUrl from '@/assets/images/Hero-image.png'
+import rawGesamtuebersicht from '../../../daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv?raw'
+import { euroKurz } from '@/charts/format'
 
 const router = useRouter()
 
@@ -46,14 +49,132 @@ const einstiege = [
     text: 'Gleich den Haushalt 2026 aus: Triff Entscheidungen wie kostenlose Kitas oder eine höhere Grundsteuer und sieh sofort, was sie bewirken.',
   },
 ]
+
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = []
+  let row: string[] = []
+  let value = ''
+  let inQuotes = false
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i]
+    if (char === '"') {
+      const next = text[i + 1]
+      if (inQuotes && next === '"') {
+        value += '"'
+        i += 1
+      } else {
+        inQuotes = !inQuotes
+      }
+    } else if (char === ',' && !inQuotes) {
+      row.push(value)
+      value = ''
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && text[i + 1] === '\n') i += 1
+      row.push(value)
+      rows.push(row)
+      row = []
+      value = ''
+    } else {
+      value += char
+    }
+  }
+
+  if (value.length > 0 || row.length > 0) {
+    row.push(value)
+    rows.push(row)
+  }
+
+  return rows.filter((r) => r.some((cell) => cell.trim().length > 0))
+}
+
+function toObjects<T extends Record<string, string>>(text: string): T[] {
+  const rows = parseCsv(text)
+  if (rows.length === 0) return []
+  const [header = [], ...data] = rows
+
+  return data.map((values) => {
+    const obj: Record<string, string> = {}
+    header.forEach((key, idx) => {
+      obj[key] = values[idx] ?? ''
+    })
+    return obj as T
+  })
+}
+
+function asNumber(value: string | undefined): number {
+  const num = Number(value ?? '')
+  return Number.isFinite(num) ? num : 0
+}
+
+type GesamtuebersichtRow = {
+  Code: string
+  Bezeichnung: string
+  Ertraege_2026_EUR?: string
+  Ertraege_2027_EUR?: string
+  Aufwendungen_2026_EUR?: string
+  Aufwendungen_2027_EUR?: string
+  SaldoLfdVerw_2026_EUR?: string
+  SaldoLfdVerw_2027_EUR?: string
+  OrdentlErgebnis_2026_EUR?: string
+  OrdentlErgebnis_2027_EUR?: string
+  SaldoInvestitionstaetigkeit_2026_EUR?: string
+  SaldoInvestitionstaetigkeit_2027_EUR?: string
+  Finanzmittelueberschuss_fehlbetrag_2026_EUR?: string
+  Finanzmittelueberschuss_fehlbetrag_2027_EUR?: string
+}
+
+function trend(delta: number): { pfeil: string; text: string; klasse: string } {
+  if (delta > 0) return { pfeil: '▲', text: `+${euroKurz(delta)} zu 2027`, klasse: 'ist-plus' }
+  if (delta < 0) return { pfeil: '▼', text: `${euroKurz(delta)} zu 2027`, klasse: 'ist-minus' }
+  return { pfeil: '→', text: 'unverändert zu 2027', klasse: 'ist-neutral' }
+}
+
+const gesamtuebersichtRows = toObjects<GesamtuebersichtRow>(rawGesamtuebersicht)
+const gesamtZeile =
+  gesamtuebersichtRows.find(
+    (row) => row.Code.trim() === '' || row.Bezeichnung.trim() === 'Gesamtsumme Stadt Münster',
+  ) ?? null
+
+const dashboardKarten = computed(() => [
+  {
+    titel: 'Einnahmen',
+    wert: euroKurz(asNumber(gesamtZeile?.Ertraege_2026_EUR)),
+    trend: trend(asNumber(gesamtZeile?.Ertraege_2027_EUR) - asNumber(gesamtZeile?.Ertraege_2026_EUR)),
+  },
+  {
+    titel: 'Ausgaben',
+    wert: euroKurz(asNumber(gesamtZeile?.Aufwendungen_2026_EUR)),
+    trend: trend(
+      asNumber(gesamtZeile?.Aufwendungen_2027_EUR) - asNumber(gesamtZeile?.Aufwendungen_2026_EUR),
+    ),
+  },
+  {
+    titel: 'Investitionssaldo',
+    wert: euroKurz(asNumber(gesamtZeile?.SaldoInvestitionstaetigkeit_2026_EUR)),
+    trend: trend(
+      asNumber(gesamtZeile?.SaldoInvestitionstaetigkeit_2027_EUR) -
+        asNumber(gesamtZeile?.SaldoInvestitionstaetigkeit_2026_EUR),
+    ),
+  },
+  {
+    titel: 'Kassenplus/-minus',
+    wert: euroKurz(asNumber(gesamtZeile?.Finanzmittelueberschuss_fehlbetrag_2026_EUR)),
+    trend: trend(
+      asNumber(gesamtZeile?.Finanzmittelueberschuss_fehlbetrag_2027_EUR) -
+        asNumber(gesamtZeile?.Finanzmittelueberschuss_fehlbetrag_2026_EUR),
+    ),
+  },
+])
 </script>
 
 <template>
   <div class="mm-seite">
     <section class="mm-hero">
       <div class="mm-hero__inhalt">
-        <div class="mm-hero__text">
-          <h1>Wofür gibt Münster sein Geld aus?</h1>
+        <div ref="heroTextRef" class="mm-hero__text">
+          <p class="mm-hero__subhead">Der Haushaltsplan 2026/2027</p>
+          <h1>Wofür gibt Münster Geld aus?</h1>
           <p class="mm-hero__lead">
             Der Haushaltsplan der Stadt Münster für 2026 und 2027 umfasst mehrere hundert Seiten
             Tabellen. Darin steht, wofür die Stadt in den nächsten zwei Jahren Geld ausgibt — von
@@ -77,6 +198,33 @@ const einstiege = [
     </section>
 
     <wa-divider></wa-divider>
+
+    <section class="mm-dashboard">
+      <div class="dashboard-cards" aria-label="Haushalts-Kennzahlen">
+        <wa-card v-for="karte in dashboardKarten" :key="karte.titel" appearance="outlined" class="mm-dashboard-card">
+          <div class="mm-dashboard-card__kopf">
+            <h3>{{ karte.titel }}</h3>
+          </div>
+          <p class="mm-dashboard-card__wert">{{ karte.wert }}</p>
+          <p class="mm-dashboard-card__trend" :class="karte.trend.klasse">
+            <span aria-hidden="true">{{ karte.trend.pfeil }}</span>
+            {{ karte.trend.text }}
+          </p>
+        </wa-card>
+      </div>
+      <p class="mm-dashboard__quelle">
+        Datenjahr 2026 · Veränderung zu 2027 · Quelle: Haushaltsplan 2026/27, Gesamtübersicht Einnahmen/Ausgaben
+      </p>
+
+      <div class="mm-dashboard__erklaerung">
+        <h2 class="mm-abschnitt-titel">Was ist eigentlich ein Haushalt?</h2>
+        <p class="mm-hero__lead">
+          Der Haushalt ist der Finanzplan der Stadt. Er legt fest, welche Einnahmen und Ausgaben für die kommenden Jahre erwartet werden und welche finanziellen Mittel für die unterschiedlichen Aufgaben vorgesehen sind.
+          Dabei geht es um weit mehr als die Verwaltung im Rathaus: Der Haushalt finanziert unter anderem Schulen und Kitas, Straßen und Verkehr, Feuerwehr, Kultur, Sport, Soziales und viele weitere Aufgaben.
+          Der Haushalt wird vom Rat der Stadt beschlossen und bildet damit eine wichtige Grundlage für die Arbeit der Stadtverwaltung.
+        </p>
+      </div>
+    </section>
 
     <section>
       <h2 class="mm-abschnitt-titel">Die Themen</h2>
@@ -129,6 +277,12 @@ const einstiege = [
   line-height: 1.15;
 }
 
+.mm-hero__subhead {
+  margin: 0 0 var(--wa-space-2xs);
+  font-size: var(--wa-font-size-l);
+  text-transform: uppercase;
+}
+
 .mm-hero__inhalt {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 1fr);
@@ -175,9 +329,102 @@ const einstiege = [
   margin-top: var(--wa-space-l);
 }
 
+.mm-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: var(--wa-space-xl);
+  align-items: start;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--wa-space-m);
+}
+
+.mm-dashboard-card {
+  height: 100%;
+}
+
+.mm-dashboard-card__kopf {
+  margin-bottom: var(--wa-space-2xs);
+}
+
+.mm-dashboard-card__kopf h3 {
+  margin: 0;
+  font-size: var(--wa-font-size-m);
+  color: var(--wa-color-brand-on-quiet);
+}
+
+.mm-dashboard-card p {
+  margin: 0;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  line-height: 1.5;
+}
+
+.mm-dashboard-card .mm-dashboard-card__wert {
+  font-size: 24px;
+  font-weight: var(--wa-font-weight-semibold);
+  line-height: 1.15;
+  color: var(--wa-color-text-normal);
+}
+
+.mm-dashboard-card .mm-dashboard-card__trend {
+  margin-top: var(--wa-space-3xs);
+  font-size: var(--wa-font-size-2xs);
+  line-height: 1.4;
+}
+
+.mm-dashboard-card__trend span {
+  margin-right: var(--wa-space-3xs);
+}
+
+.mm-dashboard-card__trend.ist-plus {
+  color: var(--wa-color-success-on-quiet);
+}
+
+.mm-dashboard-card__trend.ist-minus {
+  color: var(--wa-color-danger-on-quiet);
+}
+
+.mm-dashboard-card__trend.ist-neutral {
+  color: var(--wa-color-text-quiet);
+}
+
+.mm-dashboard__quelle {
+  margin: var(--wa-space-2xs) 0 0;
+  grid-column: 1;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-2xs);
+}
+
+.mm-dashboard__erklaerung {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.mm-dashboard__erklaerung .mm-hero__lead {
+  margin-top: 0;
+}
+
 @media (max-width: 52rem) {
   .mm-hero__inhalt {
     grid-template-columns: 1fr;
+  }
+
+  .mm-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .mm-dashboard__quelle,
+  .mm-dashboard__erklaerung {
+    grid-column: auto;
+    grid-row: auto;
   }
 }
 
