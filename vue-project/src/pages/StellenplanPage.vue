@@ -220,6 +220,15 @@ const detailZeilen = computed(() =>
 )
 const detailHoehe = computed(() => `${Math.max(180, detailZeilen.value.length * 38 + 70)}px`)
 const tooltip = { renderMode: 'richText' as const, confine: true }
+const anteilsFarbe = (beamtenAnteil: number) => {
+  const tarif = [0, 113, 236]
+  const beamte = [153, 81, 219]
+  const anteil = Math.max(0, Math.min(1, beamtenAnteil))
+  const kanaele = tarif.map((wert, index) =>
+    Math.round(wert + ((beamte[index] ?? wert) - wert) * anteil),
+  )
+  return `rgb(${kanaele.join(', ')})`
+}
 const statusKinder = (rows: Stelle[], code?: string) => {
   const tarif = rows.reduce((summe, row) => summe + beschaeftigungsWert(row, 'Tarif_'), 0)
   const beamte = rows.reduce((summe, row) => summe + beschaeftigungsWert(row, 'Beamte_'), 0)
@@ -245,11 +254,29 @@ const treemapDaten = computed(() => {
     return Object.entries(daten.areas)
       .map(([code, name]) => {
         const rows = stellen.filter((row) => row.year === jahr.value && row.code.startsWith(code))
+        const tarif = rows.reduce(
+          (summe, row) =>
+            summe +
+            Object.entries(row.grades)
+              .filter(([key]) => key.startsWith('Tarif_'))
+              .reduce((teil, [, value]) => teil + value, 0),
+          0,
+        )
+        const beamte = rows.reduce(
+          (summe, row) =>
+            summe +
+            Object.entries(row.grades)
+              .filter(([key]) => key.startsWith('Beamte_'))
+              .reduce((teil, [, value]) => teil + value, 0),
+          0,
+        )
+        const beamtenAnteil = tarif + beamte === 0 ? 0 : beamte / (tarif + beamte)
         return {
           name,
           value: rows.reduce((summe, row) => summe + wert(row), 0),
           areaCode: code,
-          children: statusKinder(rows),
+          beamtenAnteil,
+          itemStyle: { color: anteilsFarbe(beamtenAnteil) },
         }
       })
       .filter((row) => row.value > 0)
@@ -265,7 +292,20 @@ const treemapDaten = computed(() => {
 const hauptOption = computed<EChartsOption>(() => {
   if (ansicht.value === 'map')
     return {
-      tooltip: { ...tooltip, valueFormatter: (value) => wertFormat(Number(value)) },
+      tooltip: {
+        ...tooltip,
+        formatter: (params: unknown) => {
+          const info = params as {
+            name: string
+            value: number
+            data?: { beamtenAnteil?: number }
+          }
+          const zeilen = [`${info.name}`, wertFormat(Number(info.value))]
+          if (typeof info.data?.beamtenAnteil === 'number')
+            zeilen.push(`${vzae(info.data.beamtenAnteil * 100)} % Beamtinnen / Beamte`)
+          return zeilen.join('\n')
+        },
+      },
       series: [
         {
           type: 'treemap',
@@ -277,13 +317,17 @@ const hauptOption = computed<EChartsOption>(() => {
           top: 12,
           bottom: 0,
           upperLabel: {
-            show: true,
+            show: bereich.value !== 'all',
             height: 42,
             overflow: 'truncate',
             formatter: (p) => `${p.name}\n${wertFormat(Number(p.value))}`,
           },
           label: {
             show: true,
+            color: '#ffffff',
+            fontSize: bereich.value === 'all' ? 16 : 12,
+            fontWeight: bereich.value === 'all' ? 650 : 400,
+            lineHeight: bereich.value === 'all' ? 23 : 16,
             overflow: 'truncate',
             formatter: (p) => `${p.name}\n${wertFormat(Number(p.value))}`,
           },
@@ -291,7 +335,7 @@ const hauptOption = computed<EChartsOption>(() => {
             { itemStyle: { borderWidth: 0, gapWidth: 5 } },
             {
               itemStyle: { borderColor: '#ffffff', borderWidth: 3, gapWidth: 2 },
-              upperLabel: { show: true },
+              upperLabel: { show: bereich.value !== 'all' },
             },
             {
               itemStyle: { borderColor: '#ffffff', borderWidth: 1, gapWidth: 1 },
@@ -486,7 +530,19 @@ function zurUebersicht() {
         <span aria-hidden="true">›</span>
         <strong>{{ bereichName }}</strong>
       </div>
-      <div v-if="ansicht === 'map'" class="stellen-legende stellen-legende--haupt">
+      <div
+        v-if="ansicht === 'map' && bereich === 'all'"
+        class="stellen-farbskala"
+        aria-label="Farbskala für den Beamtenanteil"
+      >
+        <span>0 % Beamte</span>
+        <i aria-hidden="true"></i>
+        <span>100 % Beamte</span>
+      </div>
+      <div
+        v-else-if="ansicht === 'map'"
+        class="stellen-legende stellen-legende--haupt"
+      >
         <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span>
         <span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
       </div>
@@ -822,6 +878,22 @@ h3 {
 }
 .stellen-legende--haupt {
   margin-bottom: var(--wa-space-xs);
+}
+.stellen-farbskala {
+  display: grid;
+  grid-template-columns: auto minmax(7rem, 18rem) auto;
+  align-items: center;
+  gap: var(--wa-space-xs);
+  width: fit-content;
+  margin-bottom: var(--wa-space-xs);
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+}
+.stellen-farbskala i {
+  display: block;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgb(0 113 236), rgb(153 81 219));
 }
 .stellen-topliste {
   border-left: 1px solid var(--wa-color-surface-border);

@@ -82,7 +82,7 @@ const aktuelleGruppe = computed(() =>
   bereiche.value.flatMap((row) => row.gruppen).find((row) => row.code === produktgruppe.value),
 )
 const gesamt = computed(() => bereiche.value.reduce((summe, row) => summe + row.value, 0))
-const diagrammHoehe = computed(() => (bereich.value ? 230 : 340))
+const diagrammHoehe = computed(() => (bereich.value ? 430 : 500))
 
 const knoten = computed<Knoten[]>(() => {
   const result: Knoten[] = []
@@ -112,7 +112,7 @@ const knoten = computed<Knoten[]>(() => {
         x,
         width: breite,
         y: 72,
-        height: 102,
+        height: 170,
         level: 'area',
       })
     }
@@ -126,8 +126,8 @@ const knoten = computed<Knoten[]>(() => {
         value: gruppe.value,
         x: gruppenX,
         width: gruppenBreite,
-        y: aktuellerBereich.value ? 72 : 174,
-        height: aktuellerBereich.value ? 146 : 156,
+        y: aktuellerBereich.value ? 72 : 242,
+        height: aktuellerBereich.value ? 350 : 250,
         level: 'group',
         areaCode: area.code,
       })
@@ -279,7 +279,10 @@ function zuruecksetzen() {
             class="icicle-knoten"
             :class="[
               `icicle-knoten--${node.level}`,
-              { 'icicle-knoten--aktiv': node.code === produktgruppe },
+              {
+                'icicle-knoten--aktiv':
+                  node.level === 'group' && node.code === produktgruppe,
+              },
             ]"
             :tabindex="node.level === 'root' ? undefined : 0"
             :role="node.level === 'root' ? undefined : 'button'"
@@ -295,15 +298,22 @@ function zuruecksetzen() {
               :height="node.height - 2"
               rx="3"
             />
-            <text v-if="node.width > 22" :x="node.x + 7" :y="node.y + 22">
+            <text v-if="node.level === 'root'" :x="node.x + 7" :y="node.y + 22">
               <tspan>
-                {{
-                  node.level === 'group' && node.width < 62
-                    ? node.code
-                    : beschriften(node.name, node.width - 12)
-                }}
+                {{ beschriften(node.name, node.width - 12) }}
               </tspan>
-              <tspan v-if="node.width > 58" :x="node.x + 7" dy="18">
+              <tspan :x="node.x + 7" dy="18">
+                {{ wertFormat(node.value) }}
+              </tspan>
+            </text>
+            <text
+              v-else-if="node.width > 14"
+              :x="node.x + node.width / 2"
+              :y="node.y + 8"
+              :transform="`rotate(90 ${node.x + node.width / 2} ${node.y + 8})`"
+            >
+              <tspan>{{ beschriften(node.name, node.height - 28) }}</tspan>
+              <tspan v-if="node.width > 38" :x="node.x + node.width / 2" dy="18">
                 {{ wertFormat(node.value) }}
               </tspan>
             </text>
