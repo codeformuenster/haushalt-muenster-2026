@@ -280,43 +280,27 @@ const karte = computed<EChartsOption>(() => {
 })
 
 /**
- * Ausrichtung des Fachthemen-Diagramms. Auf breiten Bildschirmen liegende
- * Balken — die Themennamen sind lang und stehen links in voller Länge. Auf
- * Handybreite stehende Säulen: die Namen kippen hochkant unter die Achse, und
- * der Betrag bekommt die ganze Breite statt nur den Rest neben den
- * Beschriftungen.
+ * Das Fachthemen-Diagramm besteht immer aus liegenden Balken, größtes Thema
+ * oben. Auf breiten Bildschirmen stehen die Themennamen links an der Achse.
+ * Auf Handybreite wäre dort kein Platz mehr für den Balken — dann steht der
+ * Name in voller Länge (bei Bedarf zweizeilig) über seinem Balken, und das
+ * Diagramm wird entsprechend höher. Gedrehte, abgeschnittene Beschriftungen
+ * gibt es so nicht.
  */
 const schmal = useSchmalerBildschirm()
 
-const fachthemen = computed<EChartsOption>(() => {
-  // jeFachthema ist absteigend sortiert. Stehende Säulen laufen von links nach
-  // rechts, das größte Thema steht damit schon vorn. Die Kategorieachse
-  // liegender Balken läuft dagegen von unten nach oben — dort muss die
-  // Reihenfolge kippen, damit das größte Thema oben steht.
-  const reihen = schmal.value ? jeFachthema.value : [...jeFachthema.value].reverse()
+/** Höhe einer Zeile (Name über Balken) in der schmalen Ansicht, in Pixeln. */
+const ZEILE_SCHMAL = 48
 
-  const betragsachse = {
-    type: 'value' as const,
-    axisLabel: { formatter: (wert: number) => euroKurz(wert) },
-  }
-  const themenachse = {
-    type: 'category' as const,
-    data: reihen.map((t) => t.name),
-    axisLabel: schmal.value
-      ? // Hochkant statt schräg: um 90° gedreht ist der Abstand zwischen zwei
-        // Beschriftungen der volle Säulenabstand, bei 45° nur rund 70 % davon.
-        // Bei bis zu neunzehn Themen auf Handybreite ist das der Unterschied
-        // zwischen lesbar und ineinander laufend. interval: 0 erzwingt, dass
-        // ECharts keinen Namen auslässt — sonst stünden Säulen ohne Beschriftung da.
-        {
-          rotate: 90,
-          width: 110,
-          overflow: 'truncate' as const,
-          interval: 0,
-          fontSize: 10,
-        }
-      : { width: 210, overflow: 'truncate' as const },
-  }
+const fachthemenHoehe = computed(() =>
+  schmal.value ? `${jeFachthema.value.length * ZEILE_SCHMAL + 40}px` : '480px',
+)
+
+const fachthemen = computed<EChartsOption>(() => {
+  // jeFachthema ist absteigend sortiert. Die Kategorieachse liegender Balken
+  // läuft von unten nach oben — die Reihenfolge muss kippen, damit das größte
+  // Thema oben steht.
+  const reihen = [...jeFachthema.value].reverse()
 
   return {
     tooltip: {
@@ -330,23 +314,65 @@ const fachthemen = computed<EChartsOption>(() => {
         return `<strong>${erste.axisValue}</strong><br>${euro(erste.value)}<br>${anteil} der Auswahl`
       },
     },
-    // containLabel rechnet den Platz der Achsenbeschriftungen selbst dazu,
-    // auch den der gedrehten.
-    grid: { left: 8, right: 24, top: 8, bottom: 8, containLabel: true },
-    xAxis: schmal.value ? themenachse : betragsachse,
-    yAxis: schmal.value ? betragsachse : themenachse,
+    // containLabel rechnet den Platz der Achsenbeschriftungen selbst dazu.
+    grid: schmal.value
+      ? { left: 0, right: 16, top: 32, bottom: 8, containLabel: true }
+      : { left: 8, right: 24, top: 8, bottom: 8, containLabel: true },
+    xAxis: {
+      type: 'value',
+      axisLabel: { formatter: (wert: number) => euroKurz(wert) },
+    },
+    yAxis: {
+      type: 'category',
+      data: reihen.map((t) => t.name),
+      axisLabel: schmal.value ? { show: false } : { width: 210, overflow: 'truncate' as const },
+      axisTick: { show: !schmal.value },
+    },
     series: [
       {
         name: 'Auszahlungen',
         type: 'bar',
         data: reihen.map((t) => t.wert),
-        // Nur die Kante am Wertende runden — die steht bei stehenden Säulen
-        // oben, bei liegenden Balken rechts.
-        itemStyle: { borderRadius: schmal.value ? [4, 4, 0, 0] : [0, 4, 4, 0] },
+        // Nur die Kante am Wertende runden.
+        itemStyle: { borderRadius: [0, 4, 4, 0] },
+        ...(schmal.value
+          ? {
+              barWidth: 12,
+              // Der Themenname steht über dem Balken, von dessen linker Kante
+              // aus, und wächst bei zwei Zeilen nach oben.
+              label: {
+                show: true,
+                position: [0, -4],
+                align: 'left' as const,
+                verticalAlign: 'bottom' as const,
+                formatter: '{b}',
+                fontSize: 12,
+                lineHeight: 15,
+                color: '#1a1c23',
+                width: 240,
+                overflow: 'break' as const,
+              },
+            }
+          : {}),
       },
     ],
   }
 })
+
+/* Textalternativen für die beiden Diagramme: Kernaussage plus Verweis auf die Tabelle. */
+const karteBeschreibung = computed(
+  () =>
+    `Karte der Stadtbezirke, eingefärbt nach den Investitionen ${jahr.value}: je dunkler, desto mehr. ` +
+    `Am meisten ist in ${groesster.value.name} vorgesehen (${euroKurz(groesster.value.wert)}). ` +
+    `Die Werte je Bezirk stehen in der Tabelle „Alle Zahlen“ weiter unten.`,
+)
+
+const fachthemenBeschreibung = computed(
+  () =>
+    `Balkendiagramm der Investitionen ${jahr.value} in ${auswahlName.value} nach Fachthema. ` +
+    `Größter Posten ist ${groesstesThema.value.name} mit ${euroKurz(groesstesThema.value.wert)}. ` +
+    `Alle Werte stehen in der Tabelle „Alle Zahlen“ weiter unten.`,
+)
 
 // ----------------------------------------------------------------- Tabelle
 
@@ -368,8 +394,16 @@ const matrix = computed(() => {
 
 // ------------------------------------------------------------ Interaktion
 
+/** Kurze Ansage für Screenreader, wenn Bezirk oder Jahr wechseln. */
+const ansage = ref('')
+
+function sageAuswahlAn(): void {
+  ansage.value = `${bezirk.value ?? 'Ganze Stadt'}, ${jahr.value}: Investitionen ${euroKurz(summeAus(auswahl.value))}.`
+}
+
 function waehle(name: string | null): void {
   bezirk.value = bezirk.value === name ? null : name
+  sageAuswahlAn()
 }
 
 function kartenKlick(ereignis: unknown): void {
@@ -379,7 +413,10 @@ function kartenKlick(ereignis: unknown): void {
 
 function jahrGewaehlt(ereignis: Event): void {
   const gewaehlt = (ereignis.target as HTMLInputElement).value
-  if (JAHRE.includes(gewaehlt as Jahr)) jahr.value = gewaehlt as Jahr
+  if (JAHRE.includes(gewaehlt as Jahr)) {
+    jahr.value = gewaehlt as Jahr
+    sageAuswahlAn()
+  }
 }
 </script>
 
@@ -391,7 +428,7 @@ function jahrGewaehlt(ereignis: Event): void {
     />
 
     <wa-callout variant="brand" appearance="filled">
-      <wa-icon slot="icon" name="info"></wa-icon>
+      <wa-icon slot="icon" name="info" aria-hidden="true"></wa-icon>
       <strong>Investitionen im Bezirk, nicht Geld der Bezirksvertretung.</strong> Gezeigt werden
       Bauvorhaben und Anschaffungen, die räumlich in einem Bezirk liegen — bezahlt und beschlossen
       werden sie überwiegend gesamtstädtisch. Über die frei verfügbaren Mittel der
@@ -400,9 +437,12 @@ function jahrGewaehlt(ereignis: Event): void {
       Sozialleistungen und Zuschüsse sind räumlich nicht aufgeteilt.
     </wa-callout>
 
-    <p v-if="!daten && !ladefehler" class="mm-laden">Zahlen werden geladen …</p>
+    <!-- Bleibt immer im DOM; nur der Text wechselt. -->
+    <p class="mm-visually-hidden" role="status">{{ ansage }}</p>
 
-    <wa-callout v-if="ladefehler" variant="danger" appearance="outlined">
+    <p v-if="!daten && !ladefehler" class="mm-laden" role="status">Zahlen werden geladen …</p>
+
+    <wa-callout v-if="ladefehler" variant="danger" appearance="outlined" role="alert">
       <strong>Die Zahlen konnten nicht geladen werden.</strong> Die Dateien
       <code>daten/bezirke-2026-2027.json</code> und <code>daten/stadtbezirke.geojson</code> fehlen
       oder sind nicht lesbar. Sie entstehen mit <code>node preprocessing/bezirke.ts</code>.
@@ -448,11 +488,17 @@ function jahrGewaehlt(ereignis: Event): void {
           <div v-for="k in kennzahlen" :key="k.titel" class="mm-kennzahl">
             <dt>{{ k.titel }}</dt>
             <dd>{{ k.wert }}</dd>
-            <p>{{ k.zusatz }}</p>
+            <dd class="mm-kennzahl__zusatz">{{ k.zusatz }}</dd>
           </div>
         </dl>
 
-        <BaseChart v-if="karteBereit" :option="karte" hoehe="440px" @chart-click="kartenKlick" />
+        <BaseChart
+          v-if="karteBereit"
+          :option="karte"
+          hoehe="440px"
+          :beschreibung="karteBeschreibung"
+          @chart-click="kartenKlick"
+        />
 
         <p class="mm-fussnote">
           Die Bezirke sind unterschiedlich groß und unterschiedlich dicht bewohnt — dass in
@@ -468,7 +514,12 @@ function jahrGewaehlt(ereignis: Event): void {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 147 }"
       >
-        <BaseChart :key="schmal ? 'stehend' : 'liegend'" :option="fachthemen" hoehe="480px" />
+        <BaseChart
+          :key="schmal ? 'schmal' : 'breit'"
+          :option="fachthemen"
+          :hoehe="fachthemenHoehe"
+          :beschreibung="fachthemenBeschreibung"
+        />
       </ChartCard>
 
       <ChartCard
@@ -477,26 +528,36 @@ function jahrGewaehlt(ereignis: Event): void {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 147 }"
       >
-        <DatenTabelle>
+        <DatenTabelle :beschriftung="`Investitionen ${jahr} je Fachthema und Bezirk`">
           <thead>
             <tr>
-              <th>Fachthema</th>
-              <th v-for="b in bezirke" :key="b" class="mm-zahl">{{ b }}</th>
-              <th class="mm-zahl">Gesamt</th>
+              <th scope="col">Fachthema</th>
+              <th v-for="b in bezirke" :key="b" scope="col" class="mm-zahl">{{ b }}</th>
+              <th scope="col" class="mm-zahl">Gesamt</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="zeile in matrix" :key="zeile.name">
-              <td>
+              <th scope="row">
                 {{ zeile.name }}
                 <span v-if="zeile.nurGesamtstaedtisch" class="mm-zweck">
                   gesamtstädtisch, je Bezirk nachrichtlich
                 </span>
-              </td>
+              </th>
               <td v-for="(wert, i) in zeile.werte" :key="i" class="mm-zahl">
-                {{ wert === 0 ? '–' : euro(wert) }}
+                <template v-if="wert === 0">
+                  <span aria-hidden="true">–</span
+                  ><span class="mm-visually-hidden">kein Betrag</span>
+                </template>
+                <template v-else>{{ euro(wert) }}</template>
               </td>
-              <td class="mm-zahl">{{ zeile.gesamt === 0 ? '–' : euro(zeile.gesamt) }}</td>
+              <td class="mm-zahl">
+                <template v-if="zeile.gesamt === 0">
+                  <span aria-hidden="true">–</span
+                  ><span class="mm-visually-hidden">kein Betrag</span>
+                </template>
+                <template v-else>{{ euro(zeile.gesamt) }}</template>
+              </td>
             </tr>
           </tbody>
           <tfoot>
@@ -575,10 +636,12 @@ function jahrGewaehlt(ereignis: Event): void {
   line-height: 1.1;
 }
 
-.mm-kennzahl p {
+.mm-kennzahl .mm-kennzahl__zusatz {
   margin: var(--wa-space-2xs) 0 0;
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
+  font-weight: var(--wa-font-weight-normal);
+  line-height: var(--wa-line-height-normal);
 }
 
 .mm-zweck {

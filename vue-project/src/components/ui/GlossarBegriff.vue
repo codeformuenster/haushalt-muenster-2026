@@ -35,6 +35,8 @@ const offen = ref(false)
 /** Enter und Leertaste wirken wie bei einem echten Knopf (Leertaste ohne Scrollen). */
 function tastendruck(ereignis: KeyboardEvent) {
   ereignis.preventDefault()
+  // Gedrückt gehaltene Taste: nicht im Takt der Tastenwiederholung auf- und zuklappen.
+  if (ereignis.repeat) return
   ;(ereignis.currentTarget as HTMLElement).click()
 }
 
@@ -91,7 +93,7 @@ function umschalten(ereignis: Event, zustand: boolean) {
   text-decoration: underline dotted var(--wa-color-brand-on-quiet);
   text-decoration-thickness: 0.1em;
   text-underline-offset: 0.15em;
-  cursor: help;
+  cursor: pointer;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }

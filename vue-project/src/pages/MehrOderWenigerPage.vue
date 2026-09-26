@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
@@ -46,6 +46,19 @@ const letzteRichtig = ref(false)
 const durchgespielt = ref(false)
 let gesehen = new Set<string>()
 
+/* Fokusziele: Die Buttons wechseln per v-if, der Fokus darf dabei nicht verloren gehen. */
+const mehrButton = ref<HTMLElement | null>(null)
+const weiterButton = ref<HTMLElement | null>(null)
+const ergebnis = ref<HTMLElement | null>(null)
+
+/** Nach einem Phasenwechsel den Fokus auf das passende Bedienelement setzen. */
+async function fokussierePhase(): Promise<void> {
+  await nextTick()
+  if (phase.value === 'frage') mehrButton.value?.focus()
+  else if (phase.value === 'aufloesung') weiterButton.value?.focus()
+  else ergebnis.value?.focus()
+}
+
 function neuesSpiel(): void {
   gesehen = new Set()
   serie.value = 0
@@ -79,16 +92,28 @@ function antworten(tipp: Tipp): void {
     }
   }
   phase.value = 'aufloesung'
+  fokussierePhase()
 }
 
 function weiter(): void {
   if (!letzteRichtig.value) {
     phase.value = 'ende'
-    return
+  } else {
+    links.value = rechts.value
+    ziehe()
   }
-  links.value = rechts.value
-  ziehe()
+  fokussierePhase()
 }
+
+function nochmal(): void {
+  neuesSpiel()
+  fokussierePhase()
+}
+
+const frageText = computed(() => {
+  if (!links.value || !rechts.value) return ''
+  return `Kostet „${rechts.value.bezeichnung}“ mehr oder weniger als „${links.value.bezeichnung}“ mit ${euro(links.value.bedarf)}?`
+})
 
 const aufloesungText = computed(() => {
   if (!links.value || !rechts.value) return ''
@@ -97,6 +122,17 @@ const aufloesungText = computed(() => {
 })
 
 const neuerRekord = computed(() => serie.value > 0 && serie.value === rekord.value)
+
+/** Text der Live-Region: neue Frage, Auflösung mit Serie, Spielende. */
+const ansage = computed(() => {
+  if (phase.value === 'frage') return frageText.value
+  if (phase.value === 'aufloesung') {
+    return letzteRichtig.value
+      ? `Richtig. ${aufloesungText.value} Serie: ${serie.value}.`
+      : `Leider nein. ${aufloesungText.value} Ihre Serie endet bei ${serie.value}.`
+  }
+  return `Spiel vorbei. Serie: ${serie.value}.`
+})
 
 neuesSpiel()
 </script>
@@ -118,9 +154,10 @@ neuesSpiel()
           <div class="karte">
             <span class="karte__bereich">{{ links.bereich }}</span>
             <strong class="karte__name">{{ links.bezeichnung }}</strong>
-            <span class="karte__betrag" :title="euro(links.bedarf)">{{
-              euroKurz(links.bedarf)
-            }}</span>
+            <span class="karte__betrag" :title="euro(links.bedarf)"
+              ><span aria-hidden="true">{{ euroKurz(links.bedarf) }}</span
+              ><span class="mm-visually-hidden">{{ euro(links.bedarf) }}</span></span
+            >
           </div>
 
           <span class="duell__vs" aria-hidden="true">vs.</span>
@@ -128,47 +165,69 @@ neuesSpiel()
           <div class="karte" :class="{ 'karte--verdeckt': phase === 'frage' }">
             <span class="karte__bereich">{{ rechts.bereich }}</span>
             <strong class="karte__name">{{ rechts.bezeichnung }}</strong>
-            <span v-if="phase === 'frage'" class="karte__betrag">?</span>
-            <span v-else class="karte__betrag" :title="euro(rechts.bedarf)">
-              {{ euroKurz(rechts.bedarf) }}
-            </span>
+            <span v-if="phase === 'frage'" class="karte__betrag"
+              ><span aria-hidden="true">?</span
+              ><span class="mm-visually-hidden">Betrag verdeckt</span></span
+            >
+            <span v-else class="karte__betrag" :title="euro(rechts.bedarf)"
+              ><span aria-hidden="true">{{ euroKurz(rechts.bedarf) }}</span
+              ><span class="mm-visually-hidden">{{ euro(rechts.bedarf) }}</span></span
+            >
           </div>
         </div>
 
         <div v-if="phase === 'frage'" class="aktionen">
-          <wa-button variant="brand" size="large" @click="antworten('mehr')">
-            <wa-icon slot="start" name="arrow-up"></wa-icon>
+          <p id="mow-frage" class="mm-visually-hidden">{{ frageText }}</p>
+          <wa-button
+            ref="mehrButton"
+            variant="brand"
+            size="large"
+            aria-describedby="mow-frage"
+            @click="antworten('mehr')"
+          >
+            <wa-icon slot="start" name="arrow-up" aria-hidden="true"></wa-icon>
             Mehr
           </wa-button>
-          <wa-button variant="brand" size="large" @click="antworten('weniger')">
-            <wa-icon slot="start" name="arrow-down"></wa-icon>
+          <wa-button
+            variant="brand"
+            size="large"
+            aria-describedby="mow-frage"
+            @click="antworten('weniger')"
+          >
+            <wa-icon slot="start" name="arrow-down" aria-hidden="true"></wa-icon>
             Weniger
           </wa-button>
         </div>
 
         <div v-else class="aufloesung">
           <wa-callout :variant="letzteRichtig ? 'success' : 'danger'" appearance="outlined">
-            <wa-icon slot="icon" :name="letzteRichtig ? 'check' : 'xmark'"></wa-icon>
+            <wa-icon
+              slot="icon"
+              :name="letzteRichtig ? 'check' : 'xmark'"
+              aria-hidden="true"
+            ></wa-icon>
             <strong>{{ letzteRichtig ? 'Richtig!' : 'Leider nein.' }}</strong>
             {{ aufloesungText }}
           </wa-callout>
-          <wa-button variant="brand" size="large" @click="weiter">
+          <wa-button ref="weiterButton" variant="brand" size="large" @click="weiter">
             {{ letzteRichtig ? 'Weiter' : 'Zur Auswertung' }}
           </wa-button>
         </div>
       </template>
 
       <div v-else class="ende">
-        <p class="ende__zahl">{{ serie }}</p>
-        <p>
-          <template v-if="durchgespielt">
-            Alle Aufgaben durchgespielt – mehr Vergleiche gibt der Haushalt nicht her.
-          </template>
-          <template v-else-if="serie === 1">richtige Antwort in Folge.</template>
-          <template v-else>richtige Antworten in Folge.</template>
-          <template v-if="neuerRekord"> Neuer Rekord!</template>
-        </p>
-        <wa-button variant="brand" size="large" @click="neuesSpiel">Nochmal spielen</wa-button>
+        <div ref="ergebnis" tabindex="-1">
+          <p class="ende__zahl">{{ serie }}</p>
+          <p>
+            <template v-if="durchgespielt">
+              Alle Aufgaben durchgespielt – mehr Vergleiche gibt der Haushalt nicht her.
+            </template>
+            <template v-else-if="serie === 1">richtige Antwort in Folge.</template>
+            <template v-else>richtige Antworten in Folge.</template>
+            <template v-if="neuerRekord"> Neuer Rekord!</template>
+          </p>
+        </div>
+        <wa-button variant="brand" size="large" @click="nochmal">Nochmal spielen</wa-button>
         <p class="ende__weiter">
           Alle Beträge im Überblick:
           <RouterLink :to="{ name: 'ein-ausgaben' }">Ein- &amp; Ausgaben</RouterLink>
@@ -179,12 +238,7 @@ neuesSpiel()
         </p>
       </div>
 
-      <p class="mm-visually-hidden" aria-live="polite">
-        <template v-if="phase === 'aufloesung'">
-          {{ letzteRichtig ? 'Richtig.' : 'Leider nein.' }} {{ aufloesungText }}
-        </template>
-        <template v-else-if="phase === 'ende'">Spiel vorbei. Serie: {{ serie }}.</template>
-      </p>
+      <p class="mm-visually-hidden" aria-live="polite">{{ ansage }}</p>
     </ChartCard>
   </div>
 </template>
@@ -260,15 +314,6 @@ neuesSpiel()
 .ende__weiter {
   margin-top: var(--wa-space-l);
   color: var(--wa-color-text-quiet);
-}
-
-.mm-visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 
 @media (max-width: 600px) {

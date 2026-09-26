@@ -92,11 +92,16 @@ function merkmale(produkt: Produkt): { bezeichnung: string; wert: string }[] {
       </wa-switch>
     </div>
 
-    <p v-if="zustand === 'laedt'" class="mm-laden">
-      <wa-spinner></wa-spinner> Produktdaten werden geladen …
+    <p v-if="zustand === 'laedt'" class="mm-laden" role="status">
+      <wa-spinner aria-hidden="true"></wa-spinner> Produktdaten werden geladen …
     </p>
 
-    <wa-callout v-else-if="zustand === 'fehler'" variant="danger" appearance="outlined">
+    <wa-callout
+      v-else-if="zustand === 'fehler'"
+      variant="danger"
+      appearance="outlined"
+      role="alert"
+    >
       Die Produktdaten konnten nicht geladen werden. Bitte die Seite neu laden.
     </wa-callout>
 

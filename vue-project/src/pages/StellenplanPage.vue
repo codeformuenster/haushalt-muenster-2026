@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import type { EChartsOption } from 'echarts'
 import { RouterLink, useRoute } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
@@ -210,6 +210,7 @@ const beschreibung = computed(() =>
       ? `Fläche = ${kennzahl.value === 'vzae' ? 'Stellenumfang' : 'geschätztes Tabellenentgelt'} · Themenbereich auswählen`
       : `Fläche = ${kennzahl.value === 'vzae' ? 'Stellenumfang' : 'geschätztes Tabellenentgelt'} · Produktgruppe auswählen`,
 )
+const ohneVeraenderung = computed(() => ansicht.value === 'change' && !balken.value.length)
 const hauptHoehe = computed(() =>
   ansicht.value === 'map' ? '520px' : `${Math.max(240, balken.value.length * 40 + 75)}px`,
 )
@@ -233,6 +234,26 @@ const anteilsFarbe = (beamtenAnteil: number) => {
   )
   return `rgb(${kanaele.join(', ')})`
 }
+/** Anteil der Beamtenstellen (VZÄ) an allen Stellen der Zeilen, 0–1. */
+const beamtenAnteilVon = (rows: Stelle[]) => {
+  let tarif = 0
+  let beamte = 0
+  for (const row of rows)
+    for (const [key, value] of Object.entries(row.grades)) {
+      if (key.startsWith('Tarif_')) tarif += value
+      else if (key.startsWith('Beamte_')) beamte += value
+    }
+  return tarif + beamte === 0 ? 0 : beamte / (tarif + beamte)
+}
+/** Beamtenanteil einer Tabellenzeile – die Treemap zeigt ihn nur als Farbe. */
+const beamtenAnteilZeile = (row: RangZeile) =>
+  beamtenAnteilVon(
+    stellen.filter(
+      (r) =>
+        r.year === jahr.value &&
+        (row.kind === 'area' ? r.code.startsWith(row.code) : r.code === row.code),
+    ),
+  )
 const statusKinder = (rows: Stelle[], code?: string) => {
   const tarif = rows.reduce((summe, row) => summe + beschaeftigungsWert(row, 'Tarif_'), 0)
   const beamte = rows.reduce((summe, row) => summe + beschaeftigungsWert(row, 'Beamte_'), 0)
@@ -258,23 +279,7 @@ const treemapDaten = computed(() => {
     return Object.entries(daten.areas)
       .map(([code, name]) => {
         const rows = stellen.filter((row) => row.year === jahr.value && row.code.startsWith(code))
-        const tarif = rows.reduce(
-          (summe, row) =>
-            summe +
-            Object.entries(row.grades)
-              .filter(([key]) => key.startsWith('Tarif_'))
-              .reduce((teil, [, value]) => teil + value, 0),
-          0,
-        )
-        const beamte = rows.reduce(
-          (summe, row) =>
-            summe +
-            Object.entries(row.grades)
-              .filter(([key]) => key.startsWith('Beamte_'))
-              .reduce((teil, [, value]) => teil + value, 0),
-          0,
-        )
-        const beamtenAnteil = tarif + beamte === 0 ? 0 : beamte / (tarif + beamte)
+        const beamtenAnteil = beamtenAnteilVon(rows)
         return {
           name,
           value: rows.reduce((summe, row) => summe + wert(row), 0),
@@ -424,23 +429,61 @@ const detailOption = computed<EChartsOption>(() => {
     ],
   }
 })
+/* Ein kurzer, dauerhaft vorhandener Status für Screenreader. Entprellt, damit
+   schnelle Wechsel (Stufen, Jahr) nicht jeweils einzeln angesagt werden. */
+const statusMeldung = ref('')
+let statusTimer: ReturnType<typeof setTimeout> | undefined
+function melden(text: string) {
+  clearTimeout(statusTimer)
+  statusTimer = setTimeout(() => {
+    statusMeldung.value = text
+  }, 450)
+}
+onBeforeUnmount(() => clearTimeout(statusTimer))
+watch([kennzahl, jahr, stufe, besoldungsStufe], () =>
+  melden(`Stadt insgesamt ${jahr.value}: ${wertFormat(kennzahlGesamt.value)}`),
+)
+
+/* Fokusziele: Überschrift der Produktgruppen-Karte und der Rangliste. */
+const detailTitel = ref<HTMLElement | null>(null)
+const toplisteTitel = ref<HTMLElement | null>(null)
+const pfadTitel = ref<HTMLElement | null>(null)
+async function produktgruppeWaehlen(code: string) {
+  auswahl.value = code
+  // Die Karte erscheint weiter unten: Fokus auf ihre Überschrift.
+  await nextTick()
+  detailTitel.value?.focus()
+}
+/** Nach einem Bereichswechsel verschwindet der gewählte Eintrag – Fokus neu setzen. */
+async function bereichFokussieren() {
+  await nextTick()
+  ;(toplisteTitel.value ?? pfadTitel.value)?.focus()
+}
+function auswahlAendern(ereignis: Event) {
+  auswahl.value = auswahlWert(ereignis)
+  if (aktuell.value)
+    melden(`${anzeigeName(aktuell.value.name)}: ${wertFormat(wert(aktuell.value))}, ${jahr.value}`)
+}
 function waehlen(event: unknown) {
   if (typeof event !== 'object' || !event || !('data' in event)) return
   const data = event.data
   if (typeof data !== 'object' || !data) return
   if ('code' in data && typeof data.code === 'string' && data.code) {
-    auswahl.value = data.code
+    void produktgruppeWaehlen(data.code)
     return
   }
   if ('areaCode' in data && typeof data.areaCode === 'string') bereich.value = data.areaCode
 }
 function rangWaehlen(row: RangZeile) {
-  if (row.kind === 'area') bereich.value = row.code
-  else auswahl.value = row.code
+  if (row.kind === 'area') {
+    bereich.value = row.code
+    void bereichFokussieren()
+  } else void produktgruppeWaehlen(row.code)
 }
 function zurUebersicht() {
   bereich.value = 'all'
   auswahl.value = ''
+  void bereichFokussieren()
 }
 </script>
 
@@ -450,9 +493,9 @@ function zurUebersicht() {
       titel="Stellenatlas Münster"
       beschreibung="Wo arbeitet die Stadt? Der Stellenatlas zeigt geplante Stellen in Vollzeitäquivalenten (VZÄ)."
     />
-
+    <p class="mm-visually-hidden" role="status">{{ statusMeldung }}</p>
     <wa-card class="mm-kennzahlen-band">
-      <dl class="mm-kennzahlen" aria-live="polite">
+      <dl class="mm-kennzahlen">
         <div class="mm-kennzahl">
           <dt>Stadt insgesamt · {{ jahr }}</dt>
           <dd v-if="kennzahl === 'vzae'">
@@ -477,12 +520,12 @@ function zurUebersicht() {
         <div v-else class="mm-kennzahl">
           <dt>Davon mit Näherungswert</dt>
           <dd>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</dd>
-          <p>{{ vzae(bewertungsquote) }} % der Stellen bewertet</p>
+          <dd class="mm-kennzahl__zusatz">{{ vzae(bewertungsquote) }} % der Stellen bewertet</dd>
         </div>
       </dl>
     </wa-card>
 
-    <div class="stellen-filter" aria-label="Darstellung filtern">
+    <div class="stellen-filter" role="group" aria-label="Darstellung filtern">
       <div class="stellen-metrik" role="group" aria-label="Kennzahl">
         <button type="button" :aria-pressed="kennzahl === 'vzae'" @click="kennzahl = 'vzae'">
           VZÄ
@@ -546,16 +589,17 @@ function zurUebersicht() {
       :quelle="quelle"
       :pdf="{ band: 2, seite: 41 }"
     >
-      <div v-if="bereich !== 'all'" class="stellen-pfad">
+      <nav v-if="bereich !== 'all'" class="stellen-pfad" aria-label="Pfad">
         <button type="button" class="stellen-zurueck" @click="zurUebersicht">
-          ← Alle Themenbereiche
+          <span aria-hidden="true">←</span> Alle Themenbereiche
         </button>
         <span aria-hidden="true">›</span>
-        <strong>{{ bereichName }}</strong>
-      </div>
+        <strong ref="pfadTitel" tabindex="-1" aria-current="location">{{ bereichName }}</strong>
+      </nav>
       <div
         v-if="ansicht === 'map' && bereich === 'all'"
         class="stellen-farbskala"
+        role="group"
         aria-label="Farbskala für den Beamtenanteil"
       >
         <span>0 % Beamte</span>
@@ -566,18 +610,22 @@ function zurUebersicht() {
         <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span>
         <span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
       </div>
-      <p v-if="ansicht === 'change' && !balken.length" role="status">
-        In diesem Produktbereich ändert sich die Gesamtstellenzahl keiner Produktgruppe.
+      <!-- Status bleibt im DOM, nur der Text erscheint bei Bedarf. -->
+      <p class="stellen-leermeldung" role="status">
+        <template v-if="ohneVeraenderung"
+          >In diesem Produktbereich ändert sich die Gesamtstellenzahl keiner
+          Produktgruppe.</template
+        >
       </p>
-      <div v-else class="stellen-visualisierung">
+      <div v-if="!ohneVeraenderung" class="stellen-visualisierung">
         <BaseChart
           :key="`${ansicht}-${bereich}`"
           :option="hauptOption"
           :hoehe="hauptHoehe"
           @chart-click="waehlen"
         />
-        <aside class="stellen-topliste" aria-label="Größte Bereiche">
-          <h3>
+        <aside class="stellen-topliste" aria-labelledby="stellen-topliste-titel">
+          <h3 id="stellen-topliste-titel" ref="toplisteTitel" tabindex="-1">
             {{
               ansicht === 'change'
                 ? 'Größte Veränderungen'
@@ -586,7 +634,7 @@ function zurUebersicht() {
                   : 'Größte Produktgruppen'
             }}
           </h3>
-          <ol>
+          <ol role="list">
             <li v-for="row in topListe" :key="row.code">
               <button type="button" @click="rangWaehlen(row)">
                 <span>{{ row.code }} · {{ row.name }}</span>
@@ -600,12 +648,7 @@ function zurUebersicht() {
       </div>
       <details>
         <summary>Alle Werte als Tabelle</summary>
-        <DatenTabelle>
-          <caption class="sr-only">
-            {{
-              titel
-            }}
-          </caption>
+        <DatenTabelle :beschriftung="`${titel} · ${jahr}`">
           <thead>
             <tr>
               <th scope="col">
@@ -622,17 +665,21 @@ function zurUebersicht() {
                       : 'Tabellenentgelt/Jahr'
                 }}
               </th>
+              <th v-if="ansicht === 'map'" scope="col" class="mm-zahl">Beamtenanteil</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="row in sortiert" :key="row.code">
-              <td>
+              <th scope="row">
                 <button type="button" class="stellen-textbutton" @click="rangWaehlen(row)">
                   {{ row.code }} · {{ row.name }}
                 </button>
-              </td>
+              </th>
               <td class="mm-zahl">
                 {{ ansicht === 'change' ? deltaFormat(row.value) : wertFormat(row.value) }}
+              </td>
+              <td v-if="ansicht === 'map'" class="mm-zahl">
+                {{ vzae(beamtenAnteilZeile(row) * 100) }} %
               </td>
             </tr>
           </tbody>
@@ -651,14 +698,14 @@ function zurUebersicht() {
         label="Produktgruppe"
         placeholder="Produktgruppe auswählen"
         :value="auswahl"
-        @change="auswahl = auswahlWert($event)"
+        @change="auswahlAendern($event)"
       >
         <wa-option v-for="row in auswahlZeilen" :key="row.code" :value="row.code">
           {{ row.code }} · {{ anzeigeName(row.name) }}
         </wa-option>
       </wa-select>
-      <div v-if="aktuell" aria-live="polite">
-        <h3>{{ anzeigeName(aktuell.name) }}</h3>
+      <div>
+        <h3 ref="detailTitel" tabindex="-1">{{ anzeigeName(aktuell.name) }}</h3>
         <p class="stellen-detailzahl">
           {{
             kennzahl === 'vzae'
@@ -679,7 +726,9 @@ function zurUebersicht() {
       <BaseChart :option="detailOption" :hoehe="detailHoehe" />
       <details>
         <summary>Besoldungsgruppen als Tabelle</summary>
-        <DatenTabelle>
+        <DatenTabelle
+          :beschriftung="`Besoldungs- und Entgeltgruppen: ${aktuell.code} ${anzeigeName(aktuell.name)}, ${jahr}`"
+        >
           <thead>
             <tr>
               <th scope="col">Gruppe</th>
@@ -689,7 +738,7 @@ function zurUebersicht() {
           </thead>
           <tbody>
             <tr v-for="[key, value] in gruppen" :key="key">
-              <td>{{ gruppenName(key) }}</td>
+              <th scope="row">{{ gruppenName(key) }}</th>
               <td class="mm-zahl">{{ vzae(value) }}</td>
               <td class="mm-zahl">
                 <template v-if="gruppenJahresentgelt(key, value) != null">
@@ -717,7 +766,7 @@ function zurUebersicht() {
         class="stellen-gesamt__link"
         :to="{ name: 'stellenplan-gesamt', query: { jahr, kennzahl } }"
       >
-        Gesamtübersicht öffnen →
+        Gesamtübersicht öffnen <span aria-hidden="true">→</span>
       </RouterLink>
     </section>
     <ChartCard
@@ -734,21 +783,23 @@ function zurUebersicht() {
           angesetzt.
         </p>
       </div>
-      <dl class="mm-kennzahlen entgelt-kennzahlen" aria-live="polite">
+      <dl class="mm-kennzahlen entgelt-kennzahlen">
         <div class="mm-kennzahl">
           <dt>Stadt insgesamt · {{ jahr }}</dt>
           <dd>{{ euro(stadtSchaetzung.euro) }}</dd>
-          <p>{{ vzae(stadtSchaetzung.bewertet) }} bewertete VZÄ</p>
+          <dd class="mm-kennzahl__zusatz">{{ vzae(stadtSchaetzung.bewertet) }} bewertete VZÄ</dd>
         </div>
         <div class="mm-kennzahl">
           <dt>Ausgewählte Produktgruppe</dt>
           <dd>{{ euro(aktuelleSchaetzung.euro) }}</dd>
-          <p v-if="aktuell">{{ aktuell.code }} · {{ anzeigeName(aktuell.name) }}</p>
+          <dd class="mm-kennzahl__zusatz" v-if="aktuell">
+            {{ aktuell.code }} · {{ anzeigeName(aktuell.name) }}
+          </dd>
         </div>
         <div class="mm-kennzahl">
           <dt>Näherungswerte</dt>
           <dd>{{ vzae(stadtSchaetzung.angenahert) }} VZÄ</dd>
-          <p>{{ vzae(bewertungsquote) }} % der Stellen bewertet</p>
+          <dd class="mm-kennzahl__zusatz">{{ vzae(bewertungsquote) }} % der Stellen bewertet</dd>
         </div>
       </dl>
       <p class="stellen-hinweis">
@@ -766,11 +817,13 @@ function zurUebersicht() {
           <li v-for="tarifquelle in TARIF_QUELLEN" :key="tarifquelle.url">
             <a :href="tarifquelle.url" target="_blank" rel="noopener noreferrer">
               {{ tarifquelle.name }}
+              <span class="mm-visually-hidden">(öffnet in neuem Tab)</span>
             </a>
           </li>
           <li>
             <a :href="BESOLDUNG_QUELLE.url" target="_blank" rel="noopener noreferrer">
               {{ BESOLDUNG_QUELLE.name }}
+              <span class="mm-visually-hidden">(öffnet in neuem Tab)</span>
             </a>
           </li>
         </ul>
@@ -806,10 +859,14 @@ function zurUebersicht() {
   line-height: 1.1;
 }
 
-.mm-kennzahl p {
+/* Erläuterung unter der Zahl. Als zweites <dd> statt <p>: In einer <dl> sind
+   nur dt und dd erlaubt, sonst geht die Zuordnung für Screenreader verloren. */
+.mm-kennzahl .mm-kennzahl__zusatz {
   margin: var(--wa-space-2xs) 0 0;
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
+  font-weight: var(--wa-font-weight-normal);
+  line-height: 1.4;
 }
 
 .stellen-hinweis {
@@ -1038,12 +1095,8 @@ td .stellen-leise {
 .entgelt-kennzahlen {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+.stellen-leermeldung:empty {
+  margin: 0;
 }
 @media (max-width: 850px) {
   .stellen-visualisierung {

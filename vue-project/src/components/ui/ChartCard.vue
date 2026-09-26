@@ -3,9 +3,11 @@
  * Karte um ein Diagramm oder eine Tabelle. Sorgt dafür, dass Titel, Beschreibung
  * und Quellenangabe auf allen Seiten gleich sitzen.
  */
+import { provide, useId } from 'vue'
 import { pdfLink } from '@/data/haushaltsplan'
+import { CHART_KONTEXT } from '@/components/ui/chartKontext'
 
-defineProps<{
+const props = defineProps<{
   titel: string
   /** Ein Satz, der erklärt, was man im Diagramm sieht. Optional, aber empfohlen. */
   beschreibung?: string
@@ -14,13 +16,22 @@ defineProps<{
   /** PDF-Seite, auf die der Link hinter der Quellenangabe führt, z. B. { band: 2, seite: 71 }. */
   pdf?: { band: 1 | 2; seite: number }
 }>()
+
+/* Titel und Beschreibung der Karte benennen das Diagramm darin für
+   Screenreader (BaseChart liest das über CHART_KONTEXT). */
+const titelId = `mm-card-titel-${useId()}`
+const beschreibungId = `mm-card-beschreibung-${useId()}`
+provide(CHART_KONTEXT, {
+  titelId,
+  beschreibungId: () => (props.beschreibung ? beschreibungId : undefined),
+})
 </script>
 
 <template>
   <wa-card class="mm-card">
     <div slot="header" class="mm-card__kopf">
-      <h2>{{ titel }}</h2>
-      <p v-if="beschreibung">{{ beschreibung }}</p>
+      <h2 :id="titelId">{{ titel }}</h2>
+      <p v-if="beschreibung" :id="beschreibungId">{{ beschreibung }}</p>
     </div>
 
     <slot />
@@ -30,6 +41,7 @@ defineProps<{
       <template v-if="quelle && pdf"> · </template>
       <a v-if="pdf" :href="pdfLink(pdf.band, pdf.seite)" target="_blank" rel="noopener">
         PDF-Seite {{ pdf.seite }}
+        <span class="mm-visually-hidden">(öffnet in neuem Tab)</span>
         <wa-icon name="arrow-up-right-from-square" aria-hidden="true"></wa-icon>
       </a>
     </small>
@@ -76,7 +88,7 @@ defineProps<{
   color: var(--wa-color-text-quiet);
 }
 
-/* Dunkles Markenblau wie die Buttons; das Orange wäre als kleiner Text zu kontrastarm. */
+/* Dunkles Orange wie die Buttons; das helle Markenorange wäre als kleiner Text zu kontrastarm. */
 .mm-card__quelle a {
   color: var(--wa-color-brand-fill-loud);
   white-space: nowrap;

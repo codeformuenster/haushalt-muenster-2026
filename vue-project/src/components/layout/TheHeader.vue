@@ -69,10 +69,6 @@ function gruppeIstAktiv(gruppenLinks: NavLink[]): boolean {
   return gruppenLinks.some((link) => istAktiv(link.ziel))
 }
 
-function geheZu(ziel: string): void {
-  void router.push(ziel)
-}
-
 const menueOffen = ref(false)
 const entdeckenOffen = ref(false)
 const ausprobierenOffen = ref(false)
@@ -99,7 +95,7 @@ function nachDemSchliessen(ereignis: Event): void {
 
 <template>
   <div class="mm-header">
-    <RouterLink to="/" class="mm-header__marke">
+    <RouterLink to="/" class="mm-header__marke" aria-label="Münster Money – Startseite">
       <img :src="logoUrl" alt="" class="mm-header__logo" aria-hidden="true" />
       Münster<span>Money</span>
     </RouterLink>
@@ -114,10 +110,18 @@ function nachDemSchliessen(ereignis: Event): void {
         size="small"
         appearance="plain"
         :variant="istAktiv(ueberblickLink.ziel) ? 'brand' : 'neutral'"
-        @click="geheZu(ueberblickLink.ziel)"
+        :href="router.resolve(ueberblickLink.ziel).href"
       >
-        <wa-icon :name="ueberblickLink.icon" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
+        <wa-icon
+          :name="ueberblickLink.icon"
+          aria-hidden="true"
+          slot="start"
+          class="mm-header__nav-icon"
+        />
         <span>{{ ueberblickLink.text }}</span>
+        <span v-if="istAktiv(ueberblickLink.ziel)" class="mm-visually-hidden"
+          >(aktuelle Seite)</span
+        >
       </wa-button>
 
       <wa-dropdown
@@ -141,6 +145,9 @@ function nachDemSchliessen(ereignis: Event): void {
         >
           <wa-icon name="compass" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
           Entdecken
+          <span v-if="gruppeIstAktiv(entdeckenLinks)" class="mm-visually-hidden"
+            >(enthält aktuelle Seite)</span
+          >
         </wa-button>
 
         <div class="mm-header__dropdown-inhalt">
@@ -149,6 +156,7 @@ function nachDemSchliessen(ereignis: Event): void {
             :key="link.ziel"
             :to="link.ziel"
             :class="{ 'router-link-active': istAktiv(link.ziel) }"
+            :aria-current="istAktiv(link.ziel) ? 'page' : undefined"
           >
             <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
             <span>{{ link.text }}</span>
@@ -177,6 +185,9 @@ function nachDemSchliessen(ereignis: Event): void {
         >
           <wa-icon name="flask" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
           Ausprobieren
+          <span v-if="gruppeIstAktiv(ausprobierenLinks)" class="mm-visually-hidden"
+            >(enthält aktuelle Seite)</span
+          >
         </wa-button>
 
         <div class="mm-header__dropdown-inhalt">
@@ -185,6 +196,7 @@ function nachDemSchliessen(ereignis: Event): void {
             :key="link.ziel"
             :to="link.ziel"
             :class="{ 'router-link-active': istAktiv(link.ziel) }"
+            :aria-current="istAktiv(link.ziel) ? 'page' : undefined"
           >
             <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
             <span>{{ link.text }}</span>
@@ -201,23 +213,23 @@ function nachDemSchliessen(ereignis: Event): void {
         size="small"
         appearance="plain"
         :variant="istAktiv(glossarLink.ziel) ? 'brand' : 'neutral'"
-        @click="geheZu(glossarLink.ziel)"
+        :href="router.resolve(glossarLink.ziel).href"
       >
-        <wa-icon :name="glossarLink.icon" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
+        <wa-icon
+          :name="glossarLink.icon"
+          aria-hidden="true"
+          slot="start"
+          class="mm-header__nav-icon"
+        />
         <span>{{ glossarLink.text }}</span>
+        <span v-if="istAktiv(glossarLink.ziel)" class="mm-visually-hidden">(aktuelle Seite)</span>
       </wa-button>
     </nav>
 
-    <wa-button
-      class="mm-header__burger"
-      appearance="plain"
-      size="large"
-      aria-label="Navigation öffnen"
-      aria-haspopup="dialog"
-      :aria-expanded="menueOffen ? 'true' : 'false'"
-      @click="menueOffen = true"
-    >
-      <wa-icon name="bars" label="Menü"></wa-icon>
+    <wa-button class="mm-header__burger" appearance="plain" size="large" @click="menueOffen = true">
+      <!-- Der Name muss am Icon stehen: <wa-button> reicht aria-* vom Host
+           nicht an seinen inneren <button> weiter. -->
+      <wa-icon name="bars" label="Navigation öffnen"></wa-icon>
     </wa-button>
 
     <wa-drawer
@@ -234,6 +246,7 @@ function nachDemSchliessen(ereignis: Event): void {
           :key="link.ziel"
           :to="link.ziel"
           :class="{ 'router-link-active': istAktiv(link.ziel) }"
+          :aria-current="istAktiv(link.ziel) ? 'page' : undefined"
         >
           <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
           <span>{{ link.text }}</span>
@@ -307,7 +320,10 @@ function nachDemSchliessen(ereignis: Event): void {
 
 .mm-header__nav-button--aktiv::part(base),
 .mm-header__dropdown-trigger--aktiv::part(base) {
-  background-image: linear-gradient(var(--wa-color-brand-border-loud), var(--wa-color-brand-border-loud));
+  background-image: linear-gradient(
+    var(--wa-color-brand-border-loud),
+    var(--wa-color-brand-border-loud)
+  );
   background-size: calc(100% - 28px) 2px;
 }
 

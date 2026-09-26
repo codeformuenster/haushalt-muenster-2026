@@ -7,7 +7,7 @@
  * aus daten/agg_tables/Zuschuesse_Vereine_Verbaende_2026_2027.csv. Hier wird
  * nur dargestellt und aggregiert, nicht bereinigt — das passiert im Skript.
  */
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
@@ -193,6 +193,26 @@ const ausgewaehlteSumme = computed(() =>
   ausgewaehlt.value.reduce((wert, stueck) => wert + stueck.value, 0),
 )
 
+/** Unterzeile unter der Summe im Ring — und Teil des Textes für Screenreader. */
+const ausgewaehltUnterzeile = computed(() =>
+  abgewaehlt.value.length === 0
+    ? 'Zuschüsse gesamt'
+    : `${prozent(ausgewaehlteSumme.value / gesamt.value)} von ${euroKurz(gesamt.value)}`,
+)
+
+/**
+ * Tastatur-Ersatz für den Legendenklick: Die Checkboxen über dem Ring steuern
+ * dieselbe Auswahl. `legend.selected` wird aus `abgewaehlt` abgeleitet, ein
+ * Klick in die Legende schreibt über legendeGeaendert zurück.
+ */
+function stueckUmschalten(name: string, sichtbar: boolean): void {
+  abgewaehlt.value = sichtbar
+    ? abgewaehlt.value.filter((n) => n !== name)
+    : [...abgewaehlt.value, name]
+}
+
+const checked = (ereignis: Event): boolean => (ereignis.target as HTMLInputElement).checked
+
 /** Aufsteigend, weil die Kategorieachse liegender Balken von unten nach oben läuft. */
 const nachSpielraum = computed(() =>
   [...nachBereich.value].sort((a, b) => a.frei + a.grund - (b.frei + b.grund)),
@@ -249,7 +269,16 @@ const stufen = computed<EChartsOption>(() => ({
     stack: 'stufen',
     barWidth: 64,
     data: [summe(mitGrad(alle.value, grad))],
-    itemStyle: { color: GRAD_FARBE[grad], borderRadius: 0 },
+    // Weiße Fuge zwischen den Segmenten, damit sie nicht nur an der Farbe hängen.
+    itemStyle: { color: GRAD_FARBE[grad], borderRadius: 0, borderColor: '#ffffff', borderWidth: 2 },
+    // Direkt beschriftet mit Namen und Anteil; zu schmale Segmente stehen nur in der Legende.
+    label: {
+      show: summe(mitGrad(alle.value, grad)) / gesamt.value >= 0.12,
+      position: 'inside' as const,
+      color: '#ffffff',
+      fontWeight: 'bold' as const,
+      formatter: () => `${grad} ${prozent(summe(mitGrad(alle.value, grad)) / gesamt.value)}`,
+    },
   })),
 }))
 
@@ -258,16 +287,13 @@ const verteilung = computed<EChartsOption>(() => ({
    * Responsive über ECharts' eigene Media-Queries: breit genug steht die
    * Legende als vollständige Liste rechts neben dem Ring, auf Handybreite
    * rutscht sie darunter. Die Legende trägt die Namen, die Beschriftungen am
-   * Ring nur noch die Prozente — sonst kollidieren beide.
+   * Ring nur Nummer und Prozent — sonst kollidieren beide.
    */
   baseOption: {
     title: {
       // Zeigt immer die Summe der ausgewählten Stücke, nicht stur das Ganze.
       text: euroKurz(ausgewaehlteSumme.value),
-      subtext:
-        abgewaehlt.value.length === 0
-          ? 'Zuschüsse gesamt'
-          : `${prozent(ausgewaehlteSumme.value / gesamt.value)} von ${euroKurz(gesamt.value)}`,
+      subtext: ausgewaehltUnterzeile.value,
       textAlign: 'center',
       textStyle: { fontSize: 22 },
       subtextStyle: { fontSize: 12 },
@@ -296,8 +322,14 @@ const verteilung = computed<EChartsOption>(() => ({
         // Unter ~1,5 % überlagern sich die Beschriftungen; diese Bereiche
         // stehen weiterhin in der Legende und im Tooltip.
         minShowLabelAngle: 5,
+        // Nummer plus Prozent, damit sich jedes Stück auch ohne Farbe der
+        // Legende zuordnen lässt. Die vollen Namen wären zu lang für den Ring.
         label: {
-          formatter: (info: unknown) => prozent((info as { percent: number }).percent / 100),
+          formatter: (info: unknown) => {
+            const { name, percent } = info as { name: string; percent: number }
+            const kurz = name.startsWith('Sonstige') ? 'Sonstige' : name.split(' ')[0]
+            return `${kurz} · ${prozent(percent / 100)}`
+          },
         },
         labelLine: { length: 10, length2: 8 },
       },
@@ -398,14 +430,24 @@ const spielraum = computed<EChartsOption>(() => {
         type: 'bar',
         stack: 'spielraum',
         data: reihen.map((b) => b.frei),
-        itemStyle: { color: GRAD_FARBE.freiwillig, borderRadius: 0 },
+        itemStyle: {
+          color: GRAD_FARBE.freiwillig,
+          borderRadius: 0,
+          borderColor: '#ffffff',
+          borderWidth: 1,
+        },
       },
       {
         name: 'dem Grunde nach',
         type: 'bar',
         stack: 'spielraum',
         data: reihen.map((b) => b.grund),
-        itemStyle: { color: GRAD_FARBE['dem Grunde nach'], borderRadius: 0 },
+        itemStyle: {
+          color: GRAD_FARBE['dem Grunde nach'],
+          borderRadius: 0,
+          borderColor: '#ffffff',
+          borderWidth: 1,
+        },
       },
     ],
   }
@@ -460,6 +502,57 @@ const befristung = computed<EChartsOption>(() => {
   }
 })
 
+// ------------------------------------------- Textalternativen der Diagramme
+
+const stufenBeschreibung = computed(
+  () =>
+    'Gestapelter Balken der vier Stufen: ' +
+    stufenGroesse.value
+      .map((grad) => `${grad} ${prozent(summe(mitGrad(alle.value, grad)) / gesamt.value)}`)
+      .join(', ') +
+    '. Beträge und Postenzahl je Stufe stehen in der Tabelle unter „Was heißt „dem Grunde nach“?“.',
+)
+
+const verteilungBeschreibung = computed(() => {
+  const groesster = nachBereich.value[0]
+  return (
+    `Ringdiagramm: ${euroKurz(gesamt.value)} Zuschüsse nach Produktbereich.` +
+    (groesster
+      ? ` Der größte Bereich ist ${groesster.nr} ${groesster.name} mit ${euroKurz(groesster.gesamt)} (${prozent(groesster.gesamt / gesamt.value)}).`
+      : '') +
+    ' Alle Werte stehen in der Tabelle unter dem Diagramm.'
+  )
+})
+
+const spielraumBeschreibung = computed(() => {
+  const groesster = nachSpielraum.value[nachSpielraum.value.length - 1]
+  return (
+    'Gestapeltes Balkendiagramm: verhandelbare Zuschüsse (freiwillig und dem Grunde nach) je Produktbereich.' +
+    (groesster
+      ? ` Den größten Spielraum hat ${groesster.nr} ${groesster.name} mit ${euroKurz(groesster.frei + groesster.grund)}.`
+      : '') +
+    ' Alle Werte stehen in der Tabelle unter dem Diagramm.'
+  )
+})
+
+const befristungBeschreibung = computed(() => {
+  const reihen = befristungRest.value
+  const zusammen = (werte: number[]): number => werte.reduce((s, w) => s + w, 0)
+  // Das Jahr, nach dem am meisten Geld ausläuft.
+  let steilstes = { jahr: '', rueckgang: 0 }
+  for (let i = 1; i < reihen.length; i++) {
+    const rueckgang = zusammen(reihen[i - 1]?.werte ?? []) - zusammen(reihen[i]?.werte ?? [])
+    if (rueckgang > steilstes.rueckgang) steilstes = { jahr: reihen[i]?.jahr ?? '', rueckgang }
+  }
+  return (
+    `Gestapeltes Flächendiagramm: Heute sind ${euroKurz(zusammen(reihen[0]?.werte ?? []))} mit Enddatum zugesagt.` +
+    (steilstes.jahr
+      ? ` Am meisten läuft nach Ende ${steilstes.jahr} aus: ${euroKurz(steilstes.rueckgang)}.`
+      : '') +
+    ' Alle Werte je Jahr und Stufe stehen in der Tabelle unter dem Diagramm.'
+  )
+})
+
 // ----------------------------------------------------------------- Tabelle
 
 const suche = ref('')
@@ -496,10 +589,33 @@ const widerspruch = computed(() =>
   alle.value.find((p) => !VERHANDELBAR.includes(p.grad) && /freiwillige zuschüsse/i.test(p.zweck)),
 )
 
-function filterZuruecksetzen(): void {
+const trefferText = computed(
+  () =>
+    `${zahl(gefiltert.value.length)} von ${zahl(alle.value.length)} Posten · ${euroKurz(summe(gefiltert.value))} in 2026`,
+)
+
+/*
+ * Ansage für Screenreader, entprellt: Beim Tippen soll nicht jeder Buchstabe
+ * eine neue Trefferzahl auslösen. Die Region startet leer, damit beim Laden
+ * nichts angesagt wird.
+ */
+const trefferAnsage = ref('')
+let ansageTimer: ReturnType<typeof setTimeout> | undefined
+watch([suche, gradFilter, bereichFilter], () => {
+  clearTimeout(ansageTimer)
+  ansageTimer = setTimeout(() => (trefferAnsage.value = trefferText.value), 500)
+})
+onBeforeUnmount(() => clearTimeout(ansageTimer))
+
+const suchfeld = ref<HTMLElement | null>(null)
+
+async function filterZuruecksetzen(): Promise<void> {
   suche.value = ''
   gradFilter.value = 'alle'
   bereichFilter.value = 'alle'
+  // Der Knopf verschwindet per v-if — der Fokus soll nicht auf <body> fallen.
+  await nextTick()
+  suchfeld.value?.focus()
 }
 
 // ------------------------------------------------------------------ Quelle
@@ -583,8 +699,8 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       <dl class="mm-kennzahlen">
         <div v-for="k in kennzahlen" :key="k.titel" class="mm-kennzahl">
           <dt>{{ k.titel }}</dt>
-          <dd>{{ k.wert }}</dd>
-          <p>{{ k.zusatz }}</p>
+          <dd class="mm-kennzahl__wert">{{ k.wert }}</dd>
+          <dd class="mm-kennzahl__zusatz">{{ k.zusatz }}</dd>
         </div>
       </dl>
     </wa-card>
@@ -597,9 +713,9 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       die Freiwilligkeit nicht aus.
     </wa-callout>
 
-    <p v-if="!posten && !ladefehler" class="mm-laden">Zahlen werden geladen …</p>
+    <p v-if="!posten && !ladefehler" class="mm-laden" role="status">Zahlen werden geladen …</p>
 
-    <wa-callout v-if="ladefehler" variant="danger" appearance="outlined">
+    <wa-callout v-if="ladefehler" variant="danger" appearance="outlined" role="alert">
       <strong>Die Zahlen konnten nicht geladen werden.</strong> Die Datei
       <code>daten/zuschuesse-2026-2027.json</code> fehlt oder ist nicht lesbar. Sie entsteht mit
       <code>node preprocessing/zuschuesse.ts</code>.
@@ -612,7 +728,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 349 }"
       >
-        <BaseChart :option="stufen" hoehe="140px" />
+        <BaseChart :option="stufen" hoehe="140px" :beschreibung="stufenBeschreibung" />
 
         <wa-details class="mm-erklaerung" summary="Was heißt „dem Grunde nach“?">
           <p>
@@ -620,12 +736,14 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             muss die Stadt überhaupt tätig werden? — und das <em>Wie</em> — steht auch der Betrag
             schon fest? Die vier Stufen sind die vier Kombinationen daraus.
           </p>
-          <DatenTabelle>
+          <DatenTabelle
+            beschriftung="Die vier Stufen der Verpflichtung: Postenzahl und Betrag 2026"
+          >
             <thead>
               <tr>
-                <th></th>
-                <th>Höhe frei</th>
-                <th>Höhe gesetzlich bestimmt</th>
+                <td></td>
+                <th scope="col">Höhe frei</th>
+                <th scope="col">Höhe gesetzlich bestimmt</th>
               </tr>
             </thead>
             <tbody>
@@ -664,7 +782,56 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           :quelle="QUELLE"
           :pdf="{ band: 2, seite: 349 }"
         >
-          <BaseChart :option="verteilung" hoehe="460px" @legendselectchanged="legendeGeaendert" />
+          <fieldset class="mm-auswahl">
+            <legend>Produktbereiche im Ring</legend>
+            <label v-for="(stueck, i) in verteilungDaten" :key="stueck.name">
+              <input
+                type="checkbox"
+                :checked="!abgewaehlt.includes(stueck.name)"
+                @change="stueckUmschalten(stueck.name, checked($event))"
+              />
+              <span
+                class="mm-punkt"
+                aria-hidden="true"
+                :style="{ background: KATEGORIE_FARBEN[i] }"
+              ></span>
+              {{ stueck.name }}
+            </label>
+          </fieldset>
+          <p class="mm-visually-hidden" aria-live="polite">
+            Im Ring ausgewählt: {{ euroKurz(ausgewaehlteSumme) }}, {{ ausgewaehltUnterzeile }}.
+          </p>
+          <BaseChart
+            :option="verteilung"
+            hoehe="460px"
+            :beschreibung="verteilungBeschreibung"
+            @legendselectchanged="legendeGeaendert"
+          />
+          <wa-details summary="Werte als Tabelle">
+            <DatenTabelle beschriftung="Zuschüsse 2026 nach Produktbereich">
+              <thead>
+                <tr>
+                  <th scope="col">Produktbereich</th>
+                  <th scope="col" class="mm-zahl">Summe 2026 (€)</th>
+                  <th scope="col" class="mm-zahl">Anteil</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="b in nachBereich" :key="b.nr">
+                  <th scope="row">{{ b.nr }} {{ b.name }}</th>
+                  <td class="mm-zahl">{{ euro(b.gesamt) }}</td>
+                  <td class="mm-zahl">{{ prozent(b.gesamt / gesamt) }}</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">Zusammen</th>
+                  <td class="mm-zahl">{{ euro(gesamt) }}</td>
+                  <td class="mm-zahl">100 %</td>
+                </tr>
+              </tfoot>
+            </DatenTabelle>
+          </wa-details>
         </ChartCard>
 
         <ChartCard
@@ -677,7 +844,28 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             :key="schmal ? 'stehend' : 'liegend'"
             :option="spielraum"
             :hoehe="schmal ? '460px' : '440px'"
+            :beschreibung="spielraumBeschreibung"
           />
+          <wa-details summary="Werte als Tabelle">
+            <DatenTabelle beschriftung="Verhandelbare Zuschüsse 2026 nach Produktbereich">
+              <thead>
+                <tr>
+                  <th scope="col">Produktbereich</th>
+                  <th scope="col" class="mm-zahl">Summe 2026 (€)</th>
+                  <th scope="col" class="mm-zahl">freiwillig (€)</th>
+                  <th scope="col" class="mm-zahl">dem Grunde nach (€)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="b in nachBereich" :key="b.nr">
+                  <th scope="row">{{ b.nr }} {{ b.name }}</th>
+                  <td class="mm-zahl">{{ euro(b.gesamt) }}</td>
+                  <td class="mm-zahl">{{ euro(b.frei) }}</td>
+                  <td class="mm-zahl">{{ euro(b.grund) }}</td>
+                </tr>
+              </tbody>
+            </DatenTabelle>
+          </wa-details>
         </ChartCard>
       </div>
 
@@ -687,7 +875,29 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 349 }"
       >
-        <BaseChart :option="befristung" hoehe="400px" />
+        <BaseChart :option="befristung" hoehe="400px" :beschreibung="befristungBeschreibung" />
+        <wa-details summary="Werte als Tabelle">
+          <DatenTabelle
+            beschriftung="Noch zugesagte Zuschüsse je Stufe, heute und nach Ende jedes Jahres"
+          >
+            <thead>
+              <tr>
+                <th scope="col">Zeitpunkt</th>
+                <th v-for="grad in GRADE" :key="grad" scope="col" class="mm-zahl">
+                  {{ grad }} (€)
+                </th>
+                <th scope="col" class="mm-zahl">zusammen (€)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in befristungRest" :key="r.jahr">
+                <th scope="row">{{ r.jahr === 'heute' ? 'heute' : `nach Ende ${r.jahr}` }}</th>
+                <td v-for="(w, i) in r.werte" :key="i" class="mm-zahl">{{ euro(w) }}</td>
+                <td class="mm-zahl">{{ euro(r.werte.reduce((s, w) => s + w, 0)) }}</td>
+              </tr>
+            </tbody>
+          </DatenTabelle>
+        </wa-details>
         <p class="mm-fussnote">
           Nicht in der Kurve: {{ zahl(ohneEnddatum.length) }} Posten über zusammen
           {{ euroKurz(summe(ohneEnddatum)) }} nennen kein Enddatum, sondern eine Laufzeitregel wie
@@ -704,6 +914,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       >
         <div class="mm-filter">
           <wa-input
+            ref="suchfeld"
             label="Suche in Empfänger und Zweck"
             placeholder="z. B. Sport"
             :value="suche"
@@ -732,9 +943,8 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           </wa-select>
         </div>
 
-        <p class="mm-treffer" aria-live="polite">
-          {{ zahl(gefiltert.length) }} von {{ zahl(alle.length) }} Posten ·
-          {{ euroKurz(summe(gefiltert)) }} in 2026
+        <div class="mm-treffer">
+          <p>{{ trefferText }}</p>
           <wa-button
             v-if="filterAktiv"
             size="small"
@@ -743,29 +953,35 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           >
             Filter zurücksetzen
           </wa-button>
-        </p>
+        </div>
+        <!-- Entprellte Ansage der Trefferzahl; bleibt immer im DOM. -->
+        <p class="mm-visually-hidden" aria-live="polite">{{ trefferAnsage }}</p>
 
-        <DatenTabelle>
+        <DatenTabelle beschriftung="Alle Zuschüsse einzeln, sortiert nach dem Betrag 2026">
           <thead>
             <tr>
-              <th>Empfänger und Zweck</th>
-              <th>Produktbereich</th>
-              <th>Verpflichtungsgrad</th>
-              <th class="mm-zahl">2026</th>
-              <th class="mm-zahl">2027</th>
-              <th>bis</th>
-              <th><span class="mm-unsichtbar">Quelle</span></th>
+              <th scope="col">Empfänger und Zweck</th>
+              <th scope="col">Produktbereich</th>
+              <th scope="col">Verpflichtungsgrad</th>
+              <th scope="col" class="mm-zahl">2026 (€)</th>
+              <th scope="col" class="mm-zahl">2027 (€)</th>
+              <th scope="col">bis</th>
+              <th scope="col"><span class="mm-unsichtbar">Quelle</span></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="p in gefiltert" :key="p.nr">
-              <td>
+              <th scope="row">
                 {{ p.empfaenger }}
                 <span class="mm-zweck">{{ p.zweck }}</span>
-              </td>
+              </th>
               <td>{{ p.produktbereich }} {{ PRODUKTBEREICHE[p.produktbereich] }}</td>
               <td>
-                <span class="mm-punkt" :style="{ background: GRAD_FARBE[p.grad] }"></span>
+                <span
+                  class="mm-punkt"
+                  aria-hidden="true"
+                  :style="{ background: GRAD_FARBE[p.grad] }"
+                ></span>
                 {{ p.grad }}
               </td>
               <td class="mm-zahl">{{ euro(p.eur2026) }}</td>
@@ -775,10 +991,13 @@ async function zeigeQuelle(p: Posten): Promise<void> {
                 <wa-button
                   appearance="plain"
                   size="small"
-                  title="Quelle anzeigen"
+                  :title="`Quelle zu ${p.empfaenger} anzeigen`"
                   @click="zeigeQuelle(p)"
                 >
-                  <wa-icon name="file-lines" label="Quelle anzeigen"></wa-icon>
+                  <wa-icon
+                    name="file-lines"
+                    :label="`Quelle zu ${p.empfaenger} anzeigen`"
+                  ></wa-icon>
                 </wa-button>
               </td>
             </tr>
@@ -827,14 +1046,14 @@ async function zeigeQuelle(p: Posten): Promise<void> {
   font-size: var(--wa-font-size-s);
 }
 
-.mm-kennzahl dd {
+.mm-kennzahl__wert {
   margin: var(--wa-space-3xs) 0 0;
   font-size: var(--wa-font-size-3xl);
   font-weight: var(--wa-font-weight-bold);
   line-height: 1.1;
 }
 
-.mm-kennzahl p {
+.mm-kennzahl__zusatz {
   margin: var(--wa-space-2xs) 0 0;
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
@@ -848,9 +1067,47 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 }
 
 .mm-treffer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wa-space-2xs) var(--wa-space-s);
   margin: 0 0 var(--wa-space-s);
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
+}
+
+.mm-treffer p {
+  margin: 0;
+}
+
+/* Checkboxen über dem Ring: dieselbe Auswahl wie ein Klick in die Legende. */
+.mm-auswahl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wa-space-2xs) var(--wa-space-m);
+  margin: 0 0 var(--wa-space-s);
+  padding: 0;
+  border: none;
+  font-size: var(--wa-font-size-s);
+}
+
+.mm-auswahl legend {
+  margin-bottom: var(--wa-space-2xs);
+  padding: 0;
+  color: var(--wa-color-text-quiet);
+}
+
+.mm-auswahl label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-2xs);
+  min-height: 24px;
+  cursor: pointer;
+}
+
+.mm-auswahl input {
+  margin: 0;
+  accent-color: var(--wa-color-brand-fill-loud);
 }
 
 /* Der Zweck wird bis zu 180 Zeichen lang — leise zweite Zeile statt eigener Spalte. */

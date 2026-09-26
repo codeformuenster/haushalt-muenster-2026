@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import EinAusgabenSankey from '@/components/einausgaben/EinAusgabenSankey.vue'
@@ -80,32 +80,62 @@ const selectedGroupName = computed(() => {
   return groupMap.get(selectedGroup.value) ?? selectedGroup.value
 })
 
+/** Auswahl „Produktgruppe“: Tastatur-Alternative zum Klick auf einen Sankey-Knoten. */
+const gruppenAuswahl = ref<HTMLElement | null>(null)
+
+/** Text der Live-Region, die Ansichtswechsel für Screenreader ansagt. */
+const ansichtAnsage = ref('')
+
+watch(selectedGroup, (code) => {
+  ansichtAnsage.value = code ? `Detailansicht: ${selectedGroupName.value}` : 'Gesamtansicht'
+})
+
 function onGroupSelect(groupCode: string): void {
   selectedGroup.value = groupCode
 }
 
-function clearSelection(): void {
+/** Produktgruppe aus dem <wa-select> übernehmen; „gesamt“ heißt: keine Auswahl. */
+function onGroupSelectChange(event: Event): void {
+  const wert = (event.target as HTMLInputElement).value
+  selectedGroup.value = wert && wert !== 'gesamt' ? wert : null
+}
+
+/** Zurück zur Gesamtansicht. Der Button verschwindet dabei, also Fokus auf die Auswahl. */
+async function clearSelection(): Promise<void> {
   selectedGroup.value = null
+  await nextTick()
+  gruppenAuswahl.value?.focus()
 }
 </script>
 
 <template>
   <div class="mm-seite">
-    <PageIntro titel="Ein- und Ausgaben" beschreibung="Wo nimmt die Stadt Geld ein und wo gibt sie es aus?" />
+    <PageIntro
+      titel="Ein- und Ausgaben"
+      beschreibung="Wo nimmt die Stadt Geld ein und wo gibt sie es aus?"
+    />
 
     <ChartCard
       titel="Erträge und Aufwendungen"
+      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktgruppe. Wählen Sie eine Produktgruppe aus (oder klicken Sie im Diagramm darauf), um ihre Produkte zu sehen. Alle Werte stehen auch in der Tabelle unten."
     >
       <div class="eingaben-ausgaben-toolbar">
-        <wa-tag
-          v-if="selectedGroup"
-          class="mm-badge"
-          size="m"
-          with-remove
-          @wa-remove="clearSelection"
-          >{{ groupMap.get(selectedGroup) }}</wa-tag
+        <wa-select
+          ref="gruppenAuswahl"
+          class="gruppen-auswahl"
+          label="Produktgruppe"
+          :value="selectedGroup ?? 'gesamt'"
+          @change="onGroupSelectChange"
         >
-        <wa-tag v-else class="mm-badge" size="m" disabled>Gesamt</wa-tag>
+          <wa-option value="gesamt">Gesamt</wa-option>
+          <wa-option v-for="group in tableGroups" :key="group.code" :value="group.code"
+            >{{ group.code }} {{ group.name }}</wa-option
+          >
+        </wa-select>
+        <wa-button v-if="selectedGroup" appearance="outlined" @click="clearSelection">
+          <wa-icon slot="start" name="arrow-left" aria-hidden="true"></wa-icon>
+          Zurück zur Gesamtansicht
+        </wa-button>
         <wa-select
           class="jahr-auswahl"
           label="Haushaltsjahr"
@@ -116,6 +146,7 @@ function clearSelection(): void {
           <wa-option value="2027">2027</wa-option>
         </wa-select>
       </div>
+      <p class="mm-visually-hidden" aria-live="polite">{{ ansichtAnsage }}</p>
       <template v-if="selectedGroup">
         <EinAusgabenGruppenDetail
           :rows="rows"
@@ -133,11 +164,7 @@ function clearSelection(): void {
     </ChartCard>
 
     <ChartCard :titel="`Tabellarische Übersicht nach Produktgruppe (${selectedYear})`">
-      <EinAusgabenGruppenTabelle
-        :groups="tableGroups"
-        :selected-year="selectedYear"
-        @year-change="onYearSelect"
-      />
+      <EinAusgabenGruppenTabelle :groups="tableGroups" :selected-year="selectedYear" />
     </ChartCard>
   </div>
 </template>
@@ -151,28 +178,12 @@ function clearSelection(): void {
   gap: var(--wa-space-m);
 }
 
-/* Badge der aktuellen Auswahl: leicht orange. Web Awesome liest diese Tokens
-   im Shadow DOM, deshalb hier am Host setzen. */
-.mm-badge {
-  --wa-color-fill-quiet: var(--mm-auswahl-flaeche);
-  --wa-color-border-normal: var(--mm-auswahl-rand);
-  --wa-color-on-quiet: var(--mm-auswahl-text);
+.gruppen-auswahl {
+  flex: 1 1 20rem;
+  max-width: 32rem;
 }
 
 .jahr-auswahl {
   width: 9rem;
-}
-
-/* Die Beschriftung „Haushaltsjahr" bleibt für Screenreader erhalten, ist aber
-   ausgeblendet — aus zwei Optionen 2026/2027 geht der Sinn ohnehin hervor. */
-.jahr-auswahl::part(form-control-label) {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 }
 </style>
