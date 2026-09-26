@@ -13,9 +13,12 @@
         href="https://www.stadt-muenster.de/finanzen/muensters-haushalt/der-haushaltsplan"
         target="_blank"
         rel="noopener"
-        >Haushaltsplan der Stadt Münster</a
+        >Haushaltsplan der Stadt Münster
+        <span class="mm-visually-hidden">(öffnet in neuem Tab)</span></a
       >
-      <a href="https://muensterhack.de" target="_blank" rel="noopener">Münsterhack 2026</a>
+      <a href="https://muensterhack.de" target="_blank" rel="noopener"
+        >Münsterhack 2026 <span class="mm-visually-hidden">(öffnet in neuem Tab)</span></a
+      >
     </nav>
   </div>
 </template>

@@ -15,13 +15,14 @@ import '@awesome.me/webawesome/dist/components/input/input.js'
 import '@awesome.me/webawesome/dist/components/option/option.js'
 import '@awesome.me/webawesome/dist/components/page/page.js'
 import '@awesome.me/webawesome/dist/components/popover/popover.js'
-import '@awesome.me/webawesome/dist/components/tag/tag.js'
 import '@awesome.me/webawesome/dist/components/spinner/spinner.js'
 import '@awesome.me/webawesome/dist/components/select/select.js'
 import '@awesome.me/webawesome/dist/components/slider/slider.js'
 import '@awesome.me/webawesome/dist/components/tag/tag.js'
 import '@awesome.me/webawesome/dist/components/switch/switch.js'
 import '@awesome.me/webawesome/dist/components/dropdown/dropdown.js'
+// Deutsche Texte für eingebaute Beschriftungen („Schließen“ statt „Close“ usw.).
+import '@awesome.me/webawesome/dist/translations/de.js'
 
 // Registriert Diagrammtypen und das Projekt-Theme für ECharts.
 import '@/charts/echartsTheme'

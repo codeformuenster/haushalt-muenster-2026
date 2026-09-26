@@ -3,12 +3,13 @@
  * Planspiel: Wer den Haushalt 2026 ausgleichen will, dreht an Einnahmen und
  * Ausgaben und sieht sofort, wie sich das ordentliche Ergebnis verändert.
  */
-import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
+import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
@@ -71,9 +72,19 @@ const diagramme = useTemplateRef<HTMLElement>('diagramme')
 const bilanz = useTemplateRef<HTMLElement>('bilanz')
 const kompakt = ref(false)
 let beobachter: IntersectionObserver | undefined
+let hoehenBeobachter: ResizeObserver | undefined
 
 onMounted(() => {
-  if (!diagramme.value || !bilanz.value) return
+  if (!bilanz.value) return
+  // Die klebende Box verdeckt sonst per Tab fokussierte Karten und Regler
+  // (WCAG 2.4.11). main.css rechnet --mm-kopf-extra in scroll-padding-top ein.
+  const box = bilanz.value
+  hoehenBeobachter = new ResizeObserver(() => {
+    document.documentElement.style.setProperty('--mm-kopf-extra', `${box.offsetHeight}px`)
+  })
+  hoehenBeobachter.observe(box)
+
+  if (!diagramme.value) return
   const kante = parseFloat(getComputedStyle(bilanz.value).top) || 0
   beobachter = new IntersectionObserver(
     ([eintrag]) => {
@@ -83,7 +94,30 @@ onMounted(() => {
   )
   beobachter.observe(diagramme.value)
 })
-onBeforeUnmount(() => beobachter?.disconnect())
+onBeforeUnmount(() => {
+  beobachter?.disconnect()
+  hoehenBeobachter?.disconnect()
+  document.documentElement.style.removeProperty('--mm-kopf-extra')
+})
+
+const bilanzText = computed(() =>
+  geschafft.value
+    ? 'Geschafft! Der Haushalt 2026 ist ausgeglichen.'
+    : `Noch ${euroKurz(-ergebnis.value)} bis zur Null.`,
+)
+
+/*
+ * Ansage für Screenreader, entprellt: Ein Regler feuert bei jedem Schritt,
+ * angesagt wird erst, wenn er kurz still steht. Startet leer, damit beim
+ * Laden nichts angesagt wird.
+ */
+const bilanzAnsage = ref('')
+let ansageTimer: ReturnType<typeof setTimeout> | undefined
+watch(bilanzText, (text) => {
+  clearTimeout(ansageTimer)
+  ansageTimer = setTimeout(() => (bilanzAnsage.value = text), 400)
+})
+onBeforeUnmount(() => clearTimeout(ansageTimer))
 
 const kartenJeGruppe = GRUPPEN.map((g) => ({
   ...g,
@@ -140,6 +174,22 @@ function balken(posten: { name: string; betrag: number }[], farbe: string): ECha
 
 const woher = computed(() => balken(ertraege, POL_FARBEN.positiv))
 const wohin = computed(() => balken(bereiche, POL_FARBEN.negativ))
+
+/** Für die Tabellen unter den Diagrammen: größter Posten zuerst. */
+const ertraegeSortiert = [...ertraege].sort((a, b) => b.betrag - a.betrag)
+const bereicheSortiert = [...bereiche].sort((a, b) => b.betrag - a.betrag)
+
+/** Textalternative: Kernaussage plus Hinweis auf die Tabelle. */
+function balkenBeschreibung(was: string, sortiert: { name: string; betrag: number }[]): string {
+  const groesster = sortiert[0]
+  return (
+    `Balkendiagramm: ${was}.` +
+    (groesster
+      ? ` Der größte Posten ist ${groesster.name} mit ${euroKurz(groesster.betrag)}.`
+      : '') +
+    ' Alle Werte stehen in der Tabelle unter dem Diagramm.'
+  )
+}
 
 /** Betrag eines Vergleichswerts, mit Einheit oder in €. */
 function vergleichsBetrag(v: Vergleich): string {
@@ -250,7 +300,27 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
         quelle="Haushaltsplan Band 1, S. 9 (PDF), Zeilen 01-08"
         :pdf="{ band: 1, seite: 9 }"
       >
-        <BaseChart :option="woher" hoehe="600px" />
+        <BaseChart
+          :option="woher"
+          hoehe="600px"
+          :beschreibung="balkenBeschreibung('geplante Erträge 2026 nach Art', ertraegeSortiert)"
+        />
+        <wa-details summary="Werte als Tabelle">
+          <DatenTabelle beschriftung="Geplante Erträge 2026 nach Art">
+            <thead>
+              <tr>
+                <th scope="col">Art</th>
+                <th scope="col" class="mm-zahl">Betrag 2026 (€)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="e in ertraegeSortiert" :key="e.name">
+                <th scope="row">{{ e.name }}</th>
+                <td class="mm-zahl">{{ euro(e.betrag) }}</td>
+              </tr>
+            </tbody>
+          </DatenTabelle>
+        </wa-details>
       </ChartCard>
 
       <ChartCard
@@ -258,7 +328,29 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
         beschreibung="Geplante Aufwendungen 2026 nach Aufgabenbereich."
         quelle="Haushaltsplan Band 1, Teilergebnispläne der Produktgruppen, Zeile 17"
       >
-        <BaseChart :option="wohin" hoehe="600px" />
+        <BaseChart
+          :option="wohin"
+          hoehe="600px"
+          :beschreibung="
+            balkenBeschreibung('geplante Aufwendungen 2026 nach Aufgabenbereich', bereicheSortiert)
+          "
+        />
+        <wa-details summary="Werte als Tabelle">
+          <DatenTabelle beschriftung="Geplante Aufwendungen 2026 nach Aufgabenbereich">
+            <thead>
+              <tr>
+                <th scope="col">Bereich</th>
+                <th scope="col" class="mm-zahl">Betrag 2026 (€)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="b in bereicheSortiert" :key="b.code">
+                <th scope="row">{{ b.name }}</th>
+                <td class="mm-zahl">{{ euro(b.betrag) }}</td>
+              </tr>
+            </tbody>
+          </DatenTabelle>
+        </wa-details>
       </ChartCard>
     </div>
 
@@ -281,17 +373,17 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       <div class="pl-bilanz__balken" role="presentation">
         <div class="pl-bilanz__fuellung" :style="{ width: `${fortschritt * 100}%` }" />
       </div>
-      <p class="pl-bilanz__text" aria-live="polite">
-        <template v-if="geschafft"> Geschafft! Der Haushalt 2026 ist ausgeglichen. </template>
-        <template v-else>Noch {{ euroKurz(-ergebnis) }} bis zur Null.</template>
-      </p>
+      <p class="pl-bilanz__text">{{ bilanzText }}</p>
+      <!-- Entprellte Ansage; bleibt immer im DOM. -->
+      <p class="mm-visually-hidden" aria-live="polite">{{ bilanzAnsage }}</p>
     </section>
 
     <section class="pl-entscheidungen">
       <div class="pl-kopf">
         <h2>Entscheidungen</h2>
         <p>
-          Tippe eine Karte an, um die Entscheidung zu treffen. Noch einmal tippen nimmt sie zurück.
+          Wähle eine Karte aus, um die Entscheidung zu treffen. Noch einmal auswählen nimmt sie
+          zurück.
         </p>
       </div>
       <div v-for="gruppe in kartenJeGruppe" :key="gruppe.id" class="pl-gruppe">
@@ -303,7 +395,10 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
             class="pl-karte"
             :class="{ 'pl-karte--aktiv': kartenAktiv[karte.id] }"
           >
-            <!-- Nur der obere Teil ist Label, damit "Wie gerechnet?" die Karte nicht umschaltet. -->
+            <!--
+              Nur der obere Teil ist Label. Vergleich (mit Quellen-Knöpfen), „Gut zu wissen“
+              und „Wie gerechnet?“ stehen daneben: Interaktives gehört nicht in ein <label>.
+            -->
             <label class="pl-karte__haupt">
               <input
                 v-model="kartenAktiv[karte.id]"
@@ -325,7 +420,9 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                 <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
               </span>
               <span v-if="karte.rechnung" class="pl-karte__rechnung">{{ karte.rechnung }}</span>
-              <span v-if="karte.vergleich.length" class="pl-vergleich">
+            </label>
+            <div class="pl-karte__mehr">
+              <div v-if="karte.vergleich.length" class="pl-vergleich">
                 <!-- Ohne Wirkung gibt es keine Rechnung, mit der man vergleichen könnte. -->
                 <strong>{{ karte.wirkung === 0 ? 'Im Haushalt 2026' : 'Zum Vergleich' }}</strong>
                 <span v-for="v in karte.vergleich" :key="v.name" class="pl-vergleich__zeile">
@@ -333,7 +430,6 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                   <span class="pl-vergleich__betrag">
                     {{ vergleichsBetrag(v) }}
                     <!--
-                      prevent: Der Klick soll nur die Quelle öffnen, nicht die Karte umschalten.
                       Zeilen ohne Quelle bekommen einen unsichtbaren Knopf, damit die Beträge
                       einer Karte bündig bleiben.
                     -->
@@ -343,18 +439,18 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                       appearance="plain"
                       size="small"
                       :title="`Quelle zu ${v.name} anzeigen`"
-                      @click.prevent="zeigeQuelle(v)"
+                      @click="zeigeQuelle(v)"
                     >
                       <wa-icon name="file-lines" :label="`Quelle zu ${v.name} anzeigen`"></wa-icon>
                     </wa-button>
                   </span>
                 </span>
-              </span>
-              <span class="pl-wissen">
+              </div>
+              <p class="pl-wissen">
                 <strong>Gut zu wissen</strong>
                 {{ karte.wissen }}
-              </span>
-            </label>
+              </p>
+            </div>
             <details class="pl-rechnung">
               <summary>Wie gerechnet?</summary>
               <p><strong>Annahme:</strong> {{ karte.annahme }}</p>
@@ -371,6 +467,8 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 
     <details class="pl-fein">
       <summary>Feinsteuerung: alle Posten einzeln</summary>
+      <!-- Überschrift für die Gliederung: Einnahmen und Ausgaben hängen sonst unter „Entscheidungen“. -->
+      <h2 class="mm-visually-hidden">Feinsteuerung</h2>
       <p class="pl-fein__hinweis">
         Zum Ausprobieren: Hier drehst du jede Ertragsart und jeden Aufgabenbereich um bis zu 20 %
         rauf oder runter. Die Regler zählen zusätzlich zu den Karten.
@@ -383,9 +481,9 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
           </div>
           <div class="pl-regler">
             <label v-for="i in ERTRAG_REGLER" :key="i" class="pl-regler__zeile">
-              <span :id="`pl-ertrag-${i}`" class="pl-regler__name">
-                {{ ertraege[i]?.name }}
-                <small>{{ ERTRAG_HILFE[i] }}</small>
+              <span class="pl-regler__name">
+                <span :id="`pl-ertrag-${i}`">{{ ertraege[i]?.name }}</span>
+                <small :id="`pl-ertrag-hilfe-${i}`">{{ ERTRAG_HILFE[i] }}</small>
               </span>
               <input
                 v-model.number="ertragProzent[i]"
@@ -394,7 +492,8 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                 :max="GRENZE"
                 step="1"
                 :aria-labelledby="`pl-ertrag-${i}`"
-                :aria-valuetext="prozent(ertragProzent[i] ?? 0)"
+                :aria-describedby="`pl-ertrag-hilfe-${i}`"
+                :aria-valuetext="`${prozent(ertragProzent[i] ?? 0)}, ${mitVorzeichen(ertragDelta(i))}`"
               />
               <span
                 class="pl-regler__wert"
@@ -414,9 +513,11 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
           </div>
           <div class="pl-regler">
             <label v-for="i in BEREICH_REGLER" :key="i" class="pl-regler__zeile">
-              <span :id="`pl-bereich-${i}`" class="pl-regler__name">
-                {{ bereiche[i]?.name }}
-                <small>{{ euroKurz(bereiche[i]?.betrag ?? 0) }}</small>
+              <span class="pl-regler__name">
+                <span :id="`pl-bereich-${i}`">{{ bereiche[i]?.name }}</span>
+                <small :id="`pl-bereich-hilfe-${i}`">{{
+                  euroKurz(bereiche[i]?.betrag ?? 0)
+                }}</small>
               </span>
               <input
                 v-model.number="bereichProzent[i]"
@@ -425,7 +526,8 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                 :max="GRENZE"
                 step="1"
                 :aria-labelledby="`pl-bereich-${i}`"
-                :aria-valuetext="prozent(bereichProzent[i] ?? 0)"
+                :aria-describedby="`pl-bereich-hilfe-${i}`"
+                :aria-valuetext="`${prozent(bereichProzent[i] ?? 0)}, ${mitVorzeichen(bereichDelta(i))}`"
               />
               <span
                 class="pl-regler__wert"
@@ -471,8 +573,8 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 /* Bleibt beim Scrollen oben stehen, damit man beim Wählen von Karten und Reglern das Ergebnis sieht. */
 .pl-bilanz {
   position: sticky;
-  /* Unter dem ebenfalls klebenden Seitenkopf von wa-page. */
-  top: calc(var(--header-height, 0px) + var(--wa-space-s));
+  /* Unter dem ebenfalls klebenden Seitenkopf; --mm-kopf-hoehe misst App.vue. */
+  top: calc(var(--mm-kopf-hoehe, var(--header-height, 0px)) + var(--wa-space-s));
   z-index: 1;
   padding: var(--wa-space-m) var(--wa-space-l);
   border: 2px solid v-bind('POL_FARBEN.negativ');
@@ -663,6 +765,9 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
   grid-area: regler;
   margin: 0;
   width: 100%;
+  /* Mindestens 24 px hohe Zielfläche (WCAG 2.5.8); der native Regler bleibt. */
+  min-height: 24px;
+  /* Dunkles Marken-Orange (#b34700) aus main.css, kontrastfest auf Weiß. */
   accent-color: var(--wa-color-brand-fill-loud);
 }
 
@@ -713,11 +818,19 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 .pl-karte__haupt {
   position: relative;
   display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-xs);
+  padding: var(--wa-space-l) var(--wa-space-l) 0;
+  cursor: pointer;
+}
+
+/* Rest der Karte außerhalb des Labels; sieht aus wie zuvor im Label. */
+.pl-karte__mehr {
+  display: flex;
   flex: 1;
   flex-direction: column;
   gap: var(--wa-space-xs);
-  padding: var(--wa-space-l) var(--wa-space-l) var(--wa-space-s);
-  cursor: pointer;
+  padding: var(--wa-space-xs) var(--wa-space-l) var(--wa-space-s);
 }
 
 .pl-karte__schalter {
@@ -803,7 +916,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 }
 
 .pl-wissen {
-  margin-top: var(--wa-space-2xs);
+  margin: var(--wa-space-2xs) 0 0;
   padding: var(--wa-space-s) var(--wa-space-m);
   border-left: 3px solid var(--wa-color-brand-border-loud);
   border-radius: var(--wa-border-radius-s);
@@ -837,12 +950,14 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
   width: fit-content;
   margin: 0;
   padding: 0;
-  /* Dunkles Markenblau (4,9:1 auf Weiß) statt Orange, wie die Buttons. */
+  /* Dunkles Marken-Orange (#b34700, 5,5:1 auf Weiß) wie die Buttons, nicht das helle Orange. */
   color: var(--wa-color-brand-fill-loud);
 }
 
 .pl-rechnung p {
   margin: var(--wa-space-xs) 0 0;
+  /* Lange Quell-URLs sollen umbrechen statt die Karte zu sprengen. */
+  overflow-wrap: anywhere;
 }
 
 .pl-fein {

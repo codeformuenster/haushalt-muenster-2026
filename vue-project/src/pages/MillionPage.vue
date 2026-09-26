@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
@@ -59,6 +59,27 @@ const defizitProdukte = computed<Position[]>(() => {
 const finanzierbar = computed(() => defizitProdukte.value.filter((p) => p.bedarf <= betrag.value))
 
 const guenstigstes = computed(() => defizitProdukte.value.at(-1))
+
+/*
+ * Ansage für Screenreader. Die große Betragsanzeige (<output>) ist bewusst
+ * stumm geschaltet — sonst würde jeder Sliderschritt vorgelesen. Stattdessen
+ * kommt das Fazit, sobald der Slider eine halbe Sekunde ruht.
+ */
+const ansage = ref('')
+let ansageTimer: ReturnType<typeof setTimeout> | undefined
+
+watch([betrag, selectedYear], () => {
+  clearTimeout(ansageTimer)
+  ansageTimer = setTimeout(() => {
+    const anzahl = finanzierbar.value.length
+    ansage.value =
+      anzahl > 0
+        ? `${euroKurz(betrag.value)}: reicht ${selectedYear.value} für ${anzahl} von ${defizitProdukte.value.length} Produkten.`
+        : `${euroKurz(betrag.value)}: reicht ${selectedYear.value} für kein ganzes Produkt.`
+  }, 500)
+})
+
+onBeforeUnmount(() => clearTimeout(ansageTimer))
 </script>
 
 <template>
@@ -70,7 +91,9 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
 
     <ChartCard titel="Betrag wählen">
       <div class="betrag-kopf">
-        <output class="betrag-anzeige" for="betrag-slider">{{ euro(betrag) }}</output>
+        <output class="betrag-anzeige" for="betrag-slider" aria-live="off">{{
+          euro(betrag)
+        }}</output>
         <wa-select
           class="jahr-auswahl"
           label="Haushaltsjahr"
@@ -95,6 +118,8 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
       <div class="skala" aria-hidden="true">
         <span>100 Tsd. €</span><span>1 Mio. €</span><span>10 Mio. €</span><span>100 Mio. €</span>
       </div>
+      <!-- Bleibt immer im DOM; nur der Text wechselt (entprellt, siehe oben). -->
+      <p class="mm-visually-hidden" role="status">{{ ansage }}</p>
     </ChartCard>
 
     <ChartCard
@@ -107,7 +132,9 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
           <strong>{{ finanzierbar.length }} von {{ defizitProdukte.length }}</strong>
           Produkten für ein ganzes Jahr decken.
         </p>
-        <DatenTabelle>
+        <DatenTabelle
+          :beschriftung="`Produkte, deren Zuschussbedarf ${selectedYear} mit ${euroKurz(betrag)} gedeckt wäre`"
+        >
           <thead>
             <tr>
               <th scope="col">Produkt</th>
@@ -120,7 +147,7 @@ const guenstigstes = computed(() => defizitProdukte.value.at(-1))
           </thead>
           <tbody>
             <tr v-for="p in finanzierbar" :key="p.code">
-              <td>{{ p.code }}</td>
+              <th scope="row">{{ p.code }}</th>
               <td>{{ p.bezeichnung }}</td>
               <td>{{ p.bereich }}</td>
               <td class="mm-zahl">{{ euro(p.bedarf) }}</td>

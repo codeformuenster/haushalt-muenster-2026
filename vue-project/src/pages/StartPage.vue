@@ -12,6 +12,11 @@ import { euroKurz } from '@/charts/format'
 
 const router = useRouter()
 
+/* Echter Link statt Klick-Handler: per Tastatur, mit Mittelklick und für
+   Screenreader als Link erkennbar. resolve() baut die Hash-Adresse samt
+   Basis-Pfad. */
+const ueberblickHref = router.resolve('/ueberblick').href
+
 const einstiege = [
   {
     ziel: '/ueberblick',
@@ -188,7 +193,7 @@ const dashboardKarten = computed(() => [
             Münster Money nimmt die Zahlen aus diesem Plan und macht sie sichtbar: als Diagramme,
             durch die man sich klicken kann, statt als PDF zum Durchblättern.
           </p>
-          <wa-button variant="brand" @click="router.push('/ueberblick')">Zum Überblick</wa-button>
+          <wa-button variant="brand" :href="ueberblickHref">Zum Überblick</wa-button>
         </div>
 
         <aside class="mm-hero__teaser" aria-label="Planspiel-Hinweis">
@@ -205,8 +210,9 @@ const dashboardKarten = computed(() => [
       </div>
     </section>
 
-    <section class="mm-dashboard">
-      <div class="dashboard-cards" aria-label="Haushalts-Kennzahlen">
+    <section class="mm-dashboard" aria-labelledby="mm-kennzahlen-titel">
+      <h2 id="mm-kennzahlen-titel" class="mm-visually-hidden">Haushalt 2026 in Zahlen</h2>
+      <div class="dashboard-cards">
         <wa-card
           v-for="karte in dashboardKarten"
           :key="karte.titel"
@@ -253,7 +259,7 @@ const dashboardKarten = computed(() => [
         >
           <wa-card appearance="outlined">
             <div class="mm-kachel__kopf">
-              <wa-icon :name="einstieg.icon" class="mm-kachel__icon"></wa-icon>
+              <wa-icon :name="einstieg.icon" class="mm-kachel__icon" aria-hidden="true"></wa-icon>
               <h3>{{ einstieg.titel }}</h3>
             </div>
             <p>{{ einstieg.text }}</p>
@@ -278,7 +284,7 @@ const dashboardKarten = computed(() => [
 
       <!-- Stand September 2026; entfernen, sobald ein Nachtragshaushalt oder neuer Plan vorliegt. -->
       <wa-callout variant="brand" appearance="filled">
-        <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
+        <wa-icon slot="icon" name="triangle-exclamation" aria-hidden="true"></wa-icon>
         <strong>Nachtrag: 2027 fehlen rund 92 Mio. € vom Land.</strong> Nach der Berechnung des
         Landes NRW vom August 2026 erhält Münster 2027 nur rund 2,8 Mio. €
         <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff>, eingeplant
@@ -290,7 +296,7 @@ const dashboardKarten = computed(() => [
           href="https://www.stadt-muenster.de/aktuelles/newsdetail/doppelhaushalt-2026-2027-verliert-in-2027-schluesselzuweisungen-in-millionenhoehe"
           target="_blank"
           rel="noopener"
-          >Meldung der Stadt</a
+          >Meldung der Stadt<span class="mm-visually-hidden"> (öffnet in neuem Tab)</span></a
         >
       </wa-callout>
     </section>
@@ -409,7 +415,7 @@ const dashboardKarten = computed(() => [
 
 .mm-dashboard-card .mm-dashboard-card__trend {
   margin-top: var(--wa-space-3xs);
-  font-size: var(--wa-font-size-2xs);
+  font-size: var(--wa-font-size-xs);
   line-height: 1.4;
 }
 
@@ -491,8 +497,17 @@ const dashboardKarten = computed(() => [
 }
 
 .mm-kachel {
+  display: block;
+  /* Gleiche Rundung wie die Karte darin, damit der Fokusrahmen anliegt. */
+  border-radius: var(--wa-panel-border-radius);
   text-decoration: none;
   color: inherit;
+}
+
+/* Die ganze Karte ist ein Link — beim Tabben muss sichtbar sein, welche. */
+.mm-kachel:focus-visible {
+  outline: var(--wa-focus-ring);
+  outline-offset: 2px;
 }
 
 .mm-kachel wa-card {

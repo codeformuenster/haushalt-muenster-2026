@@ -48,6 +48,10 @@ type ChartEventPayload = {
   data?: unknown
 }
 
+/* Die hellen Knotenfarben heben sich kaum vom weißen Grund ab (1,3 bzw. 1,7:1).
+   Ein dunkler Rand macht die Knoten trotzdem erkennbar (Nicht-Text-Kontrast ≥ 3:1). */
+const KNOTEN_RAND = { borderColor: '#31333d', borderWidth: 1 }
+
 const props = defineProps<{
   rows: SankeyInputRow[]
   selectedYear: 2026 | 2027
@@ -266,13 +270,26 @@ const sankeyOption = computed<EChartsOption>(() => {
         data: nodes,
         links,
         levels: [
-          { depth: 0, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 1, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 2, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          {
+            depth: 0,
+            itemStyle: { color: '#ccebc5', ...KNOTEN_RAND },
+            lineStyle: { color: 'source', opacity: 0.6 },
+          },
+          {
+            depth: 1,
+            itemStyle: { color: '#fbb4ae', ...KNOTEN_RAND },
+            lineStyle: { color: 'source', opacity: 0.6 },
+          },
+          {
+            depth: 2,
+            itemStyle: { color: '#fbb4ae', ...KNOTEN_RAND },
+            lineStyle: { color: 'source', opacity: 0.6 },
+          },
         ],
         lineStyle: { color: 'source', curveness: 0.5 },
         nodeWidth: 14,
         nodeGap: istSchmal ? 8 : 12,
+        labelLayout: { hideOverlap: true },
         label: {
           fontSize: istSchmal ? 10 : 12,
           formatter: (params: unknown) => {

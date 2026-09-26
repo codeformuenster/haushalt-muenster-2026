@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
@@ -141,7 +141,7 @@ const knoten = computed<Knoten[]>(() => {
   return result
 })
 
-const suchtreffer = computed(() => {
+const alleSuchtreffer = computed(() => {
   const query = suche.value.trim().toLocaleLowerCase('de-DE')
   if (!query) return []
   return bereiche.value
@@ -149,14 +149,39 @@ const suchtreffer = computed(() => {
       area.gruppen.map((gruppe) => ({ ...gruppe, areaCode: area.code, areaName: area.name })),
     )
     .filter((row) => `${row.code} ${row.name}`.toLocaleLowerCase('de-DE').includes(query))
-    .slice(0, 8)
 })
+const suchtreffer = computed(() => alleSuchtreffer.value.slice(0, 8))
+
+/* Kurze Ansage für Screenreader, wie viele Produktgruppen die Suche findet.
+   Entprellt, damit nicht jeder Tastendruck angesagt wird. */
+const trefferMeldung = ref('')
+let meldungsTimer: ReturnType<typeof setTimeout> | undefined
+watch(alleSuchtreffer, (treffer) => {
+  clearTimeout(meldungsTimer)
+  meldungsTimer = setTimeout(() => {
+    if (!suche.value.trim()) trefferMeldung.value = ''
+    else if (!treffer.length) trefferMeldung.value = 'Keine Treffer'
+    else if (treffer.length > suchtreffer.value.length)
+      trefferMeldung.value = `${treffer.length} Treffer, die ersten ${suchtreffer.value.length} werden angezeigt`
+    else trefferMeldung.value = `${treffer.length} Treffer`
+  }, 450)
+})
+onBeforeUnmount(() => clearTimeout(meldungsTimer))
+
+/* Überschrift des Diagramms: Fokusziel, wenn das gewählte Element verschwindet. */
+const diagrammTitel = ref<HTMLElement | null>(null)
+async function fokusSichern() {
+  await nextTick()
+  const aktiv = document.activeElement
+  if (!aktiv || aktiv === document.body || !aktiv.isConnected) diagrammTitel.value?.focus()
+}
 
 function beschriften(name: string, width: number) {
   const laenge = Math.max(3, Math.floor(width / 7.4))
   return name.length > laenge ? `${name.slice(0, Math.max(2, laenge - 1))}…` : name
 }
 function knotenWaehlen(knoten: Knoten) {
+  if (knoten.level === 'root') return
   if (knoten.level === 'area') {
     bereich.value = knoten.code
     produktgruppe.value = ''
@@ -166,12 +191,17 @@ function knotenWaehlen(knoten: Knoten) {
     produktgruppe.value = knoten.code
     zoom.value = 1
   }
+  // Die Bereichsknoten verschwinden beim Aufzoomen – dann Fokus auf die Überschrift.
+  void fokusSichern()
 }
-function gruppeWaehlen(code: string, areaCode: string) {
+async function gruppeWaehlen(code: string, areaCode: string) {
   bereich.value = areaCode
   produktgruppe.value = code
   suche.value = ''
   zoom.value = 1
+  // Die Trefferliste verschwindet mit dem geleerten Suchfeld.
+  await nextTick()
+  diagrammTitel.value?.focus()
 }
 function zuruecksetzen() {
   bereich.value = ''
@@ -183,7 +213,7 @@ function zuruecksetzen() {
 <template>
   <div class="mm-seite icicle-seite">
     <RouterLink class="icicle-zurueck" :to="{ name: 'stellenplan', query: { jahr, kennzahl } }">
-      ← Zurück zum Stellenatlas
+      <span aria-hidden="true">←</span> Zurück zum Stellenatlas
     </RouterLink>
     <PageIntro
       titel="Gesamtübersicht Stellenplan"
@@ -225,6 +255,7 @@ function zuruecksetzen() {
         </wa-option>
       </wa-select>
     </div>
+    <p class="mm-visually-hidden" role="status">{{ trefferMeldung }}</p>
     <ul v-if="suchtreffer.length" class="icicle-treffer" aria-label="Suchergebnisse">
       <li v-for="row in suchtreffer" :key="row.code">
         <button type="button" @click="gruppeWaehlen(row.code, row.areaCode)">
@@ -237,7 +268,9 @@ function zuruecksetzen() {
     <section class="icicle-karte" aria-labelledby="icicle-titel">
       <div class="icicle-kopf">
         <div>
-          <h2 id="icicle-titel">{{ aktuellerBereich?.name ?? 'Stadt Münster' }}</h2>
+          <h2 id="icicle-titel" ref="diagrammTitel" tabindex="-1">
+            {{ aktuellerBereich?.name ?? 'Stadt Münster' }}
+          </h2>
           <p>{{ wertFormat(aktuellerBereich?.value ?? gesamt) }} · {{ jahr }}</p>
         </div>
         <div class="icicle-zoom" role="group" aria-label="Diagrammgröße">
@@ -261,24 +294,34 @@ function zuruecksetzen() {
         </div>
       </div>
       <nav class="icicle-pfad" aria-label="Diagrammpfad">
-        <button type="button" :aria-current="bereich ? undefined : 'page'" @click="zuruecksetzen">
+        <button
+          type="button"
+          :aria-current="bereich ? undefined : 'location'"
+          @click="zuruecksetzen"
+        >
           Stadt Münster
         </button>
         <template v-if="aktuellerBereich"
-          ><span aria-hidden="true">›</span><strong>{{ aktuellerBereich.name }}</strong></template
+          ><span aria-hidden="true">›</span
+          ><strong aria-current="location">{{ aktuellerBereich.name }}</strong></template
         >
       </nav>
       <p class="icicle-anleitung">
         Themenbereich auswählen, um seine Produktgruppen über die volle Breite aufzufächern.
       </p>
-      <div class="icicle-scroll" tabindex="0" aria-label="Icicle-Diagramm, horizontal scrollbar">
+      <div
+        class="icicle-scroll"
+        role="region"
+        tabindex="0"
+        aria-label="Icicle-Diagramm, horizontal scrollbar"
+      >
         <svg
           class="icicle-diagramm"
           :class="{ 'icicle-diagramm--gesamt': !bereich }"
           :style="{ width: `${zoom * 100}%` }"
           :viewBox="`0 0 1000 ${diagrammHoehe}`"
-          role="img"
-          :aria-label="`Hierarchie des Stellenplans ${jahr}`"
+          role="group"
+          :aria-label="`Hierarchie des Stellenplans ${jahr}: ${aktuellerBereich?.name ?? 'Stadt Münster'}, ${wertFormat(aktuellerBereich?.value ?? gesamt)}`"
         >
           <g
             v-for="node in knoten"
@@ -292,6 +335,12 @@ function zuruecksetzen() {
             ]"
             :tabindex="node.level === 'root' ? undefined : 0"
             :role="node.level === 'root' ? undefined : 'button'"
+            :aria-label="
+              node.level === 'root' ? undefined : `${node.name}: ${wertFormat(node.value)}`
+            "
+            :aria-current="
+              node.level === 'group' && node.code === produktgruppe ? 'true' : undefined
+            "
             @click="knotenWaehlen(node)"
             @keydown.enter.prevent="knotenWaehlen(node)"
             @keydown.space.prevent="knotenWaehlen(node)"
@@ -326,16 +375,19 @@ function zuruecksetzen() {
           </g>
         </svg>
       </div>
-      <div v-if="aktuelleGruppe" class="icicle-detail" aria-live="polite">
-        <span>Ausgewählte Produktgruppe</span>
-        <strong>{{ aktuelleGruppe.code }} · {{ aktuelleGruppe.name }}</strong>
-        <b>{{ wertFormat(aktuelleGruppe.value) }}</b>
+      <!-- Live-Region bleibt im DOM, nur ihr Inhalt wechselt. -->
+      <div aria-live="polite">
+        <div v-if="aktuelleGruppe" class="icicle-detail">
+          <span>Ausgewählte Produktgruppe</span>
+          <strong>{{ aktuelleGruppe.code }} · {{ aktuelleGruppe.name }}</strong>
+          <b>{{ wertFormat(aktuelleGruppe.value) }}</b>
+        </div>
       </div>
     </section>
 
     <details>
       <summary>Gesamtübersicht als Tabelle</summary>
-      <DatenTabelle>
+      <DatenTabelle :beschriftung="`Stellenplan ${jahr} nach Themenbereichen und Produktgruppen`">
         <thead>
           <tr>
             <th scope="col">Themenbereich / Produktgruppe</th>
@@ -349,8 +401,8 @@ function zuruecksetzen() {
             <th scope="row">{{ area.code }} · {{ area.name }}</th>
             <td class="mm-zahl">{{ wertFormat(area.value) }}</td>
           </tr>
-          <tr v-for="gruppe in area.gruppen" :key="gruppe.code">
-            <td>{{ gruppe.code }} · {{ gruppe.name }}</td>
+          <tr v-for="gruppe in area.gruppen" :key="gruppe.code" class="icicle-tabellengruppe">
+            <th scope="row">{{ gruppe.code }} · {{ gruppe.name }}</th>
             <td class="mm-zahl">{{ wertFormat(gruppe.value) }}</td>
           </tr>
         </tbody>
@@ -485,6 +537,9 @@ button:disabled {
 }
 .icicle-knoten {
   cursor: pointer;
+}
+/* Der Fokus wird über eine dunkle Kontur am Rechteck gezeigt (siehe unten). */
+.icicle-knoten:focus {
   outline: none;
 }
 .icicle-knoten rect {
@@ -504,11 +559,27 @@ button:disabled {
 .icicle-knoten--group rect {
   fill: #9dbeec;
 }
-.icicle-knoten:not(.icicle-knoten--root):hover rect,
-.icicle-knoten:focus rect,
+/* Hover und Auswahl: orange Kontur; die Auswahl zusätzlich mit dickerer Kontur
+   und fetter Beschriftung, damit sie nicht nur über die Farbe erkennbar ist. */
+.icicle-knoten:not(.icicle-knoten--root):hover rect {
+  stroke: var(--mm-princeton-orange);
+  stroke-width: 4;
+}
 .icicle-knoten--aktiv rect {
   stroke: var(--mm-princeton-orange);
+  stroke-width: 7;
+}
+.icicle-knoten--aktiv text {
+  font-weight: 700;
+}
+/* Tastaturfokus: dunkle Kontur, auf allen Füllfarben mindestens 3:1. */
+.icicle-knoten:focus-visible rect {
+  stroke: var(--mm-deep-twilight);
+  stroke-width: 3;
+}
+.icicle-knoten--aktiv:focus-visible rect {
   stroke-width: 5;
+  stroke-dasharray: 8 3;
 }
 .icicle-knoten text {
   pointer-events: none;
@@ -536,6 +607,10 @@ button:disabled {
 }
 .icicle-tabellenbereich {
   background: var(--wa-color-brand-fill-quiet);
+}
+/* Produktgruppen eingerückt unter ihrem Themenbereich. */
+tbody tr.icicle-tabellengruppe > th[scope='row'] {
+  padding-left: var(--wa-space-xl);
 }
 summary {
   cursor: pointer;

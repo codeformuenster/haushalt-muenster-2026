@@ -50,7 +50,7 @@ export const CHART_THEME = 'muenster-money'
 export const KATEGORIE_FARBEN = [
   '#0071ec', // blau
   '#cd491c', // orange
-  '#008fab', // türkis
+  '#007a93', // türkis (weiße Beschriftung darauf ≥ 4,5:1)
   '#9951db', // violett
   '#00883c', // grün
   '#c84382', // pink
@@ -79,7 +79,11 @@ export const SEQUENZ_FARBEN = [
   '#1257b0',
 ] as const
 
-/** Für Gegenüberstellungen mit Vorzeichen: Erträge vs. Aufwendungen, Plan vs. Ist. */
+/**
+ * Für Gegenüberstellungen mit Vorzeichen: Erträge vs. Aufwendungen, Plan vs. Ist.
+ * Grün und Rot sind gleich hell und bei Rot-Grün-Sehschwäche kaum zu trennen —
+ * die Farbe darf deshalb nie allein tragen: immer Vorzeichen oder Wort dazu.
+ */
 export const POL_FARBEN = {
   positiv: '#00883c',
   negativ: '#cd491c',
@@ -118,6 +122,8 @@ registerTheme(CHART_THEME, {
     itemHeight: 12,
   },
   tooltip: {
+    // Im Diagramm halten, damit der Tooltip auf schmalen Bildschirmen nicht abgeschnitten wird.
+    confine: true,
     backgroundColor: '#ffffff',
     borderColor: LINIE,
     borderWidth: 1,

@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <header class="mm-intro">
-    <h1>{{ titel }}</h1>
+    <h1 tabindex="-1">{{ titel }}</h1>
     <p>{{ beschreibung }}</p>
     <slot />
   </header>

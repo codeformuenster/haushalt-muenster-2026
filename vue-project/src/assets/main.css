@@ -49,23 +49,36 @@
   --wa-color-brand: var(--mm-princeton-orange);
 
   /* --- Korrekturen für die lauten/leisen Zustände (Light) -----------------
-     Unsere zehn Markenfarben sind alle voll gesättigt. Das Theme geht aber
-     davon aus, dass Stufe 50 ein Mittelton mit weißem Text und Stufe 95 ein
-     heller Tint ist — das stimmt hier nicht. Deshalb nur diese semantischen
-     Tokens nachregeln; die Skala oben bleibt unangetastet. */
+     Unsere zehn Markenfarben sind alle voll gesättigt und hell. Als Text oder
+     hinter weißer Schrift erreicht keine davon den WCAG-AA-Kontrast (4,5:1):
+     pumpkin-spice mit Weiß 2,8:1, princeton-orange als Text 2,4:1. Deshalb
+     zwei abgedunkelte Orangetöne nur für Text und Buttonflächen — die Skala
+     oben bleibt unangetastet, Flächen und Deko dürfen weiter hell leuchten. */
+  /* Weiß darauf 5,5:1 — Hintergrund für laute Buttons (CTA). */
+  --mm-orange-cta: #b34700;
+  /* 5,1:1 auf dem hellen Tint, 5,75:1 auf cream — oranger Text und Icons. */
+  --mm-orange-dunkel: #a84300;
 
-  /* Laut (CTA-Button): Weiß auf turquoise-surf hätte nur 2,5:1. Ein Schritt
-     dunkler (bright-teal-blue) erfüllt WCAG AA mit 4,9:1. */
-  --wa-color-brand-fill-loud: color-mix(in oklab, var(--mm-pumpkin-spice) 100%, white);
+  --wa-color-brand-fill-loud: var(--mm-orange-cta);
   --wa-color-brand-on-loud: white;
+
+  /* Normal (z. B. appearance="filled"): Das Theme würde brand-30 (Blau) auf
+     brand-90 (Orange) setzen, nur 2,2:1. Stattdessen Tint + Dunkelorange. */
+  --wa-color-brand-fill-normal: var(--wa-color-brand-fill-quiet);
+  --wa-color-brand-on-normal: var(--mm-orange-dunkel);
 
   /* Leise (dezent hinterlegen, Hover): Aus der hellsten Markenfarbe einen
      Tint mischen — gesättigtes amber-glow wäre als Hintergrund zu laut. */
   --wa-color-brand-fill-quiet: color-mix(in oklab, var(--mm-amber-glow) 25%, white);
   --wa-color-brand-border-quiet: color-mix(in oklab, var(--mm-amber-glow) 45%, white);
-  /* Text/Icons auf quiet Flächen: blaze-orange, etwas abgedunkelt, damit sie
-     auch auf dem Tint mindestens 3:1 halten. */
-  --wa-color-brand-on-quiet: var(--mm-princeton-orange);
+  /* Text/Icons auf quiet Flächen. */
+  --wa-color-brand-on-quiet: var(--mm-orange-dunkel);
+
+  /* Links: Das Theme nimmt brand-40 (blue-green, 3,2:1 auf cream). French
+     Blue hält 9,7:1. */
+  --wa-color-text-link: var(--mm-french-blue);
+  /* Fokusring: blaze-orange wäre auf den orangen Tints nur 2,7:1. */
+  --wa-color-focus: var(--mm-french-blue);
 
   /* --- „Das ist ausgewählt" -----------------------------------------------
      Ein leicht oranger Zustand für Auswahl-Elemente: Filter-Buttons
@@ -75,6 +88,44 @@
   --mm-auswahl-flaeche: var(--wa-color-brand-fill-quiet);
   --mm-auswahl-rand: var(--wa-color-brand-border-quiet);
   --mm-auswahl-text: var(--wa-color-brand-on-quiet);
+}
+
+/* Der Seitenkopf klebt oben. Ohne Abstand würden Elemente, die per Tab den
+   Fokus bekommen, darunter verschwinden (WCAG 2.4.11). --mm-kopf-hoehe setzt
+   TheHeader mit seiner tatsächlichen Höhe; --mm-kopf-extra nutzen Seiten mit
+   eigenen klebenden Elementen (Planspiel-Ergebnisbox). */
+html {
+  scroll-padding-top: calc(var(--mm-kopf-hoehe, 4rem) + var(--mm-kopf-extra, 0px) + 1rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Nur für Screenreader: unsichtbar, aber vorgelesen. */
+.mm-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Überschriften und Hauptbereich, die per Skript den Fokus bekommen (tabindex="-1"),
+   sollen dabei keinen Rahmen zeigen — sie sind kein Bedienelement. */
+[tabindex='-1']:focus {
+  outline: none;
 }
 
 body {
@@ -90,6 +141,13 @@ body {
    daher hier überschreiben. */
 wa-page {
   background-color: var(--mm-cream);
+}
+
+/* <wa-page> gibt einem direkt eingesetzten <main> eigenes Padding (3xl). Die
+   Abstände setzt bei uns .mm-seite — sonst wäre der Inhalt auf dem Handy
+   rundum 48 px eingerückt. */
+wa-page > main {
+  padding: 0;
 }
 
 /*

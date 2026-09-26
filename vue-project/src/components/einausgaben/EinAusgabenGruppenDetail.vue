@@ -30,25 +30,54 @@ function formatProductNodeLabel(name: string): string {
   return name
 }
 
-const option = computed<EChartsOption>(() => {
-  const products = props.rows
+/* Die hellen Knotenfarben heben sich kaum vom weißen Grund ab (1,3 bzw. 1,7:1).
+   Ein dunkler Rand macht die Knoten trotzdem erkennbar (Nicht-Text-Kontrast ≥ 3:1).
+   Die Farben der Saldo-Knoten stehen am Datenpunkt; ECharts gibt diesen Vorrang
+   vor den `levels`, sie werden also nicht überschrieben. */
+const KNOTEN_RAND = { borderColor: '#31333d', borderWidth: 1 }
+
+const products = computed(() =>
+  props.rows
     .filter((row) => row.Gruppe === props.groupCode)
-    .sort((a, b) => b.AufwendungenNum - a.AufwendungenNum)
+    .sort((a, b) => b.AufwendungenNum - a.AufwendungenNum),
+)
+
+const summen = computed(() => {
+  const sumErtraege = products.value.reduce((sum, row) => sum + row.ErtraegeNum, 0)
+  const sumAufwendungen = products.value.reduce((sum, row) => sum + row.AufwendungenNum, 0)
+  return { sumErtraege, sumAufwendungen, saldo: sumErtraege - sumAufwendungen }
+})
+
+/** Der Saldo steht sonst nur im Diagramm – hier als Text. */
+const saldoText = computed(() => {
+  const { saldo } = summen.value
+  if (saldo > 0) return `Überschuss: ${euro(saldo)}`
+  if (saldo < 0) return `Subvention aus anderen Bereichen: ${euro(Math.abs(saldo))}`
+  return 'Erträge und Aufwendungen gleichen sich aus'
+})
+
+const beschreibung = computed(
+  () =>
+    `Flussdiagramm für ${props.groupName} ${props.selectedYear}: links die Erträge der Produkte (${euro(summen.value.sumErtraege)}), ` +
+    `rechts die Aufwendungen (${euro(summen.value.sumAufwendungen)}). ${saldoText.value}. ` +
+    'Die Werte je Produkt stehen in der tabellarischen Übersicht unten.',
+)
+
+const option = computed<EChartsOption>(() => {
+  const produkte = products.value
   const istSchmal = schmal.value
 
   const mitteNode = `Haushalt ${props.selectedYear}`
   const ueberschussNode = `Überschuss ${props.groupName}`
   const subventionNode = `Subvention aus anderen Bereichen`
 
-  const sumErtraege = products.reduce((sum, row) => sum + row.ErtraegeNum, 0)
-  const sumAufwendungen = products.reduce((sum, row) => sum + row.AufwendungenNum, 0)
-  const saldo = sumErtraege - sumAufwendungen
+  const { saldo } = summen.value
 
-  const productNodes = products.map((p) => `${p.Bezeichnung} (${p.Code})`)
+  const productNodes = produkte.map((p) => `${p.Bezeichnung} (${p.Code})`)
   const nodes: Array<{ name: string; itemStyle?: { color: string } }> = [
     { name: mitteNode, itemStyle: { color: POL_FARBEN.positiv } },
-    ...productNodes.map((name) => ({ name: "Ausgaben für " + name })),
-	...productNodes.map((name) => ({ name: "Einnahmen aus " + name })),
+    ...productNodes.map((name) => ({ name: 'Ausgaben für ' + name })),
+    ...productNodes.map((name) => ({ name: 'Einnahmen aus ' + name })),
   ]
 
   if (saldo > 0) {
@@ -59,14 +88,14 @@ const option = computed<EChartsOption>(() => {
   }
 
   const links: Array<{ source: string; target: string; value: number }> = [
-    ...products
+    ...produkte
       .filter((p) => p.ErtraegeNum > 0)
       .map((p) => ({
         target: mitteNode,
         source: `Einnahmen aus ${p.Bezeichnung} (${p.Code})`,
         value: p.ErtraegeNum,
       })),
-    ...products
+    ...produkte
       .filter((p) => p.AufwendungenNum > 0)
       .map((p) => ({
         target: `Ausgaben für ${p.Bezeichnung} (${p.Code})`,
@@ -168,6 +197,7 @@ const option = computed<EChartsOption>(() => {
         emphasis: { focus: 'adjacency' },
         nodeGap: istSchmal ? 8 : 12,
         lineStyle: { color: 'source', curveness: 0.5 },
+        labelLayout: { hideOverlap: true },
         label: {
           fontSize: istSchmal ? 10 : 12,
           formatter: ({ name }: { name: string }) => formatProductNodeLabel(name),
@@ -175,9 +205,21 @@ const option = computed<EChartsOption>(() => {
         data: nodeData,
         links,
         levels: [
-          { depth: 0, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 1, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 2, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          {
+            depth: 0,
+            itemStyle: { color: '#ccebc5', ...KNOTEN_RAND },
+            lineStyle: { color: 'source', opacity: 0.6 },
+          },
+          {
+            depth: 1,
+            itemStyle: { color: '#fbb4ae', ...KNOTEN_RAND },
+            lineStyle: { color: 'source', opacity: 0.6 },
+          },
+          {
+            depth: 2,
+            itemStyle: { color: '#fbb4ae', ...KNOTEN_RAND },
+            lineStyle: { color: 'source', opacity: 0.6 },
+          },
         ],
         nodeWidth: 14,
       },
@@ -187,5 +229,17 @@ const option = computed<EChartsOption>(() => {
 </script>
 
 <template>
-  <BaseChart :option="option" hoehe="760px" />
+  <BaseChart :option="option" hoehe="760px" :beschreibung="beschreibung" />
+  <p class="saldo">
+    Erträge: {{ euro(summen.sumErtraege) }} · Aufwendungen: {{ euro(summen.sumAufwendungen) }} ·
+    {{ saldoText }}
+  </p>
 </template>
+
+<style scoped>
+.saldo {
+  margin: var(--wa-space-s) 0 0;
+  color: var(--wa-color-text-normal);
+  font-size: var(--wa-font-size-s);
+}
+</style>

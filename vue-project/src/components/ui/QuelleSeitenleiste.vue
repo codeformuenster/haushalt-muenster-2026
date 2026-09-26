@@ -79,10 +79,10 @@ function nachDemSchliessen(ereignis: Event): void {
     @wa-after-show="nachDemZeigen"
     @wa-after-hide="nachDemSchliessen"
   >
-    <p v-if="fehler" class="mm-quelle__hinweis">
+    <p v-if="fehler" class="mm-quelle__hinweis" role="alert">
       Die Quellenangaben konnten nicht geladen werden.
     </p>
-    <p v-else-if="!quelle" class="mm-quelle__hinweis">Quelle wird geladen …</p>
+    <p v-else-if="!quelle" class="mm-quelle__hinweis" role="status">Quelle wird geladen …</p>
 
     <template v-else>
       <div class="mm-quelle__kopf">
@@ -91,12 +91,23 @@ function nachDemSchliessen(ereignis: Event): void {
         <p class="mm-quelle__fundstelle">Band {{ quelle.band }}, PDF-Seite {{ quelle.seite }}</p>
       </div>
 
-      <div ref="ausschnitt" class="mm-quelle__ausschnitt">
+      <!-- Scrollbar in beide Richtungen: fokussierbar, damit man den Ausschnitt
+           auch mit den Pfeiltasten verschieben kann. -->
+      <div
+        ref="ausschnitt"
+        class="mm-quelle__ausschnitt"
+        tabindex="0"
+        role="region"
+        aria-label="Ausschnitt der PDF-Seite"
+      >
         <div
           class="mm-quelle__seite"
           :style="{ width: `${quelle.bildBreite * SKALA}px`, height: `${quelle.bildHoehe * SKALA}px` }"
         >
-          <img :src="quelle.bild" :alt="`Band ${quelle.band}, PDF-Seite ${quelle.seite}`" />
+          <img
+            :src="quelle.bild"
+            :alt="`Ausschnitt aus Band ${quelle.band}, PDF-Seite ${quelle.seite}. Markiert ist die Zeile „${quelle.titel}“ mit ${quelle.betrag}.`"
+          />
           <div
             class="mm-quelle__markierung"
             :style="{
@@ -116,6 +127,7 @@ function nachDemSchliessen(ereignis: Event): void {
         rel="noopener"
       >
         PDF-Seite {{ quelle.seite }} öffnen
+        <span class="mm-visually-hidden">(öffnet in neuem Tab)</span>
         <wa-icon name="arrow-up-right-from-square" aria-hidden="true"></wa-icon>
       </a>
 
@@ -128,6 +140,7 @@ function nachDemSchliessen(ereignis: Event): void {
         </ol>
         <a class="mm-quelle__link" :href="quelle.csv.url" target="_blank" rel="noopener">
           Auf GitHub ansehen
+          <span class="mm-visually-hidden">(öffnet in neuem Tab)</span>
           <wa-icon name="arrow-up-right-from-square" aria-hidden="true"></wa-icon>
         </a>
       </wa-details>
@@ -174,6 +187,11 @@ function nachDemSchliessen(ereignis: Event): void {
   border: 1px solid var(--wa-color-surface-border);
   border-radius: var(--wa-border-radius-m);
   background: white;
+}
+
+.mm-quelle__ausschnitt:focus-visible {
+  outline: var(--wa-focus-ring);
+  outline-offset: 2px;
 }
 
 .mm-quelle__seite {

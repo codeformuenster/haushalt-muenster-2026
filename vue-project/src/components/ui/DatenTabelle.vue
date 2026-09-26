@@ -3,13 +3,33 @@
  * Rahmen und Grundstil für alle Tabellen der Seite. Der Inhalt (caption, thead,
  * tbody, tfoot) kommt über den Slot; Zahlenspalten bekommen die Klasse `mm-zahl`.
  * Seitenspezifische Zeilen- oder Spaltenstile bleiben auf der jeweiligen Seite.
+ *
+ * Barrierefreiheit: `beschriftung` angeben. Sie wird zur (unsichtbaren)
+ * <caption> und benennt den Scrollbereich, der dann per Tastatur erreichbar ist
+ * — sonst ließe sich eine breite Tabelle auf dem Handy nur mit Wischen
+ * seitwärts verschieben. Spaltenköpfe `<th scope="col">`, die erste Zelle
+ * jeder Zeile `<th scope="row">`.
  */
+defineProps<{
+  /** Wovon handelt die Tabelle? Z. B. „Stellen je Produktgruppe 2026“. */
+  beschriftung?: string
+}>()
 </script>
 
 <template>
   <!-- Auf schmalen Fenstern darf die Tabelle scrollen statt die Seite zu sprengen. -->
-  <div class="mm-tabelle-rahmen">
+  <div
+    class="mm-tabelle-rahmen"
+    :role="beschriftung ? 'region' : undefined"
+    :aria-label="beschriftung"
+    :tabindex="beschriftung ? 0 : undefined"
+  >
     <table class="mm-tabelle">
+      <caption v-if="beschriftung" class="mm-visually-hidden">
+        {{
+          beschriftung
+        }}
+      </caption>
       <slot />
     </table>
   </div>
@@ -18,7 +38,22 @@
 <!-- Nicht scoped: Der Tabelleninhalt stammt aus dem Slot der aufrufenden Seite. -->
 <style>
 .mm-tabelle-rahmen {
+  /* Bezugsrahmen für absolut positionierte Screenreader-Texte (.mm-visually-hidden)
+     in den Zellen. Ohne ihn hängen sie sich an die Seite und machen sie auf dem
+     Handy so breit wie die ganze Tabelle. */
+  position: relative;
   overflow-x: auto;
+}
+
+.mm-tabelle-rahmen:focus-visible {
+  outline: var(--wa-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Zeilenköpfe (erste Spalte) sehen aus wie normale Zellen. */
+.mm-tabelle tbody th[scope='row'] {
+  color: inherit;
+  font-weight: inherit;
 }
 
 .mm-tabelle {
