@@ -18,6 +18,7 @@ import '@awesome.me/webawesome/dist/components/popover/popover.js'
 import '@awesome.me/webawesome/dist/components/tag/tag.js'
 import '@awesome.me/webawesome/dist/components/spinner/spinner.js'
 import '@awesome.me/webawesome/dist/components/select/select.js'
+import '@awesome.me/webawesome/dist/components/slider/slider.js'
 import '@awesome.me/webawesome/dist/components/tag/tag.js'
 import '@awesome.me/webawesome/dist/components/switch/switch.js'
 
