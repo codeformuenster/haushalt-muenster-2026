@@ -5,6 +5,7 @@
  */
 import { RouterLink, useRouter } from 'vue-router'
 import heroImageUrl from '@/assets/images/Hero-image.png'
+import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 
 const router = useRouter()
 
@@ -55,8 +56,8 @@ const einstiege = [
         <div class="mm-hero__text">
           <h1>Wofür gibt Münster sein Geld aus?</h1>
           <p class="mm-hero__lead">
-            Der Haushaltsplan der Stadt Münster für 2026 und 2027 umfasst mehrere hundert Seiten
-            Tabellen. Darin steht, wofür die Stadt in den nächsten zwei Jahren Geld ausgibt — von
+            Der <GlossarBegriff id="haushalt">Haushaltsplan</GlossarBegriff> der Stadt Münster für 2026 und
+            2027 umfasst mehrere hundert Seiten Tabellen. Darin steht, wofür die Stadt in den nächsten zwei Jahren Geld ausgibt — von
             Kitaplätzen über Straßenbau bis zur Feuerwehr. Nur liest ihn so gut wie niemand.
           </p>
           <p class="mm-hero__lead">
@@ -101,15 +102,21 @@ const einstiege = [
         nichts dazu — jede Darstellung nennt die Seite im Plan, aus der sie stammt, damit man
         sie dort nachschlagen kann.
       </p>
+      <p class="mm-fliesstext mm-fliesstext--folge">
+        Fachwörter wie <GlossarBegriff id="doppelhaushalt">Doppelhaushalt</GlossarBegriff> sind farbig
+        hinterlegt und gepunktet unterstrichen. Tippe oder klicke darauf, dann erscheint eine kurze
+        Erklärung. Alle Begriffe stehen im <RouterLink to="/glossar">Glossar</RouterLink>.
+      </p>
 
       <!-- Stand September 2026; entfernen, sobald ein Nachtragshaushalt oder neuer Plan vorliegt. -->
       <wa-callout variant="warning" appearance="outlined" class="mm-nachtrag">
         <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
         <strong>Nachtrag: 2027 fehlen rund 92 Mio. € vom Land.</strong> Nach der Berechnung des
-        Landes NRW vom August 2026 erhält Münster 2027 nur rund 2,8 Mio. € Schlüsselzuweisungen,
-        eingeplant waren rund 95 Mio. €. Alle Zahlen für 2027 in dieser App zeigen den Plan vor
-        dieser Kürzung. Die Stadt hat eine Haushaltssperre erlassen und arbeitet an
-        Gegenmaßnahmen.
+        Landes NRW vom August 2026 erhält Münster 2027 nur rund 2,8 Mio. €
+        <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff>, eingeplant waren
+        rund 95 Mio. €. Alle Zahlen für 2027 in dieser App zeigen den Plan vor dieser Kürzung. Die
+        Stadt hat eine <GlossarBegriff id="haushaltssperre">Haushaltssperre</GlossarBegriff> erlassen und
+        arbeitet an Gegenmaßnahmen.
         <a
           href="https://www.stadt-muenster.de/aktuelles/newsdetail/doppelhaushalt-2026-2027-verliert-in-2027-schluesselzuweisungen-in-millionenhoehe"
           target="_blank"
@@ -191,6 +198,10 @@ const einstiege = [
   margin: 0;
   line-height: 1.6;
   color: var(--wa-color-text-quiet);
+}
+
+.mm-fliesstext--folge {
+  margin-top: var(--wa-space-s);
 }
 
 .mm-nachtrag {

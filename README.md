@@ -160,7 +160,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Zuschüsse an Vereine und Verbände | `/zuschuesse` | `src/pages/ZuschuessePage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
 | Planspiel (Haushalt 2026 ausgleichen) | `/planspiel` | `src/pages/PlanspielPage.vue` |
-| Glossar (PB/PG-Nummern, Rohdaten-Dateinamen) | `/glossar` | `src/pages/GlossarPage.vue` |
+| Glossar (Fachwörter, Produkte des Haushaltsplans) | `/glossar` | `src/pages/GlossarPage.vue` |
 
 Wird eine Seite zu groß für eine Datei, kommen ihre Bestandteile in einen
 eigenen Ordner `src/components/<seite>/`.
@@ -195,6 +195,20 @@ Farben nicht selbst wählen: `KATEGORIE_FARBEN` aus `echartsTheme.ts` ist in
 fester Reihenfolge zu verwenden (Serie 1 nimmt Farbe 1 usw.). Die Abstände sind
 so gesetzt, dass benachbarte Farben auch bei Rot-Grün-Sehschwäche unterscheidbar
 bleiben, auf hellem wie dunklem Hintergrund.
+
+### Fachwörter
+
+Fachwörter im Fließtext lassen sich mit `<GlossarBegriff id="vzae">VZÄ</GlossarBegriff>`
+(`src/components/ui/GlossarBegriff.vue`) markieren. Sie erscheinen farbig hinterlegt;
+ein Klick öffnet eine Kurzerklärung mit Link auf den Eintrag im Glossar
+(`/glossar#<id>`). Nur das erste Vorkommen je Seite oder Abschnitt markieren, und
+nur in HTML-Text (Templates, Slots). In ECharts-Optionen und String-Props wie
+`beschreibung` geht es nicht.
+
+Die Begriffe stehen in `src/data/glossar.ts`; ein neuer Begriff ist ein neuer
+Eintrag dort. Die Glossar-Seite listet sie automatisch. Eine falsche ID lässt
+`npm run type-check` scheitern. Die Texte sind ein Entwurf, das Review durch das
+Team steht noch aus.
 
 ### Stand
 
