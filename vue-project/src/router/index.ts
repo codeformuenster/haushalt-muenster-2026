@@ -69,6 +69,12 @@ const router = createRouter({
       meta: { nav: 'Planspiel' },
     },
     {
+      path: '/eine-million',
+      name: 'eine-million',
+      component: () => import('@/pages/MillionPage.vue'),
+      meta: { nav: '1 Mio. €' },
+    },
+    {
       path: '/glossar',
       name: 'glossar',
       component: () => import('@/pages/GlossarPage.vue'),
