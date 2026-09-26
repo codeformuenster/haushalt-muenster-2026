@@ -20,16 +20,22 @@ const emit = defineEmits<{
   groupSelect: [groupCode: string]
 }>()
 
+function formatGroupNodeLabel(name: string): string {
+  if (name.startsWith('Einnahmen ')) return name.replace('Einnahmen ', '')
+  if (name.startsWith('Ausgaben ')) return name.replace('Ausgaben ', '')
+  return name
+}
+
 function onChartClick(params: unknown): void {
   const data = (params as { dataType?: string; data?: { nodeType?: string; groupCode?: string } })
   if (data?.dataType !== 'node') return
   if (data?.data?.nodeType !== 'group') return
   if (!data.data.groupCode) return
+  
   emit('groupSelect', data.data.groupCode)
 }
 
 const sankeyOption = computed<EChartsOption>(() => {
-  //const totalEinnahmenNode = `Einnahmen ${props.selectedYear} gesamt`
   const totalAusgabenNode = `Haushalt ${props.selectedYear}`
 
   const links: Array<{ source: string; target: string; value: number }> = []
@@ -56,19 +62,15 @@ const sankeyOption = computed<EChartsOption>(() => {
     }
   })
 
-  let einnahmenGesamt = 0
   einnahmenProGruppe.forEach((summe, gruppeNode) => {
     if (summe > 0) {
       links.push({ source: gruppeNode, target: totalAusgabenNode, value: summe })
-      einnahmenGesamt += summe
     }
   })
 
-  let ausgabenGesamt = 0
   ausgabenProGruppe.forEach((summe, gruppeNode) => {
     if (summe > 0) {
       links.push({ source: totalAusgabenNode, target: gruppeNode, value: summe })
-      ausgabenGesamt += summe
     }
   })
 
@@ -82,11 +84,17 @@ const sankeyOption = computed<EChartsOption>(() => {
     tooltip: {
       trigger: 'item',
       triggerOn: 'mousemove',
-      formatter: (params: any) => {
-        if (params?.dataType === 'edge') {
-          return `${params.data.source} → ${params.data.target}<br>${euro(Number(params.data.value) || 0)}`
+      formatter: (params: unknown) => {
+        const data = params as { dataType?: string; name?: string; data?: unknown }
+
+        if (data?.dataType === 'edge') {
+          const edge = data.data as { source?: string; target?: string; value?: number } | undefined
+          const source = edge?.source ?? ''
+          const target = edge?.target ?? ''
+          const name = source === totalAusgabenNode ? target : source
+          return `${formatGroupNodeLabel(name)}<br>${euro(Number(edge?.value) || 0)}`
         }
-        return `${params?.name ?? ''}`
+        return formatGroupNodeLabel(data?.name ?? '')
       },
     },
     series: [
@@ -103,15 +111,9 @@ const sankeyOption = computed<EChartsOption>(() => {
 
           return {
             name,
-			label: {
-			formatter: params => {
-				if (params.name.startsWith("Einnahmen")) {
-					return params.name.replace("Einnahmen ", "")
-				} else if (params.name.startsWith("Ausgaben")) {
-					return params.name.replace("Ausgaben ", "")
-				}
-			}
-			},
+            label: {
+              formatter: (params: { name: string }) => formatGroupNodeLabel(params.name),
+            },
             nodeType: isGroup ? 'group' : 'other',
             groupCode,
           }
