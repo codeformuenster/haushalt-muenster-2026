@@ -353,7 +353,8 @@ function jahrGewaehlt(ereignis: Event): void {
       beschreibung="Münster hat sechs Stadtbezirke mit eigenen Bezirksvertretungen. Für jeden von ihnen weist der Haushaltsplan aus, welche Investitionen im Bezirk geplant sind — von der Schulsanierung über den Kanalbau bis zum Spielplatz. Die Karte zeigt, wie sich diese Investitionen über das Stadtgebiet verteilen, und wofür sie vorgesehen sind."
     />
 
-    <wa-callout variant="brand" appearance="outlined">
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Investitionen im Bezirk, nicht Geld der Bezirksvertretung.</strong> Gezeigt werden
       Bauvorhaben und Anschaffungen, die räumlich in einem Bezirk liegen — bezahlt und beschlossen
       werden sie überwiegend gesamtstädtisch. Über die frei verfügbaren Mittel der

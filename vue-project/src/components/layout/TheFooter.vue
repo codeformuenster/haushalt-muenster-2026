@@ -5,8 +5,8 @@
 <template>
   <div class="mm-footer">
     <p>
-      Datengrundlage: Haushaltsplan 2026/2027 der Stadt Münster (Stand 20.05.2026),
-      Band 1 und Band 2.
+      Datengrundlage: Haushaltsplan 2026/2027 der Stadt Münster (Stand 20.05.2026), Band 1 und Band
+      2.
     </p>
     <nav aria-label="Weiterführende Links">
       <a
@@ -28,7 +28,7 @@
   gap: var(--wa-space-s) var(--wa-space-xl);
   max-width: 72rem;
   margin-inline: auto;
-  padding: var(--wa-space-l);
+  padding: var(--wa-space-s);
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
 }

@@ -539,7 +539,8 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       </dl>
     </wa-card>
 
-    <wa-callout variant="brand" appearance="outlined">
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Das ist nicht der ganze Haushalt.</strong> Der Zuschussbericht umfasst nur die
       Zuwendungen an Dritte. Personal, Bau, Sozialtransfers und der Betrieb der Verwaltung stehen
       nicht darin — sie machen den weitaus größten Teil des Haushalts aus. Für sie weist der Plan
