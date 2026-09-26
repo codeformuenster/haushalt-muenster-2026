@@ -120,6 +120,11 @@ const kennzahlen = computed(() => [
 /** Ein Posten-Haufen, aufgeschlüsselt nach den vier Stufen. */
 const jeStufe = (liste: Posten[]): number[] => GRADE.map((grad) => summe(mitGrad(liste, grad)))
 
+/** Für den ersten Balken: Segmente nach Betrag sortiert, größtes zuerst. */
+const stufenGroesse = computed(() =>
+  [...GRADE].sort((a, b) => summe(mitGrad(alle.value, b)) - summe(mitGrad(alle.value, a))),
+)
+
 /** Kurzform für die 2×2-Tabelle: "151 Posten · 12,9 Mio. €". */
 const gradInfo = (grad: Grad): string => {
   const teil = mitGrad(alle.value, grad)
@@ -233,7 +238,7 @@ const stufen = computed<EChartsOption>(() => ({
   grid: { left: 0, right: 0, top: 8, bottom: 64 },
   xAxis: { type: 'value', max: gesamt.value, show: false },
   yAxis: { type: 'category', data: [''], show: false },
-  series: GRADE.map((grad) => ({
+  series: stufenGroesse.value.map((grad) => ({
     name: grad,
     type: 'bar' as const,
     stack: 'stufen',
