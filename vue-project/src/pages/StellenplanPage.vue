@@ -448,7 +448,7 @@ function zurUebersicht() {
   <div class="mm-seite">
     <PageIntro
       titel="Stellenatlas Münster"
-      beschreibung="Wo arbeitet die Stadt? Der Stellenatlas zeigt geplante Stellen in Vollzeitäquivalenten (VZÄ) – nicht tatsächliche Beschäftigtenzahlen."
+      beschreibung="Wo arbeitet die Stadt? Der Stellenatlas zeigt geplante Stellen in Vollzeitäquivalenten (VZÄ)."
     />
     <div class="stellen-kennzahlen" aria-live="polite">
       <div>
