@@ -200,8 +200,16 @@ function merkmale(produkt: Produkt): { bezeichnung: string; wert: string }[] {
   gap: var(--wa-space-2xs) var(--wa-space-s);
 }
 
-.mm-akkordeon__titel code {
-  color: var(--wa-color-text-quiet);
+/* Nummernkästchen („01", „0601" …): leicht orange, damit die Gliederung
+   auf den ersten Blick zu erkennen ist. */
+.mm-akkordeon__titel code,
+.mm-gruppe h5 code {
+  padding: 0.1em 0.45em;
+  border: 1px solid var(--mm-auswahl-rand);
+  border-radius: var(--wa-border-radius-s);
+  background-color: var(--mm-auswahl-flaeche);
+  color: var(--mm-auswahl-text);
+  font-variant-numeric: tabular-nums;
 }
 
 .mm-akkordeon__titel small {

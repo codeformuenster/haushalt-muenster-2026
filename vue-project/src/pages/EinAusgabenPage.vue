@@ -145,9 +145,9 @@ const tableGroups = computed<TableGroup[]>(() => {
     .sort((a, b) => a.code.localeCompare(b.code, 'de'))
 })
 
-function onYearToggle(event: Event): void {
-  const target = event.target as { checked?: boolean }
-  selectedYear.value = target.checked ? 2027 : 2026
+/** Haushaltsjahr aus einem <wa-select> übernehmen. */
+function onYearSelect(event: Event): void {
+  selectedYear.value = (event.target as HTMLInputElement).value === '2027' ? 2027 : 2026
 }
 
 const selectedGroup = ref<string | null>(null)
@@ -174,19 +174,24 @@ function clearSelection(): void {
       titel="Erträge und Aufwendungen"
     >
       <div class="eingaben-ausgaben-toolbar">
-        <wa-tag v-if="selectedGroup" size="m" with-remove @wa-remove="clearSelection"
+        <wa-tag
+          v-if="selectedGroup"
+          class="mm-badge"
+          size="m"
+          with-remove
+          @wa-remove="clearSelection"
           >{{ groupMap.get(selectedGroup) }}</wa-tag
         >
-        <div style="visibility: hidden;"></div>
-        <div class="year-toggle">
-          2026
-          <wa-switch
-            size="l"
-            :checked="selectedYear === 2027"
-            @change="onYearToggle"
-          ></wa-switch>
-          2027
-        </div>
+        <wa-tag v-else class="mm-badge" size="m" disabled>Gesamt</wa-tag>
+        <wa-select
+          class="jahr-auswahl"
+          label="Haushaltsjahr"
+          :value="String(selectedYear)"
+          @change="onYearSelect"
+        >
+          <wa-option value="2026">2026</wa-option>
+          <wa-option value="2027">2027</wa-option>
+        </wa-select>
       </div>
       <template v-if="selectedGroup">
         <EinAusgabenGruppenDetail
@@ -208,7 +213,7 @@ function clearSelection(): void {
       <EinAusgabenGruppenTabelle
         :groups="tableGroups"
         :selected-year="selectedYear"
-        @year-change="onYearToggle"
+        @year-change="onYearSelect"
       />
     </ChartCard>
   </div>
@@ -217,14 +222,34 @@ function clearSelection(): void {
 <style scoped>
 .eingaben-ausgaben-toolbar {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: end;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--wa-space-m);
 }
 
-.year-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+/* Badge der aktuellen Auswahl: leicht orange. Web Awesome liest diese Tokens
+   im Shadow DOM, deshalb hier am Host setzen. */
+.mm-badge {
+  --wa-color-fill-quiet: var(--mm-auswahl-flaeche);
+  --wa-color-border-normal: var(--mm-auswahl-rand);
+  --wa-color-on-quiet: var(--mm-auswahl-text);
+}
+
+.jahr-auswahl {
+  width: 9rem;
+}
+
+/* Die Beschriftung „Haushaltsjahr" bleibt für Screenreader erhalten, ist aber
+   ausgeblendet — aus zwei Optionen 2026/2027 geht der Sinn ohnehin hervor. */
+.jahr-auswahl::part(form-control-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 </style>

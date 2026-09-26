@@ -228,7 +228,8 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
     />
 
     <!-- PLATZHALTER: Text vom Team noch abzustimmen. -->
-    <wa-callout variant="neutral" appearance="outlined">
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Ein Spiel, keine Prognose.</strong> Das Planspiel vereinfacht stark. Die Beträge
       folgen dem Haushaltsplan, die Wirkungen sind aber grobe Rechenbeispiele: Viele Ausgaben sind
       <GlossarBegriff id="pflichtaufgabe">gesetzlich vorgeschrieben</GlossarBegriff>, und Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu
@@ -686,7 +687,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 .pl-karte {
   display: flex;
   flex-direction: column;
-  border: 2px solid var(--wa-color-surface-border);
+  border: 2px solid var(--wa-color-brand-fill-quiet);
   border-radius: var(--wa-border-radius-l);
   background-color: var(--wa-color-surface-raised);
   transition:

@@ -34,6 +34,8 @@ type Knoten = {
 }
 
 const route = useRoute()
+/** Der gewählte Wert eines <wa-select>-change-Events. */
+const auswahlWert = (ereignis: Event) => (ereignis.target as HTMLInputElement).value
 const stellen: Stelle[] = daten.rows.map((row) => ({
   ...row,
   grades: Object.fromEntries(
@@ -197,27 +199,31 @@ function zuruecksetzen() {
           Gehaltskosten
         </button>
       </div>
-      <label
-        >Planjahr<select v-model="jahr">
-          <option>2026</option>
-          <option>2027</option>
-        </select></label
-      >
+      <wa-select label="Planjahr" :value="jahr" @change="jahr = auswahlWert($event)">
+        <wa-option value="2026">2026</wa-option>
+        <wa-option value="2027">2027</wa-option>
+      </wa-select>
       <label class="icicle-suche"
         >Produktgruppe suchen<input v-model="suche" type="search" placeholder="Code oder Name"
       /></label>
     </div>
     <div v-if="kennzahl === 'entgelt'" class="icicle-stufen">
-      <label
-        >TVöD-Stufe<select v-model.number="stufe">
-          <option v-for="nr in 6" :key="nr" :value="nr">Stufe {{ nr }}</option>
-        </select></label
+      <wa-select
+        label="TVöD-Stufe"
+        :value="String(stufe)"
+        @change="stufe = Number(auswahlWert($event))"
       >
-      <label
-        >Besoldungsstufe<select v-model.number="besoldungsStufe">
-          <option v-for="nr in 10" :key="nr + 2" :value="nr + 2">Stufe {{ nr + 2 }}</option>
-        </select></label
+        <wa-option v-for="nr in 6" :key="nr" :value="String(nr)">Stufe {{ nr }}</wa-option>
+      </wa-select>
+      <wa-select
+        label="Besoldungsstufe"
+        :value="String(besoldungsStufe)"
+        @change="besoldungsStufe = Number(auswahlWert($event))"
       >
+        <wa-option v-for="nr in 10" :key="nr + 2" :value="String(nr + 2)">
+          Stufe {{ nr + 2 }}
+        </wa-option>
+      </wa-select>
     </div>
     <ul v-if="suchtreffer.length" class="icicle-treffer" aria-label="Suchergebnisse">
       <li v-for="row in suchtreffer" :key="row.code">
@@ -369,14 +375,15 @@ function zuruecksetzen() {
 .icicle-filter > div {
   flex: 0 0 auto;
 }
-.icicle-filter label {
+.icicle-filter label,
+.icicle-filter > wa-select {
   width: 10rem;
 }
 .icicle-filter .icicle-suche {
   flex: 1 1 16rem;
   width: auto;
 }
-.icicle-stufen label {
+.icicle-stufen > wa-select {
   width: 11rem;
 }
 label {
@@ -384,7 +391,6 @@ label {
   gap: var(--wa-space-2xs);
 }
 button,
-select,
 input {
   min-height: 44px;
   padding: var(--wa-space-s);
@@ -397,9 +403,12 @@ input {
 button {
   cursor: pointer;
 }
+/* Ausgewählter Filter: leicht orange hinterlegt statt vollflächig laut. */
 button[aria-pressed='true'] {
-  color: var(--wa-color-brand-on-loud);
-  background: var(--wa-color-brand-fill-loud);
+  background: var(--mm-auswahl-flaeche);
+  border-color: var(--mm-auswahl-rand);
+  color: var(--mm-auswahl-text);
+  font-weight: var(--wa-font-weight-semibold);
 }
 button:disabled {
   cursor: not-allowed;

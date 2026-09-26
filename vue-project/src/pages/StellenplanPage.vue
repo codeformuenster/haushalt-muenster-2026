@@ -45,6 +45,8 @@ const kennzahl = ref<Kennzahl>(route.query.kennzahl === 'entgelt' ? 'entgelt' : 
 const auswahl = ref('')
 const stufe = ref(3)
 const besoldungsStufe = ref(6)
+/** Der gewählte Wert eines <wa-select>-change-Events. */
+const auswahlWert = (ereignis: Event) => (ereignis.target as HTMLInputElement).value
 const ansichten: { id: Ansicht; name: string }[] = [
   { id: 'map', name: 'Bestand' },
   { id: 'change', name: 'Veränderungen' },
@@ -491,35 +493,42 @@ function zurUebersicht() {
           {{ view.name }}
         </button>
       </div>
-      <label
-        >Planjahr<select v-model="jahr">
-          <option>2026</option>
-          <option>2027</option>
-        </select></label
+      <wa-select
+        v-if="kennzahl === 'entgelt'"
+        class="stellen-stufe"
+        label="TVöD-Stufe"
+        :value="String(stufe)"
+        @change="stufe = Number(auswahlWert($event))"
       >
-      <label
-        >Produktbereich<select v-model="bereich">
-          <option value="all">Alle Produktbereiche</option>
-          <option v-for="(name, code) in daten.areas" :key="code" :value="code">{{ name }}</option>
-        </select></label
+        <wa-option v-for="nr in 6" :key="nr" :value="String(nr)">Stufe {{ nr }}</wa-option>
+      </wa-select>
+      <wa-select
+        v-if="kennzahl === 'entgelt'"
+        class="stellen-stufe"
+        label="Besoldungsstufe"
+        :value="String(besoldungsStufe)"
+        @change="besoldungsStufe = Number(auswahlWert($event))"
       >
+        <wa-option v-for="nr in 10" :key="nr + 2" :value="String(nr + 2)">
+          Stufe {{ nr + 2 }}
+        </wa-option>
+      </wa-select>
+      <wa-select label="Planjahr" :value="jahr" @change="jahr = auswahlWert($event)">
+        <wa-option value="2026">2026</wa-option>
+        <wa-option value="2027">2027</wa-option>
+      </wa-select>
+      <wa-select
+        class="stellen-bereich"
+        label="Produktbereich"
+        :value="bereich"
+        @change="bereich = auswahlWert($event)"
+      >
+        <wa-option value="all">Alle Produktbereiche</wa-option>
+        <wa-option v-for="(name, code) in daten.areas" :key="code" :value="code">
+          {{ name }}
+        </wa-option>
+      </wa-select>
     </div>
-    <details v-if="kennzahl === 'entgelt'" class="stellen-annahmen">
-      <summary>Annahmen zur Gehaltskostenschätzung</summary>
-      <div class="stellen-annahmen__inhalt">
-        <label class="stellen-stufe"
-          >TVöD-Stufe<select v-model.number="stufe">
-            <option v-for="nr in 6" :key="nr" :value="nr">Stufe {{ nr }}</option>
-          </select></label
-        >
-        <label class="stellen-stufe"
-          >Besoldungsstufe<select v-model.number="besoldungsStufe">
-            <option v-for="nr in 10" :key="nr + 2" :value="nr + 2">Stufe {{ nr + 2 }}</option>
-          </select></label
-        >
-      </div>
-    </details>
-
     <ChartCard
       :titel="titel"
       :beschreibung="beschreibung"
@@ -627,14 +636,16 @@ function zurUebersicht() {
       :quelle="quelle"
       :pdf="{ band: 2, seite: 41 }"
     >
-      <label
-        >Produktgruppe<select v-model="auswahl">
-          <option value="" disabled>Produktgruppe auswählen</option>
-          <option v-for="row in auswahlZeilen" :key="row.code" :value="row.code">
-            {{ row.code }} · {{ anzeigeName(row.name) }}
-          </option>
-        </select></label
+      <wa-select
+        label="Produktgruppe"
+        placeholder="Produktgruppe auswählen"
+        :value="auswahl"
+        @change="auswahl = auswahlWert($event)"
       >
+        <wa-option v-for="row in auswahlZeilen" :key="row.code" :value="row.code">
+          {{ row.code }} · {{ anzeigeName(row.name) }}
+        </wa-option>
+      </wa-select>
       <div v-if="aktuell" aria-live="polite">
         <h3>{{ anzeigeName(aktuell.name) }}</h3>
         <p class="stellen-detailzahl">
@@ -798,27 +809,24 @@ function zurUebersicht() {
 .stellen-filter {
   flex-wrap: wrap;
 }
-.stellen-filter .stellen-ansichten {
-  flex: 1 1 auto;
-}
-.stellen-filter > label {
+.stellen-filter > wa-select {
   flex: 0 1 auto;
-  width: auto;
+  width: 8rem;
+  min-width: 0;
+  max-width: 100%;
 }
-.stellen-filter > label:last-child {
-  width: min(22rem, 36vw);
+.stellen-filter > .stellen-bereich {
+  flex: 1 1 16rem;
+  width: auto;
+  max-width: min(22rem, 36vw);
+}
+.stellen-filter > .stellen-stufe {
+  width: 10rem;
 }
 .stellen-metrik {
   padding-right: var(--wa-space-s);
   border-right: 1px solid var(--wa-color-surface-border);
 }
-label {
-  display: grid;
-  gap: var(--wa-space-2xs);
-  min-width: 0;
-  max-width: 100%;
-}
-select,
 button {
   font: inherit;
   color: inherit;
@@ -828,16 +836,14 @@ button {
   padding: var(--wa-space-s);
   min-height: 44px;
   max-width: 100%;
-}
-select {
-  width: 100%;
-}
-button {
   cursor: pointer;
 }
+/* Ausgewählter Filter: leicht orange hinterlegt statt vollflächig laut. */
 button[aria-pressed='true'] {
-  background: var(--wa-color-brand-fill-loud);
-  color: var(--wa-color-brand-on-loud);
+  background: var(--mm-auswahl-flaeche);
+  border-color: var(--mm-auswahl-rand);
+  color: var(--mm-auswahl-text);
+  font-weight: var(--wa-font-weight-semibold);
 }
 .stellen-visualisierung {
   display: grid;
@@ -940,22 +946,6 @@ h3 {
 .stellen-topliste button strong {
   font-size: var(--wa-font-size-s);
   font-variant-numeric: tabular-nums;
-}
-.stellen-annahmen {
-  margin-top: calc(-1 * var(--wa-space-l));
-  border: 1px solid var(--wa-color-surface-border);
-  border-radius: var(--wa-border-radius-m);
-  padding-inline: var(--wa-space-m);
-  background: var(--wa-color-surface-default);
-}
-.stellen-annahmen__inhalt {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--wa-space-m);
-  padding-bottom: var(--wa-space-m);
-}
-.stellen-annahmen__inhalt label {
-  width: 11rem;
 }
 .stellen-gesamt {
   display: flex;

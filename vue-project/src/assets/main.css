@@ -28,7 +28,7 @@
   --mm-french-blue: #023e8aff;
   --mm-deep-twilight: #03045eff;
   /* Seitenhintergrund („Papier-Ton“). */
-  --mm-cream: #ffedd6;
+  --mm-cream: #fff8f0;
 
   /* Web Awesome Brand-Skala (95 = hellste … 05 = dunkelste), aus den Markenfarben
      befüllt: Orange 95–60, dann Blau 50–10 (abgestimmte Reihenfolge). So ziehen
@@ -56,16 +56,25 @@
 
   /* Laut (CTA-Button): Weiß auf turquoise-surf hätte nur 2,5:1. Ein Schritt
      dunkler (bright-teal-blue) erfüllt WCAG AA mit 4,9:1. */
-  --wa-color-brand-fill-loud: var(--mm-bright-teal-blue);
+  --wa-color-brand-fill-loud: color-mix(in oklab, var(--mm-pumpkin-spice) 100%, white);
   --wa-color-brand-on-loud: white;
 
   /* Leise (dezent hinterlegen, Hover): Aus der hellsten Markenfarbe einen
      Tint mischen — gesättigtes amber-glow wäre als Hintergrund zu laut. */
-  --wa-color-brand-fill-quiet: color-mix(in oklab, var(--mm-amber-glow) 16%, white);
+  --wa-color-brand-fill-quiet: color-mix(in oklab, var(--mm-amber-glow) 25%, white);
   --wa-color-brand-border-quiet: color-mix(in oklab, var(--mm-amber-glow) 45%, white);
   /* Text/Icons auf quiet Flächen: blaze-orange, etwas abgedunkelt, damit sie
      auch auf dem Tint mindestens 3:1 halten. */
   --wa-color-brand-on-quiet: var(--mm-princeton-orange);
+
+  /* --- „Das ist ausgewählt" -----------------------------------------------
+     Ein leicht oranger Zustand für Auswahl-Elemente: Filter-Buttons
+     (Stellenplan, Bezirke), Badges (Ein- und Ausgaben) und die Nummern-
+     kästchen im Glossar. Nur hier definiert, damit alle Seiten dieselbe
+     Hervorhebung zeigen. */
+  --mm-auswahl-flaeche: var(--wa-color-brand-fill-quiet);
+  --mm-auswahl-rand: var(--wa-color-brand-border-quiet);
+  --mm-auswahl-text: var(--wa-color-brand-on-quiet);
 }
 
 body {

@@ -39,6 +39,16 @@ defineProps<{
 <style scoped>
 .mm-card {
   width: 100%;
+  /* Kartenrahmen in Markenorange statt im grauen Standard-Rahmenton. Die Regel
+     am Host-Element gewinnt gegen die :host-Regel von <wa-card>. */
+  border-color: var(--wa-color-brand-fill-quiet);
+}
+
+/* Die inneren Trennlinien zum Kopf und zur Quellenzeile liegen im Shadow DOM
+   und erben den Rahmenton nicht — deshalb hier noch einmal dieselbe Farbe. */
+.mm-card::part(header),
+.mm-card::part(footer) {
+  border-color: var(--wa-color-brand-fill-quiet);
 }
 
 .mm-card__kopf h2 {

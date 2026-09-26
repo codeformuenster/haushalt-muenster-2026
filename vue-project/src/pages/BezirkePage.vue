@@ -16,6 +16,7 @@ import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { SEQUENZ_FARBEN } from '@/charts/echartsTheme'
+import { useSchmalerBildschirm } from '@/lib/bildschirm'
 
 const QUELLE = 'Haushaltsplan 2026/27, Band 2, S. 143–324 (Bezirksbezogene Haushaltsangaben)'
 
@@ -278,9 +279,45 @@ const karte = computed<EChartsOption>(() => {
   }
 })
 
+/**
+ * Ausrichtung des Fachthemen-Diagramms. Auf breiten Bildschirmen liegende
+ * Balken — die Themennamen sind lang und stehen links in voller Länge. Auf
+ * Handybreite stehende Säulen: die Namen kippen hochkant unter die Achse, und
+ * der Betrag bekommt die ganze Breite statt nur den Rest neben den
+ * Beschriftungen.
+ */
+const schmal = useSchmalerBildschirm()
+
 const fachthemen = computed<EChartsOption>(() => {
-  // Aufsteigend, weil die Kategorieachse liegender Balken von unten nach oben läuft.
-  const reihen = [...jeFachthema.value].reverse()
+  // jeFachthema ist absteigend sortiert. Stehende Säulen laufen von links nach
+  // rechts, das größte Thema steht damit schon vorn. Die Kategorieachse
+  // liegender Balken läuft dagegen von unten nach oben — dort muss die
+  // Reihenfolge kippen, damit das größte Thema oben steht.
+  const reihen = schmal.value ? jeFachthema.value : [...jeFachthema.value].reverse()
+
+  const betragsachse = {
+    type: 'value' as const,
+    axisLabel: { formatter: (wert: number) => euroKurz(wert) },
+  }
+  const themenachse = {
+    type: 'category' as const,
+    data: reihen.map((t) => t.name),
+    axisLabel: schmal.value
+      ? // Hochkant statt schräg: um 90° gedreht ist der Abstand zwischen zwei
+        // Beschriftungen der volle Säulenabstand, bei 45° nur rund 70 % davon.
+        // Bei bis zu neunzehn Themen auf Handybreite ist das der Unterschied
+        // zwischen lesbar und ineinander laufend. interval: 0 erzwingt, dass
+        // ECharts keinen Namen auslässt — sonst stünden Säulen ohne Beschriftung da.
+        {
+          rotate: 90,
+          width: 110,
+          overflow: 'truncate' as const,
+          interval: 0,
+          fontSize: 10,
+        }
+      : { width: 210, overflow: 'truncate' as const },
+  }
+
   return {
     tooltip: {
       trigger: 'axis',
@@ -293,19 +330,19 @@ const fachthemen = computed<EChartsOption>(() => {
         return `<strong>${erste.axisValue}</strong><br>${euro(erste.value)}<br>${anteil} der Auswahl`
       },
     },
+    // containLabel rechnet den Platz der Achsenbeschriftungen selbst dazu,
+    // auch den der gedrehten.
     grid: { left: 8, right: 24, top: 8, bottom: 8, containLabel: true },
-    xAxis: { type: 'value', axisLabel: { formatter: (wert: number) => euroKurz(wert) } },
-    yAxis: {
-      type: 'category',
-      data: reihen.map((t) => t.name),
-      axisLabel: { width: 210, overflow: 'truncate' },
-    },
+    xAxis: schmal.value ? themenachse : betragsachse,
+    yAxis: schmal.value ? betragsachse : themenachse,
     series: [
       {
         name: 'Auszahlungen',
         type: 'bar',
         data: reihen.map((t) => t.wert),
-        itemStyle: { borderRadius: [0, 4, 4, 0] },
+        // Nur die Kante am Wertende runden — die steht bei stehenden Säulen
+        // oben, bei liegenden Balken rechts.
+        itemStyle: { borderRadius: schmal.value ? [4, 4, 0, 0] : [0, 4, 4, 0] },
       },
     ],
   }
@@ -353,7 +390,8 @@ function jahrGewaehlt(ereignis: Event): void {
       beschreibung="Münster hat sechs Stadtbezirke mit eigenen Bezirksvertretungen. Für jeden von ihnen weist der Haushaltsplan aus, welche Investitionen im Bezirk geplant sind — von der Schulsanierung über den Kanalbau bis zum Spielplatz. Die Karte zeigt, wie sich diese Investitionen über das Stadtgebiet verteilen, und wofür sie vorgesehen sind."
     />
 
-    <wa-callout variant="brand" appearance="outlined">
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Investitionen im Bezirk, nicht Geld der Bezirksvertretung.</strong> Gezeigt werden
       Bauvorhaben und Anschaffungen, die räumlich in einem Bezirk liegen — bezahlt und beschlossen
       werden sie überwiegend gesamtstädtisch. Über die frei verfügbaren Mittel der
@@ -385,7 +423,9 @@ function jahrGewaehlt(ereignis: Event): void {
           <div class="mm-bezirkswahl" role="group" aria-label="Bezirk auswählen">
             <wa-button
               size="small"
-              :appearance="bezirk === null ? 'filled' : 'outlined'"
+              :appearance="bezirk === null ? 'filled-outlined' : 'outlined'"
+              :class="{ 'mm-aktiv': bezirk === null }"
+              :aria-pressed="bezirk === null"
               @click="waehle(null)"
             >
               ganze Stadt
@@ -394,7 +434,9 @@ function jahrGewaehlt(ereignis: Event): void {
               v-for="b in bezirke"
               :key="b"
               size="small"
-              :appearance="bezirk === b ? 'filled' : 'outlined'"
+              :appearance="bezirk === b ? 'filled-outlined' : 'outlined'"
+              :class="{ 'mm-aktiv': bezirk === b }"
+              :aria-pressed="bezirk === b"
               @click="waehle(b)"
             >
               {{ b }}
@@ -426,7 +468,7 @@ function jahrGewaehlt(ereignis: Event): void {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 147 }"
       >
-        <BaseChart :option="fachthemen" hoehe="480px" />
+        <BaseChart :key="schmal ? 'stehend' : 'liegend'" :option="fachthemen" hoehe="480px" />
       </ChartCard>
 
       <ChartCard
@@ -502,6 +544,15 @@ function jahrGewaehlt(ereignis: Event): void {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wa-space-2xs);
+}
+
+/* Der gewählte Bezirk: leicht orange hinterlegt mit passendem Rand. Web
+   Awesome liest diese Tokens im Shadow DOM, deshalb hier am Host setzen. */
+.mm-bezirkswahl .mm-aktiv {
+  --wa-color-fill-normal: var(--mm-auswahl-flaeche);
+  --wa-color-border-normal: var(--mm-auswahl-rand);
+  --wa-color-on-normal: var(--mm-auswahl-text);
+  font-weight: var(--wa-font-weight-semibold);
 }
 
 /* Die drei großen Zahlen über der Karte. */

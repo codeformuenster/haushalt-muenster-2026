@@ -231,11 +231,6 @@ Original-PDF (`pdf`-Prop von `ChartCard`, Links in `src/data/haushaltsplan.ts`).
 Quellen-Seitenleiste wie bei den Zuschüssen; die Angaben dafür erzeugt
 `scripts/pipeline/quellen_planspiel.py`.
 
-Nur noch **Überblick** (`/ueberblick`) zeigt **erfundene** Platzhalterzahlen und
-trägt deshalb einen `DemoHinweis`. Der wird entfernt, sobald die Seite echte
-Daten aus `daten/` liest — dann kann auch `src/components/ui/DemoHinweis.vue`
-weg.
-
 Die Abgrenzung freiwillige gegen pflichtige Leistungen ist für die Zuschüsse
 **geklärt**: der Zuschussbericht führt dafür selbst eine Spalte
 `verpflichtend_freiwillig` mit vier Stufen (`freiwillig`, `dem Grunde nach`,

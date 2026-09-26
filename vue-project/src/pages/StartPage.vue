@@ -189,7 +189,11 @@ const dashboardKarten = computed(() => [
         </div>
 
         <aside class="mm-hero__teaser" aria-label="Planspiel-Hinweis">
-          <img :src="heroImageUrl" alt="Illustration zum Haushalts-Planspiel" class="mm-hero__bild" />
+          <img
+            :src="heroImageUrl"
+            alt="Illustration zum Haushalts-Planspiel"
+            class="mm-hero__bild"
+          />
           <p class="mm-hero__claim">
             Kannst du den Haushalt ausgleichen? Spiele unser
             <RouterLink to="/planspiel">Planspiel</RouterLink>
@@ -198,7 +202,7 @@ const dashboardKarten = computed(() => [
       </div>
     </section>
 
-    <wa-divider></wa-divider>
+    <wa-divider style="--color: var(--wa-color-brand-border-quiet)"></wa-divider>
 
     <section class="mm-dashboard">
       <div class="dashboard-cards" aria-label="Haushalts-Kennzahlen">
@@ -230,7 +234,12 @@ const dashboardKarten = computed(() => [
     <section>
       <h2 class="mm-abschnitt-titel">Die Themen</h2>
       <div class="mm-raster">
-        <RouterLink v-for="einstieg in einstiege" :key="einstieg.ziel" :to="einstieg.ziel" class="mm-kachel">
+        <RouterLink
+          v-for="einstieg in einstiege"
+          :key="einstieg.ziel"
+          :to="einstieg.ziel"
+          class="mm-kachel"
+        >
           <wa-card appearance="outlined">
             <div class="mm-kachel__kopf">
               <wa-icon :name="einstieg.icon" class="mm-kachel__icon"></wa-icon>
@@ -242,22 +251,24 @@ const dashboardKarten = computed(() => [
       </div>
     </section>
 
+    <wa-divider style="--color: var(--wa-color-brand-border-quiet)"></wa-divider>
+
     <section>
       <h2 class="mm-abschnitt-titel">Woher die Zahlen kommen</h2>
-      <p class="mm-fliesstext">
-        Alle Angaben stammen aus dem offiziellen Haushaltsplan 2026/2027 der Stadt Münster
-        (Stand 20.05.2026), Band 1 und Band 2. Wir rechnen die Zahlen nicht um und schätzen
-        nichts dazu — jede Darstellung nennt die Seite im Plan, aus der sie stammt, damit man
-        sie dort nachschlagen kann.
+      <p>
+        Alle Angaben stammen aus dem offiziellen Haushaltsplan 2026/2027 der Stadt Münster (Stand
+        20.05.2026), Band 1 und Band 2. Wir rechnen die Zahlen nicht um und schätzen nichts dazu —
+        jede Darstellung nennt die Seite im Plan, aus der sie stammt, damit man sie dort
+        nachschlagen kann.
       </p>
-      <p class="mm-fliesstext mm-fliesstext--folge">
+      <p class="mm-fliesstext--folge">
         Fachwörter wie <GlossarBegriff id="doppelhaushalt">Doppelhaushalt</GlossarBegriff> sind farbig
         hinterlegt und gepunktet unterstrichen. Tippe oder klicke darauf, dann erscheint eine kurze
         Erklärung. Alle Begriffe stehen im <RouterLink to="/glossar">Glossar</RouterLink>.
       </p>
 
       <!-- Stand September 2026; entfernen, sobald ein Nachtragshaushalt oder neuer Plan vorliegt. -->
-      <wa-callout variant="warning" appearance="outlined" class="mm-nachtrag">
+      <wa-callout variant="brand" appearance="filled">
         <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
         <strong>Nachtrag: 2027 fehlen rund 92 Mio. € vom Land.</strong> Nach der Berechnung des
         Landes NRW vom August 2026 erhält Münster 2027 nur rund 2,8 Mio. €
@@ -351,6 +362,9 @@ const dashboardKarten = computed(() => [
 
 .mm-dashboard-card {
   height: 100%;
+  /* Gleicher Rahmenton wie bei den ChartCards, damit alle Karten der App
+     denselben Rand zeigen. Die Regel am Host gewinnt gegen :host von <wa-card>. */
+  border-color: var(--wa-color-brand-fill-quiet);
 }
 
 .mm-dashboard-card__kopf {

@@ -16,6 +16,7 @@ import BaseChart from '@/components/ui/BaseChart.vue'
 import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
+import { useSchmalerBildschirm } from '@/lib/bildschirm'
 
 const QUELLE = 'Haushaltsplan 2026/27, Band 2, S. 341–362 (Zuschussbericht)'
 
@@ -326,8 +327,45 @@ const verteilung = computed<EChartsOption>(() => ({
   ],
 }))
 
+/**
+ * Ausrichtung des Spielraum-Diagramms. Auf breiten Bildschirmen liegende
+ * Balken — die Bereichsnamen sind lang und stehen links in voller Länge.
+ * Auf Handybreite stehende Säulen: die Namen kippen hochkant unter die Achse,
+ * und der Betrag bekommt die ganze Breite statt nur den Rest neben den
+ * Beschriftungen.
+ */
+const schmal = useSchmalerBildschirm()
+
 const spielraum = computed<EChartsOption>(() => {
-  const reihen = nachSpielraum.value
+  // nachSpielraum ist aufsteigend sortiert. Die Kategorieachse liegender
+  // Balken läuft von unten nach oben, der größte Bereich steht damit oben.
+  // Stehende Säulen laufen von links nach rechts — dort muss die Reihenfolge
+  // kippen, sonst begänne die Achse beim kleinsten Bereich.
+  const reihen = schmal.value ? [...nachSpielraum.value].reverse() : nachSpielraum.value
+
+  const betragsachse = {
+    type: 'value' as const,
+    axisLabel: { formatter: (wert: number) => euroKurz(wert) },
+  }
+  const bereichsachse = {
+    type: 'category' as const,
+    data: reihen.map((b) => `${b.nr} ${b.name}`),
+    axisLabel: schmal.value
+      ? // Hochkant statt schräg: um 90° gedreht ist der Abstand zwischen zwei
+        // Beschriftungen der volle Säulenabstand, bei 45° nur rund 70 % davon.
+        // Auf Handybreite ist das der Unterschied zwischen lesbar und ineinander
+        // laufend. interval: 0 erzwingt, dass ECharts keinen Namen auslässt —
+        // sonst stünden einzelne Säulen ohne Beschriftung da.
+        {
+          rotate: 90,
+          width: 110,
+          overflow: 'truncate' as const,
+          interval: 0,
+          fontSize: 10,
+        }
+      : { width: 210, overflow: 'truncate' as const },
+  }
+
   return {
     tooltip: {
       trigger: 'axis',
@@ -335,13 +373,11 @@ const spielraum = computed<EChartsOption>(() => {
       valueFormatter: (wert) => euro(Number(wert)),
     },
     legend: { bottom: 0 },
+    // containLabel rechnet den Platz der Achsenbeschriftungen selbst dazu,
+    // auch den der gedrehten; bottom hält nur die Legende frei.
     grid: { left: 8, right: 24, top: 8, bottom: 48, containLabel: true },
-    xAxis: { type: 'value', axisLabel: { formatter: (wert: number) => euroKurz(wert) } },
-    yAxis: {
-      type: 'category',
-      data: reihen.map((b) => `${b.nr} ${b.name}`),
-      axisLabel: { width: 210, overflow: 'truncate' },
-    },
+    xAxis: schmal.value ? bereichsachse : betragsachse,
+    yAxis: schmal.value ? betragsachse : bereichsachse,
     series: [
       {
         name: 'freiwillig',
@@ -539,7 +575,8 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       </dl>
     </wa-card>
 
-    <wa-callout variant="brand" appearance="outlined">
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Das ist nicht der ganze Haushalt.</strong> Der Zuschussbericht umfasst nur die
       Zuwendungen an Dritte. Personal, Bau, Sozialtransfers und der Betrieb der Verwaltung stehen
       nicht darin — sie machen den weitaus größten Teil des Haushalts aus. Für sie weist der Plan
@@ -622,7 +659,11 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           :quelle="QUELLE"
           :pdf="{ band: 2, seite: 349 }"
         >
-          <BaseChart :option="spielraum" hoehe="440px" />
+          <BaseChart
+            :key="schmal ? 'stehend' : 'liegend'"
+            :option="spielraum"
+            :hoehe="schmal ? '460px' : '440px'"
+          />
         </ChartCard>
       </div>
 
