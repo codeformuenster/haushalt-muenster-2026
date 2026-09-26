@@ -29,15 +29,15 @@ const emit = defineEmits<{
 
 <template>
   <div class="mm-tabellen-toolbar">
-    <div class="year-toggle">
-      2026
-      <wa-switch
-        size="l"
-        :checked="props.selectedYear === 2027"
-        @change="emit('yearChange', $event)"
-      ></wa-switch>
-      2027
-    </div>
+    <wa-select
+      class="jahr-auswahl"
+      label="Haushaltsjahr"
+      :value="String(props.selectedYear)"
+      @change="emit('yearChange', $event)"
+    >
+      <wa-option value="2026">2026</wa-option>
+      <wa-option value="2027">2027</wa-option>
+    </wa-select>
   </div>
 
   <DatenTabelle>
@@ -71,16 +71,27 @@ const emit = defineEmits<{
 </template>
 
 <style scoped>
-.year-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.jahr-auswahl {
+  width: 9rem;
+}
+
+/* Die Beschriftung „Haushaltsjahr" bleibt für Screenreader erhalten, ist aber
+   ausgeblendet — aus zwei Optionen 2026/2027 geht der Sinn ohnehin hervor. */
+.jahr-auswahl::part(form-control-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .mm-tabellen-toolbar {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 12px;
+  margin-bottom: var(--wa-space-m);
 }
 
 .mm-gruppe-trenner th {

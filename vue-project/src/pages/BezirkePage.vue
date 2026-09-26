@@ -386,7 +386,9 @@ function jahrGewaehlt(ereignis: Event): void {
           <div class="mm-bezirkswahl" role="group" aria-label="Bezirk auswählen">
             <wa-button
               size="small"
-              :appearance="bezirk === null ? 'filled' : 'outlined'"
+              :appearance="bezirk === null ? 'filled-outlined' : 'outlined'"
+              :class="{ 'mm-aktiv': bezirk === null }"
+              :aria-pressed="bezirk === null"
               @click="waehle(null)"
             >
               ganze Stadt
@@ -395,7 +397,9 @@ function jahrGewaehlt(ereignis: Event): void {
               v-for="b in bezirke"
               :key="b"
               size="small"
-              :appearance="bezirk === b ? 'filled' : 'outlined'"
+              :appearance="bezirk === b ? 'filled-outlined' : 'outlined'"
+              :class="{ 'mm-aktiv': bezirk === b }"
+              :aria-pressed="bezirk === b"
               @click="waehle(b)"
             >
               {{ b }}
@@ -503,6 +507,15 @@ function jahrGewaehlt(ereignis: Event): void {
   display: flex;
   flex-wrap: wrap;
   gap: var(--wa-space-2xs);
+}
+
+/* Der gewählte Bezirk: leicht orange hinterlegt mit passendem Rand. Web
+   Awesome liest diese Tokens im Shadow DOM, deshalb hier am Host setzen. */
+.mm-bezirkswahl .mm-aktiv {
+  --wa-color-fill-normal: var(--mm-auswahl-flaeche);
+  --wa-color-border-normal: var(--mm-auswahl-rand);
+  --wa-color-on-normal: var(--mm-auswahl-text);
+  font-weight: var(--wa-font-weight-semibold);
 }
 
 /* Die drei großen Zahlen über der Karte. */
