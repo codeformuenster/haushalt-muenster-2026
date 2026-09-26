@@ -177,7 +177,7 @@ function clearSelection(): void {
         <wa-tag v-if="selectedGroup" size="m" with-remove @wa-remove="clearSelection"
           >{{ groupMap.get(selectedGroup) }}</wa-tag
         >
-        <wa-tag v-else size="m" disabled>Gesamt</wa-tag>
+        <div style="visibility: hidden;"></div>
         <div class="year-toggle">
           2026
           <wa-switch
