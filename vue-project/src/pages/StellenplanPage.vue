@@ -61,23 +61,6 @@ const entgelt = (row: Stelle | undefined) =>
 const entgeltDifferenz = (code: string) =>
   entgelt(index.get(`2027:${code}`)) - entgelt(index.get(`2026:${code}`))
 const wert = (row: Stelle) => (kennzahl.value === 'vzae' ? row.total : entgelt(row))
-const beschaeftigungsWert = (row: Stelle, art: 'Tarif_' | 'Beamte_') => {
-  if (kennzahl.value === 'vzae')
-    return Object.entries(row.grades)
-      .filter(([key]) => key.startsWith(art))
-      .reduce((summe, [, value]) => summe + value, 0)
-
-  const schaetzungDerZeile = schaetzung(row.grades, row.year, stufe.value, besoldungsStufe.value)
-  return Object.entries(row.grades)
-    .filter(([key]) => key.startsWith(art))
-    .reduce((summe, [key, value]) => {
-      const jahreswert =
-        key === 'Tarif_TVOEDFEST'
-          ? schaetzungDerZeile.durchschnittTarif
-          : jahresentgelt(key, row.year, stufe.value, besoldungsStufe.value)
-      return summe + (jahreswert ?? 0) * value
-    }, 0)
-}
 const veraenderung = (code: string) =>
   kennzahl.value === 'vzae' ? differenz(code) : entgeltDifferenz(code)
 const vorzeichen = (wert: number) => `${wert > 0 ? '+' : ''}${vzae(wert)}`
@@ -227,15 +210,15 @@ const detailHoehe = computed(() => `${Math.max(180, detailZeilen.value.length * 
 const tooltip = { renderMode: 'richText' as const, confine: true }
 const anteilsFarbe = (beamtenAnteil: number) => {
   const tarif = [0, 113, 236]
-  const beamte = [153, 81, 219]
+  const beamte = [205, 73, 28]
   const anteil = Math.max(0, Math.min(1, beamtenAnteil))
   const kanaele = tarif.map((wert, index) =>
     Math.round(wert + ((beamte[index] ?? wert) - wert) * anteil),
   )
   return `rgb(${kanaele.join(', ')})`
 }
-/** Anteil der Beamtenstellen (VZÄ) an allen Stellen der Zeilen, 0–1. */
-const beamtenAnteilVon = (rows: Stelle[]) => {
+/** VZÄ nach Beschäftigungsart und Anteil der Beamtenstellen, 0–1. */
+const statusSummen = (rows: Stelle[]) => {
   let tarif = 0
   let beamte = 0
   for (const row of rows)
@@ -243,60 +226,44 @@ const beamtenAnteilVon = (rows: Stelle[]) => {
       if (key.startsWith('Tarif_')) tarif += value
       else if (key.startsWith('Beamte_')) beamte += value
     }
-  return tarif + beamte === 0 ? 0 : beamte / (tarif + beamte)
+  return { tarif, beamte, beamtenAnteil: tarif + beamte === 0 ? 0 : beamte / (tarif + beamte) }
 }
 /** Beamtenanteil einer Tabellenzeile – die Treemap zeigt ihn nur als Farbe. */
 const beamtenAnteilZeile = (row: RangZeile) =>
-  beamtenAnteilVon(
+  statusSummen(
     stellen.filter(
       (r) =>
         r.year === jahr.value &&
         (row.kind === 'area' ? r.code.startsWith(row.code) : r.code === row.code),
     ),
-  )
-const statusKinder = (rows: Stelle[], code?: string) => {
-  const tarif = rows.reduce((summe, row) => summe + beschaeftigungsWert(row, 'Tarif_'), 0)
-  const beamte = rows.reduce((summe, row) => summe + beschaeftigungsWert(row, 'Beamte_'), 0)
-  return [
-    {
-      name: 'Tarifbeschäftigte',
-      value: tarif,
-      areaCode: bereich.value === 'all' ? rows[0]?.code.slice(0, 2) : bereich.value,
-      code,
-      itemStyle: { color: KATEGORIE_FARBEN[0] },
-    },
-    {
-      name: 'Beamtinnen / Beamte',
-      value: beamte,
-      areaCode: bereich.value === 'all' ? rows[0]?.code.slice(0, 2) : bereich.value,
-      code,
-      itemStyle: { color: KATEGORIE_FARBEN[3] },
-    },
-  ].filter((row) => row.value > 0)
-}
+  ).beamtenAnteil
 const treemapDaten = computed(() => {
   if (bereich.value === 'all')
     return Object.entries(daten.areas)
       .map(([code, name]) => {
         const rows = stellen.filter((row) => row.year === jahr.value && row.code.startsWith(code))
-        const beamtenAnteil = beamtenAnteilVon(rows)
+        const status = statusSummen(rows)
         return {
           name,
           value: rows.reduce((summe, row) => summe + wert(row), 0),
           areaCode: code,
-          beamtenAnteil,
-          itemStyle: { color: anteilsFarbe(beamtenAnteil) },
+          ...status,
+          itemStyle: { color: anteilsFarbe(status.beamtenAnteil) },
         }
       })
       .filter((row) => row.value > 0)
 
-  return auswahlZeilen.value.map((row) => ({
-    name: anzeigeName(row.name),
-    value: wert(row),
-    code: row.code,
-    areaCode: bereich.value,
-    children: statusKinder([row], row.code),
-  }))
+  return auswahlZeilen.value.map((row) => {
+    const status = statusSummen([row])
+    return {
+      name: anzeigeName(row.name),
+      value: wert(row),
+      code: row.code,
+      areaCode: bereich.value,
+      ...status,
+      itemStyle: { color: anteilsFarbe(status.beamtenAnteil) },
+    }
+  })
 })
 const hauptOption = computed<EChartsOption>(() => {
   if (ansicht.value === 'map')
@@ -307,11 +274,18 @@ const hauptOption = computed<EChartsOption>(() => {
           const info = params as {
             name: string
             value: number
-            data?: { beamtenAnteil?: number }
+            data?: { beamtenAnteil?: number; beamte?: number; tarif?: number }
           }
           const zeilen = [`${info.name}`, wertFormat(Number(info.value))]
-          if (typeof info.data?.beamtenAnteil === 'number')
+          if (
+            typeof info.data?.beamtenAnteil === 'number' &&
+            typeof info.data.beamte === 'number' &&
+            typeof info.data.tarif === 'number'
+          ) {
             zeilen.push(`${vzae(info.data.beamtenAnteil * 100)} % Beamtinnen / Beamte`)
+            zeilen.push(`${vzae(info.data.beamte)} VZÄ Beamte`)
+            zeilen.push(`${vzae(info.data.tarif)} VZÄ tariflich`)
+          }
           return zeilen.join('\n')
         },
       },
@@ -326,10 +300,9 @@ const hauptOption = computed<EChartsOption>(() => {
           top: 12,
           bottom: 0,
           upperLabel: {
-            show: bereich.value !== 'all',
+            show: false,
             height: 42,
             overflow: 'truncate',
-            formatter: (p) => `${p.name}\n${wertFormat(Number(p.value))}`,
           },
           label: {
             show: true,
@@ -338,13 +311,18 @@ const hauptOption = computed<EChartsOption>(() => {
             fontWeight: bereich.value === 'all' ? 650 : 400,
             lineHeight: bereich.value === 'all' ? 23 : 16,
             overflow: 'truncate',
-            formatter: (p) => `${p.name}\n${wertFormat(Number(p.value))}`,
+            formatter: (p) => {
+              const data = p.data as { beamte?: number; tarif?: number }
+              return bereich.value === 'all'
+                ? `${p.name}\n${wertFormat(Number(p.value))}`
+                : `${p.name}\n(${vzae(data.beamte ?? 0)} Beamte, ${vzae(data.tarif ?? 0)} tariflich)`
+            },
           },
           levels: [
             { itemStyle: { borderWidth: 0, gapWidth: 5 } },
             {
               itemStyle: { borderColor: '#ffffff', borderWidth: 3, gapWidth: 2 },
-              upperLabel: { show: bereich.value !== 'all' },
+              upperLabel: { show: false },
             },
             {
               itemStyle: { borderColor: '#ffffff', borderWidth: 1, gapWidth: 1 },
@@ -515,7 +493,12 @@ function zurUebersicht() {
         </div>
         <div v-if="kennzahl === 'vzae'" class="mm-kennzahl">
           <dt>Aufgaben der Stadt</dt>
-          <dd>63 <GlossarBegriff id="vzae">Produktgruppen</GlossarBegriff></dd>
+          <dd>
+            63
+            <a class="stellen-produktgruppen-link" href="#/glossar#mm-produkte-titel">
+              Produktgruppen
+            </a>
+          </dd>
         </div>
         <div v-else class="mm-kennzahl">
           <dt>Davon mit Näherungswert</dt>
@@ -597,7 +580,7 @@ function zurUebersicht() {
         <strong ref="pfadTitel" tabindex="-1" aria-current="location">{{ bereichName }}</strong>
       </nav>
       <div
-        v-if="ansicht === 'map' && bereich === 'all'"
+        v-if="ansicht === 'map'"
         class="stellen-farbskala"
         role="group"
         aria-label="Farbskala für den Beamtenanteil"
@@ -605,10 +588,6 @@ function zurUebersicht() {
         <span>0 % Beamte</span>
         <i aria-hidden="true"></i>
         <span>100 % Beamte</span>
-      </div>
-      <div v-else-if="ansicht === 'map'" class="stellen-legende stellen-legende--haupt">
-        <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span>
-        <span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
       </div>
       <!-- Status bleibt im DOM, nur der Text erscheint bei Bedarf. -->
       <p class="stellen-leermeldung" role="status">
@@ -637,7 +616,7 @@ function zurUebersicht() {
           <ol role="list">
             <li v-for="row in topListe" :key="row.code">
               <button type="button" @click="rangWaehlen(row)">
-                <span>{{ row.code }} · {{ row.name }}</span>
+                <span>{{ row.kind === 'area' ? row.name : `${row.code} · ${row.name}` }}</span>
                 <strong>{{
                   ansicht === 'change' ? deltaFormat(row.value) : wertFormat(row.value)
                 }}</strong>
@@ -984,7 +963,7 @@ h3 {
   display: block;
   height: 0.75rem;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgb(0 113 236), rgb(153 81 219));
+  background: linear-gradient(90deg, rgb(0 113 236), rgb(205 73 28));
 }
 .stellen-topliste {
   border-left: 1px solid var(--wa-color-surface-border);
@@ -1072,6 +1051,26 @@ summary {
   border: 0;
   padding: 0;
   color: var(--wa-color-text-link);
+}
+.stellen-produktgruppen-link {
+  padding: 0 0.1em;
+  border-radius: var(--wa-border-radius-s);
+  color: inherit;
+  background-color: var(--wa-color-brand-fill-quiet);
+  text-decoration: underline dotted var(--wa-color-brand-on-quiet);
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.15em;
+  cursor: help;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.stellen-produktgruppen-link:hover,
+.stellen-produktgruppen-link:focus-visible {
+  background-color: var(--wa-color-brand-border-quiet);
+}
+.stellen-produktgruppen-link:focus-visible {
+  outline: var(--wa-focus-ring);
+  outline-offset: var(--wa-focus-ring-offset);
 }
 .stellen-leise,
 .entgelt-kopf p {
