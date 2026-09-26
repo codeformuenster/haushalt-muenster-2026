@@ -12,6 +12,7 @@ import { registerMap } from 'echarts/core'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
+import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { SEQUENZ_FARBEN } from '@/charts/echartsTheme'
@@ -434,40 +435,38 @@ function jahrGewaehlt(ereignis: Event): void {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 147 }"
       >
-        <div class="mm-tabelle-rahmen">
-          <table class="mm-tabelle">
-            <thead>
-              <tr>
-                <th>Fachthema</th>
-                <th v-for="b in bezirke" :key="b" class="mm-zahl">{{ b }}</th>
-                <th class="mm-zahl">gesamt</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="zeile in matrix" :key="zeile.name">
-                <td>
-                  {{ zeile.name }}
-                  <span v-if="zeile.nurGesamtstaedtisch" class="mm-zweck">
-                    gesamtstädtisch, je Bezirk nachrichtlich
-                  </span>
-                </td>
-                <td v-for="(wert, i) in zeile.werte" :key="i" class="mm-zahl">
-                  {{ wert === 0 ? '–' : euro(wert) }}
-                </td>
-                <td class="mm-zahl">{{ zeile.gesamt === 0 ? '–' : euro(zeile.gesamt) }}</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr>
-                <th scope="row">gesamt</th>
-                <th v-for="b in bezirke" :key="b" class="mm-zahl">
-                  {{ euro(summeAus(imBezirk(b))) }}
-                </th>
-                <th class="mm-zahl">{{ euro(gesamt) }}</th>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+        <DatenTabelle>
+          <thead>
+            <tr>
+              <th>Fachthema</th>
+              <th v-for="b in bezirke" :key="b" class="mm-zahl">{{ b }}</th>
+              <th class="mm-zahl">gesamt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="zeile in matrix" :key="zeile.name">
+              <td>
+                {{ zeile.name }}
+                <span v-if="zeile.nurGesamtstaedtisch" class="mm-zweck">
+                  gesamtstädtisch, je Bezirk nachrichtlich
+                </span>
+              </td>
+              <td v-for="(wert, i) in zeile.werte" :key="i" class="mm-zahl">
+                {{ wert === 0 ? '–' : euro(wert) }}
+              </td>
+              <td class="mm-zahl">{{ zeile.gesamt === 0 ? '–' : euro(zeile.gesamt) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">gesamt</th>
+              <th v-for="b in bezirke" :key="b" class="mm-zahl">
+                {{ euro(summeAus(imBezirk(b))) }}
+              </th>
+              <th class="mm-zahl">{{ euro(gesamt) }}</th>
+            </tr>
+          </tfoot>
+        </DatenTabelle>
 
         <p class="mm-fussnote">
           <strong>Eine Unschärfe der Quelle:</strong> {{ zahl(gesamtstaedtisch.length) }} Posten
@@ -529,46 +528,6 @@ function jahrGewaehlt(ereignis: Event): void {
   margin: var(--wa-space-2xs) 0 0;
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
-}
-
-/* Auf schmalen Fenstern darf die Tabelle scrollen statt die Seite zu sprengen. */
-.mm-tabelle-rahmen {
-  overflow-x: auto;
-}
-
-/*
- * Dritte Kopie dieser Tabellenstile (nach GlossarPage und ZuschuessePage).
- * Das ist der im Team verabredete Zeitpunkt, sie gemeinsam nach
- * src/components/ui/ zu ziehen — bitte beim nächsten Mal ansprechen.
- */
-.mm-tabelle {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--wa-font-size-s);
-}
-
-.mm-tabelle th,
-.mm-tabelle td {
-  padding: var(--wa-space-2xs) var(--wa-space-s);
-  text-align: left;
-  vertical-align: top;
-  border-bottom: 1px solid var(--wa-color-surface-border);
-}
-
-.mm-tabelle th {
-  color: var(--wa-color-text-quiet);
-  font-weight: var(--wa-font-weight-bold);
-}
-
-.mm-tabelle tfoot th {
-  color: var(--wa-color-text-normal);
-  border-bottom: none;
-}
-
-.mm-tabelle .mm-zahl {
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
 .mm-zweck {

@@ -5,6 +5,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
+import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
 import { euro, euroKurz, vzae } from '@/charts/format'
@@ -541,10 +542,7 @@ function zurUebersicht() {
         <i aria-hidden="true"></i>
         <span>100 % Beamte</span>
       </div>
-      <div
-        v-else-if="ansicht === 'map'"
-        class="stellen-legende stellen-legende--haupt"
-      >
+      <div v-else-if="ansicht === 'map'" class="stellen-legende stellen-legende--haupt">
         <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span>
         <span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
       </div>
@@ -582,7 +580,7 @@ function zurUebersicht() {
       </div>
       <details>
         <summary>Alle Werte als Tabelle</summary>
-        <table>
+        <DatenTabelle>
           <caption class="sr-only">
             {{
               titel
@@ -593,7 +591,7 @@ function zurUebersicht() {
               <th scope="col">
                 {{ bereich === 'all' && ansicht === 'map' ? 'Themenbereich' : 'Produktgruppe' }}
               </th>
-              <th scope="col">
+              <th scope="col" class="mm-zahl">
                 {{
                   kennzahl === 'vzae'
                     ? ansicht === 'change'
@@ -613,10 +611,12 @@ function zurUebersicht() {
                   {{ row.code }} · {{ row.name }}
                 </button>
               </td>
-              <td>{{ ansicht === 'change' ? deltaFormat(row.value) : wertFormat(row.value) }}</td>
+              <td class="mm-zahl">
+                {{ ansicht === 'change' ? deltaFormat(row.value) : wertFormat(row.value) }}
+              </td>
             </tr>
           </tbody>
-        </table>
+        </DatenTabelle>
       </details>
     </ChartCard>
 
@@ -657,19 +657,19 @@ function zurUebersicht() {
       <BaseChart :option="detailOption" :hoehe="detailHoehe" />
       <details>
         <summary>Besoldungsgruppen als Tabelle</summary>
-        <table>
+        <DatenTabelle>
           <thead>
             <tr>
               <th scope="col">Gruppe</th>
-              <th scope="col">VZÄ</th>
-              <th scope="col">Geschätzte Kosten/Jahr</th>
+              <th scope="col" class="mm-zahl">VZÄ</th>
+              <th scope="col" class="mm-zahl">Geschätzte Kosten/Jahr</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="[key, value] in gruppen" :key="key">
               <td>{{ gruppenName(key) }}</td>
-              <td>{{ vzae(value) }}</td>
-              <td>
+              <td class="mm-zahl">{{ vzae(value) }}</td>
+              <td class="mm-zahl">
                 <template v-if="gruppenJahresentgelt(key, value) != null">
                   {{ euro(gruppenJahresentgelt(key, value)!) }}
                   <small v-if="gruppenHinweis(key)" class="stellen-leise">
@@ -680,7 +680,7 @@ function zurUebersicht() {
               </td>
             </tr>
           </tbody>
-        </table>
+        </DatenTabelle>
       </details>
     </ChartCard>
 
@@ -993,24 +993,6 @@ h3 {
 summary {
   cursor: pointer;
   padding-block: var(--wa-space-s);
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--wa-font-size-s);
-}
-th,
-td {
-  text-align: left;
-  padding-block: var(--wa-space-s);
-  border-bottom: 1px solid var(--wa-color-surface-border);
-  overflow-wrap: anywhere;
-}
-th:last-child,
-td:last-child {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 .stellen-textbutton {
   text-align: left;
