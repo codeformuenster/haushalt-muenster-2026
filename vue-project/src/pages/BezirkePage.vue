@@ -482,7 +482,7 @@ function jahrGewaehlt(ereignis: Event): void {
             <tr>
               <th>Fachthema</th>
               <th v-for="b in bezirke" :key="b" class="mm-zahl">{{ b }}</th>
-              <th class="mm-zahl">gesamt</th>
+              <th class="mm-zahl">Gesamt</th>
             </tr>
           </thead>
           <tbody>
@@ -501,11 +501,11 @@ function jahrGewaehlt(ereignis: Event): void {
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row">gesamt</th>
-              <th v-for="b in bezirke" :key="b" class="mm-zahl">
+              <th scope="row">Gesamt</th>
+              <td v-for="b in bezirke" :key="b" class="mm-zahl">
                 {{ euro(summeAus(imBezirk(b))) }}
-              </th>
-              <th class="mm-zahl">{{ euro(gesamt) }}</th>
+              </td>
+              <td class="mm-zahl">{{ euro(gesamt) }}</td>
             </tr>
           </tfoot>
         </DatenTabelle>

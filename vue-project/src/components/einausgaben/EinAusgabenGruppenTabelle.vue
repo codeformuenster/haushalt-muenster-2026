@@ -60,10 +60,10 @@ const emit = defineEmits<{
           <td class="mm-zahl">{{ euro(row.ErtraegeNum) }}</td>
           <td class="mm-zahl">{{ euro(row.AufwendungenNum) }}</td>
         </tr>
-        <tr class="mm-gruppen-summe">
+        <tr class="mm-summe">
           <th colspan="2" scope="row">Summe {{ group.code }}</th>
-          <th class="mm-zahl">{{ euro(group.sumErtraege) }}</th>
-          <th class="mm-zahl">{{ euro(group.sumAufwendungen) }}</th>
+          <td class="mm-zahl">{{ euro(group.sumErtraege) }}</td>
+          <td class="mm-zahl">{{ euro(group.sumAufwendungen) }}</td>
         </tr>
       </template>
     </tbody>
@@ -99,11 +99,5 @@ const emit = defineEmits<{
   color: var(--wa-color-text-normal);
   text-align: left;
   border-top: 2px solid var(--wa-color-surface-border);
-}
-
-.mm-gruppen-summe th,
-.mm-gruppen-summe td {
-  font-weight: var(--wa-font-weight-semibold);
-  background: color-mix(in srgb, var(--wa-color-surface-lowered) 55%, transparent);
 }
 </style>

@@ -41,8 +41,20 @@
   font-weight: var(--wa-font-weight-bold);
 }
 
-.mm-tabelle tfoot th {
+/* Summenzeilen: der tfoot und Zwischensummen im tbody (Klasse `mm-summe`).
+   Nur das Label ist <th scope="row">, die Beträge sind <td> — Web Awesome setzt
+   jedes andere <th> als Spaltenkopf in kleinerer Schrift. */
+.mm-tabelle tfoot th,
+.mm-tabelle tfoot td,
+.mm-tabelle .mm-summe th,
+.mm-tabelle .mm-summe td {
   color: var(--wa-color-text-normal);
+  font-weight: var(--wa-font-weight-semibold);
+  background: color-mix(in srgb, var(--wa-color-surface-lowered) 55%, transparent);
+}
+
+.mm-tabelle tfoot th,
+.mm-tabelle tfoot td {
   border-bottom: none;
 }
 
