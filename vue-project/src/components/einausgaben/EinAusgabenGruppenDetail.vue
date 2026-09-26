@@ -4,6 +4,7 @@ import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
+import { useSchmalerBildschirm } from '@/lib/bildschirm'
 
 type DetailRow = {
   Code: string
@@ -21,6 +22,8 @@ const props = defineProps<{
   selectedYear: 2026 | 2027
 }>()
 
+const schmal = useSchmalerBildschirm()
+
 function formatProductNodeLabel(name: string): string {
   if (name.startsWith('Einnahmen aus ')) return name.replace('Einnahmen aus ', '')
   if (name.startsWith('Ausgaben für ')) return name.replace('Ausgaben für ', '')
@@ -31,6 +34,7 @@ const option = computed<EChartsOption>(() => {
   const products = props.rows
     .filter((row) => row.Gruppe === props.groupCode)
     .sort((a, b) => b.AufwendungenNum - a.AufwendungenNum)
+  const istSchmal = schmal.value
 
   const mitteNode = `Haushalt ${props.selectedYear}`
   const ueberschussNode = `Überschuss ${props.groupName}`
@@ -87,6 +91,57 @@ const option = computed<EChartsOption>(() => {
     })
   }
 
+  const mobileLabelForNode = (name: string) => {
+    const isAusgabe = name.startsWith('Ausgaben für ')
+    const isEinnahme = name.startsWith('Einnahmen aus ')
+    const position: 'left' | 'right' = isAusgabe ? 'left' : 'right'
+
+    if (isAusgabe || isEinnahme) {
+      const baseLabel = {
+        position,
+        align: isAusgabe ? ('right' as const) : ('left' as const),
+        distance: 4,
+      }
+
+      if (!istSchmal) return baseLabel
+
+      return {
+        ...baseLabel,
+        width: 96,
+        overflow: 'break' as const,
+        lineHeight: 12,
+      }
+    }
+
+    if (!istSchmal) return undefined
+
+    if (!isAusgabe && !isEinnahme) {
+      return {
+        position: 'inside' as const,
+        align: 'center' as const,
+        distance: 4,
+        width: 96,
+        overflow: 'break' as const,
+        lineHeight: 12,
+      }
+    }
+
+    return undefined
+  }
+
+  const nodeData = nodes.map((node) => {
+    if (node.name === mitteNode) {
+      return {
+        ...node,
+        label: { show: false },
+      }
+    }
+
+    const mobileLabel = mobileLabelForNode(node.name)
+    if (!mobileLabel) return node
+    return { ...node, label: mobileLabel }
+  })
+
   return {
     tooltip: {
       trigger: 'item',
@@ -108,14 +163,16 @@ const option = computed<EChartsOption>(() => {
       {
         type: 'sankey',
         layout: 'none',
+        left: istSchmal ? 6 : undefined,
+        right: istSchmal ? 6 : undefined,
         emphasis: { focus: 'adjacency' },
-        nodeGap: 12,
+        nodeGap: istSchmal ? 8 : 12,
         lineStyle: { color: 'source', curveness: 0.5 },
         label: {
-          fontSize: 11,
+          fontSize: istSchmal ? 10 : 12,
           formatter: ({ name }: { name: string }) => formatProductNodeLabel(name),
         },
-        data: nodes,
+        data: nodeData,
         links,
         levels: [
           { depth: 0, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },

@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro } from '@/charts/format'
+import { useSchmalerBildschirm } from '@/lib/bildschirm'
 
 type SankeyInputRow = {
   Gruppe: string
@@ -57,6 +58,7 @@ const emit = defineEmits<{
 }>()
 
 const hoveredGroupCode = ref<string | null>(null)
+const schmal = useSchmalerBildschirm()
 
 function buildGroupAggregates(rows: SankeyInputRow[]): GroupAggregate[] {
   const map = new Map<string, GroupAggregate>()
@@ -164,6 +166,11 @@ function getGroupCodeFromChartEvent(params: unknown): string | null {
   return null
 }
 
+function sankeyNodeLabelPosition(node: SankeyNodeModel): 'left' | 'right' | 'inside' {
+  if (node.nodeType === 'haushalt') return 'inside'
+  return node.direction === 'ausgabe' ? 'left' : 'right'
+}
+
 function onChartClick(params: unknown): void {
   const groupCode = getGroupCodeFromChartEvent(params)
   if (!groupCode) return
@@ -187,6 +194,7 @@ function onChartMouseout(): void {
 
 const sankeyOption = computed<EChartsOption>(() => {
   const graph = buildSankeyGraph(props.rows, props.selectedYear)
+  const istSchmal = schmal.value
   const hoveredCode = hoveredGroupCode.value
 
   const links = graph.links.map((link) => ({
@@ -198,6 +206,39 @@ const sankeyOption = computed<EChartsOption>(() => {
           ? { opacity: 0.95, width: 2 }
           : { opacity: 0.18 },
   }))
+
+  const nodes = graph.nodes.map((node) => {
+    if (node.nodeType === 'haushalt') {
+      return {
+        ...node,
+        label: { show: false },
+      }
+    }
+
+    const position = sankeyNodeLabelPosition(node)
+    const baseLabel = {
+      position,
+      align: position === 'left' ? ('right' as const) : ('left' as const),
+      distance: 4,
+    }
+
+    if (!istSchmal) {
+      return {
+        ...node,
+        label: baseLabel,
+      }
+    }
+
+    return {
+      ...node,
+      label: {
+        ...baseLabel,
+        width: 96,
+        overflow: 'break' as const,
+        lineHeight: 12,
+      },
+    }
+  })
 
   return {
     tooltip: {
@@ -219,8 +260,10 @@ const sankeyOption = computed<EChartsOption>(() => {
       {
         type: 'sankey',
         layout: 'none',
+        left: istSchmal ? 6 : undefined,
+        right: istSchmal ? 6 : undefined,
         emphasis: { focus: 'adjacency' },
-        data: graph.nodes,
+        data: nodes,
         links,
         levels: [
           { depth: 0, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },
@@ -229,9 +272,9 @@ const sankeyOption = computed<EChartsOption>(() => {
         ],
         lineStyle: { color: 'source', curveness: 0.5 },
         nodeWidth: 14,
-        nodeGap: 12,
+        nodeGap: istSchmal ? 8 : 12,
         label: {
-          fontSize: 11,
+          fontSize: istSchmal ? 10 : 12,
           formatter: (params: unknown) => {
             const payload = params as { data?: { displayName?: string } }
             return payload.data?.displayName ?? ''
