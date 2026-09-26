@@ -35,7 +35,7 @@ type NavLink = {
 }
 
 const NAV_ENTDECKEN = ['/ein-ausgaben', '/stellenplan', '/zuschuesse', '/bezirke'] as const
-const NAV_AUSPROBIEREN = ['/planspiel', '/eine-million'] as const
+const NAV_AUSPROBIEREN = ['/planspiel', '/eine-million', '/mehr-oder-weniger'] as const
 
 const links = computed<NavLink[]>(() =>
   router.options.routes
