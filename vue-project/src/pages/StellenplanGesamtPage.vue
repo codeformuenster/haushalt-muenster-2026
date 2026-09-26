@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
+import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import { euroKurz, vzae } from '@/charts/format'
 import daten from '@/data/stellenplan.json'
@@ -280,8 +281,7 @@ function zuruecksetzen() {
             :class="[
               `icicle-knoten--${node.level}`,
               {
-                'icicle-knoten--aktiv':
-                  node.level === 'group' && node.code === produktgruppe,
+                'icicle-knoten--aktiv': node.level === 'group' && node.code === produktgruppe,
               },
             ]"
             :tabindex="node.level === 'root' ? undefined : 0"
@@ -329,24 +329,26 @@ function zuruecksetzen() {
 
     <details>
       <summary>Gesamtübersicht als Tabelle</summary>
-      <table>
+      <DatenTabelle>
         <thead>
           <tr>
             <th scope="col">Themenbereich / Produktgruppe</th>
-            <th scope="col">{{ kennzahl === 'vzae' ? 'VZÄ' : 'Tabellenentgelt/Jahr' }}</th>
+            <th scope="col" class="mm-zahl">
+              {{ kennzahl === 'vzae' ? 'VZÄ' : 'Tabellenentgelt/Jahr' }}
+            </th>
           </tr>
         </thead>
         <tbody v-for="area in bereiche" :key="area.code">
           <tr class="icicle-tabellenbereich">
             <th scope="row">{{ area.code }} · {{ area.name }}</th>
-            <td>{{ wertFormat(area.value) }}</td>
+            <td class="mm-zahl">{{ wertFormat(area.value) }}</td>
           </tr>
           <tr v-for="gruppe in area.gruppen" :key="gruppe.code">
             <td>{{ gruppe.code }} · {{ gruppe.name }}</td>
-            <td>{{ wertFormat(gruppe.value) }}</td>
+            <td class="mm-zahl">{{ wertFormat(gruppe.value) }}</td>
           </tr>
         </tbody>
-      </table>
+      </DatenTabelle>
     </details>
   </div>
 </template>
@@ -522,23 +524,6 @@ button:disabled {
 .icicle-detail span {
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--wa-font-size-s);
-}
-th,
-td {
-  padding: var(--wa-space-s);
-  text-align: left;
-  border-bottom: 1px solid var(--wa-color-surface-border);
-}
-th:last-child,
-td:last-child {
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 .icicle-tabellenbereich {
   background: var(--wa-color-brand-fill-quiet);

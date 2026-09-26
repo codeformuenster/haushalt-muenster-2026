@@ -11,6 +11,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
+import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
@@ -568,7 +569,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             muss die Stadt überhaupt tätig werden? — und das <em>Wie</em> — steht auch der Betrag
             schon fest? Die vier Stufen sind die vier Kombinationen daraus.
           </p>
-          <table class="mm-tabelle">
+          <DatenTabelle>
             <thead>
               <tr>
                 <th></th>
@@ -590,7 +591,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
                 </td>
               </tr>
             </tbody>
-          </table>
+          </DatenTabelle>
           <p>
             In der gebundenen Ecke rechts unten stehen Zuwendungen wie die nach dem KiBiz: Das
             Gesetz schreibt sowohl den Betrieb von Kindertageseinrichtungen als auch die
@@ -689,47 +690,45 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           </wa-button>
         </p>
 
-        <div class="mm-tabelle-rahmen">
-          <table class="mm-tabelle">
-            <thead>
-              <tr>
-                <th>Empfänger und Zweck</th>
-                <th>Produktbereich</th>
-                <th>Verpflichtungsgrad</th>
-                <th class="mm-zahl">2026</th>
-                <th class="mm-zahl">2027</th>
-                <th>bis</th>
-                <th><span class="mm-unsichtbar">Quelle</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="p in gefiltert" :key="p.nr">
-                <td>
-                  {{ p.empfaenger }}
-                  <span class="mm-zweck">{{ p.zweck }}</span>
-                </td>
-                <td>{{ p.produktbereich }} {{ PRODUKTBEREICHE[p.produktbereich] }}</td>
-                <td>
-                  <span class="mm-punkt" :style="{ background: GRAD_FARBE[p.grad] }"></span>
-                  {{ p.grad }}
-                </td>
-                <td class="mm-zahl">{{ euro(p.eur2026) }}</td>
-                <td class="mm-zahl">{{ euro(p.eur2027) }}</td>
-                <td>{{ p.befristetBis }}</td>
-                <td class="mm-quelle-spalte">
-                  <wa-button
-                    appearance="plain"
-                    size="small"
-                    title="Quelle anzeigen"
-                    @click="zeigeQuelle(p)"
-                  >
-                    <wa-icon name="file-lines" label="Quelle anzeigen"></wa-icon>
-                  </wa-button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <DatenTabelle>
+          <thead>
+            <tr>
+              <th>Empfänger und Zweck</th>
+              <th>Produktbereich</th>
+              <th>Verpflichtungsgrad</th>
+              <th class="mm-zahl">2026</th>
+              <th class="mm-zahl">2027</th>
+              <th>bis</th>
+              <th><span class="mm-unsichtbar">Quelle</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="p in gefiltert" :key="p.nr">
+              <td>
+                {{ p.empfaenger }}
+                <span class="mm-zweck">{{ p.zweck }}</span>
+              </td>
+              <td>{{ p.produktbereich }} {{ PRODUKTBEREICHE[p.produktbereich] }}</td>
+              <td>
+                <span class="mm-punkt" :style="{ background: GRAD_FARBE[p.grad] }"></span>
+                {{ p.grad }}
+              </td>
+              <td class="mm-zahl">{{ euro(p.eur2026) }}</td>
+              <td class="mm-zahl">{{ euro(p.eur2027) }}</td>
+              <td>{{ p.befristetBis }}</td>
+              <td class="mm-quelle-spalte">
+                <wa-button
+                  appearance="plain"
+                  size="small"
+                  title="Quelle anzeigen"
+                  @click="zeigeQuelle(p)"
+                >
+                  <wa-icon name="file-lines" label="Quelle anzeigen"></wa-icon>
+                </wa-button>
+              </td>
+            </tr>
+          </tbody>
+        </DatenTabelle>
 
         <p v-if="gefiltert.length === 0" class="mm-treffer">Kein Posten passt zu diesen Filtern.</p>
 
@@ -790,41 +789,6 @@ async function zeigeQuelle(p: Posten): Promise<void> {
   margin: 0 0 var(--wa-space-s);
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
-}
-
-/* Auf schmalen Fenstern darf die Tabelle scrollen statt die Seite zu sprengen. */
-.mm-tabelle-rahmen {
-  overflow-x: auto;
-}
-
-/*
- * Bewusste Kopie aus GlossarPage.vue statt eines gemeinsamen Stils in main.css:
- * dort ist seitenspezifisches CSS ausdrücklich unerwünscht. Beim dritten
- * Vorkommen lohnt das Gespräch im Team.
- */
-.mm-tabelle {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--wa-font-size-s);
-}
-
-.mm-tabelle th,
-.mm-tabelle td {
-  padding: var(--wa-space-2xs) var(--wa-space-s);
-  text-align: left;
-  vertical-align: top;
-  border-bottom: 1px solid var(--wa-color-surface-border);
-}
-
-.mm-tabelle th {
-  color: var(--wa-color-text-quiet);
-  font-weight: var(--wa-font-weight-bold);
-}
-
-.mm-tabelle .mm-zahl {
-  text-align: right;
-  white-space: nowrap;
-  font-variant-numeric: tabular-nums;
 }
 
 /* Der Zweck wird bis zu 180 Zeichen lang — leise zweite Zeile statt eigener Spalte. */
