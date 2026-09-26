@@ -119,7 +119,7 @@ function anteilVon(faktor: number, betrag: number, name: string) {
   }
 }
 
-// Werte außerhalb des Haushaltsplans, Quellen in den Karten.
+// Werte, die nicht in src/data/planspiel.json stehen, Quellen in den Karten.
 /** Investitionsvolumen der neuen Grundschule im York-Quartier (Stadt Münster, 2024). */
 const schulKosten = 45_000_000
 /** Angenommene Nutzungsdauer, Mitte des NRW-Rahmens für Schulgebäude (40 bis 80 Jahre). */
@@ -128,8 +128,8 @@ const schulNutzungsdauer = 60
 const schulZins = 0.03
 /** Umsatz der Verkehrsbetriebe der Stadtwerke Münster 2024 (Beteiligungsbericht 2024). */
 const busUmsatz = 39_800_000
-/** Hundesteuer pro Jahr laut Stadt Münster (2026, gerundet). */
-const hundesteuer = 1_500_000
+/** Ansatz Hundesteuer 2026. Steht nur in den Erläuterungen (Band 1, PDF-Seite 545), die die Pipeline nicht ausliest. */
+const hundesteuer = 1_800_000
 
 export const KARTEN: Karte[] = [
   {
@@ -260,9 +260,9 @@ export const KARTEN: Karte[] = [
       },
     ],
     annahme:
-      'Die Einnahmen steigen im selben Verhältnis wie der Steuersatz, und es werden gleich viele Hunde angemeldet. Der Haushaltsplan weist die Hundesteuer nicht einzeln aus, deshalb gilt die gerundete Angabe der Stadt.',
+      'Die Einnahmen steigen im selben Verhältnis wie der Steuersatz, und es werden gleich viele Hunde angemeldet. Der Plan nennt den Ertrag nur auf 0,1 Mio. € gerundet.',
     quelle:
-      'Stadt Münster, Hundesteuer: Stadt führt Bestandsaufnahme durch, 2026 (https://www.stadt-muenster.de/aktuelles/newsdetail/hundesteuer-stadt-fuehrt-bestandsaufnahme-durch); Steuersätze: Stadt Münster, Hundesteuer, 2026 (https://www.stadt-muenster.de/finanzen/steuern-und-gebuehren/hundesteuer)',
+      'Haushaltsplan Band 1, S. 545 (PDF), Erläuterungen zu Zeile 01 der Allgemeinen Finanzwirtschaft; Steuersätze: Stadt Münster, Hundesteuer, 2026 (https://www.stadt-muenster.de/finanzen/steuern-und-gebuehren/hundesteuer)',
   },
   {
     id: 'wiederbesetzungssperre',
