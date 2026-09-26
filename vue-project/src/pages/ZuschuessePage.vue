@@ -371,8 +371,12 @@ const befristung = computed<EChartsOption>(() => {
         const erste = teile[0]
         if (!erste) return ''
         const kopf =
-          erste.axisValue === 'heute' ? 'noch zugesagt' : `nach Ende ${erste.axisValue} noch zugesagt`
-        const zeilen = teile.map((t) => `${t.marker} ${t.seriesName}: ${euro(t.value)}`).join('<br>')
+          erste.axisValue === 'heute'
+            ? 'noch zugesagt'
+            : `nach Ende ${erste.axisValue} noch zugesagt`
+        const zeilen = teile
+          .map((t) => `${t.marker} ${t.seriesName}: ${euro(t.value)}`)
+          .join('<br>')
         const rest = teile.reduce((s, t) => s + t.value, 0)
         return `<strong>${kopf}</strong><br>${zeilen}<br><br>zusammen: ${euro(rest)}`
       },
@@ -433,9 +437,7 @@ const filterAktiv = computed(
  * künftigen Fassung weg, verschwindet auch die Fußnote.
  */
 const widerspruch = computed(() =>
-  alle.value.find(
-    (p) => !VERHANDELBAR.includes(p.grad) && /freiwillige zuschüsse/i.test(p.zweck),
-  ),
+  alle.value.find((p) => !VERHANDELBAR.includes(p.grad) && /freiwillige zuschüsse/i.test(p.zweck)),
 )
 
 function filterZuruecksetzen(): void {
@@ -521,6 +523,16 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       beschreibung="Die Stadt gibt jedes Jahr Geld an Vereine, Verbände und andere Träger weiter. Für diese Zuschüsse — und nur für sie — sagt der Haushaltsplan selbst, wie stark die Stadt dabei gesetzlich gebunden ist. Deshalb lässt sich hier genau zeigen, worüber der Rat tatsächlich entscheiden kann und worüber nicht."
     />
 
+    <wa-card v-if="posten" class="mm-kennzahlen-band">
+      <dl class="mm-kennzahlen">
+        <div v-for="k in kennzahlen" :key="k.titel" class="mm-kennzahl">
+          <dt>{{ k.titel }}</dt>
+          <dd>{{ k.wert }}</dd>
+          <p>{{ k.zusatz }}</p>
+        </div>
+      </dl>
+    </wa-card>
+
     <wa-callout variant="brand" appearance="outlined">
       <strong>Das ist nicht der ganze Haushalt.</strong> Der Zuschussbericht umfasst nur die
       Zuwendungen an Dritte. Personal, Bau, Sozialtransfers und der Betrieb der Verwaltung stehen
@@ -543,14 +555,6 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 349 }"
       >
-        <dl class="mm-kennzahlen">
-          <div v-for="k in kennzahlen" :key="k.titel" class="mm-kennzahl">
-            <dt>{{ k.titel }}</dt>
-            <dd>{{ k.wert }}</dd>
-            <p>{{ k.zusatz }}</p>
-          </div>
-        </dl>
-
         <BaseChart :option="stufen" hoehe="200px" />
 
         <wa-details summary="Was heißt „dem Grunde nach“?">
@@ -587,29 +591,34 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             Gesetz schreibt sowohl den Betrieb von Kindertageseinrichtungen als auch die
             Kindpauschalen vor, der Rat entscheidet darüber nichts. Bei „dem Grunde nach“ — etwa
             OGS, offene Kinder- und Jugendarbeit oder Schulsozialarbeit — muss die Stadt tätig
-            werden, entscheidet aber selbst, mit wie viel Geld. <strong>Verhandelbar sind also nur
-            die beiden linken Stufen „freiwillig“ und „dem Grunde nach“.</strong>
+            werden, entscheidet aber selbst, mit wie viel Geld.
+            <strong
+              >Verhandelbar sind also nur die beiden linken Stufen „freiwillig“ und „dem Grunde
+              nach“.</strong
+            >
           </p>
         </wa-details>
       </ChartCard>
 
-      <ChartCard
-        titel="Alle Zuschüsse nach Produktbereich"
-        beschreibung="Wohin das Geld überhaupt fließt. Der Ring zeigt die Aufteilung auf die Produktbereiche des Haushalts — die sieben größten einzeln, die übrigen zusammengefasst. Hier geht es nur um den Betrag, nicht darum, wie frei die Stadt darüber entscheiden kann; das steht im nächsten Diagramm."
-        :quelle="QUELLE"
-        :pdf="{ band: 2, seite: 349 }"
-      >
-        <BaseChart :option="verteilung" hoehe="420px" @legendselectchanged="legendeGeaendert" />
-      </ChartCard>
+      <div class="mm-raster">
+        <ChartCard
+          titel="Alle Zuschüsse nach Produktbereich"
+          beschreibung="Wohin das Geld überhaupt fließt. Der Ring zeigt die Aufteilung auf die Produktbereiche des Haushalts — die sieben größten einzeln, die übrigen zusammengefasst. Hier geht es nur um den Betrag, nicht darum, wie frei die Stadt darüber entscheiden kann; das zeigt der Vergleich mit dem Spielraum-Diagramm daneben."
+          :quelle="QUELLE"
+          :pdf="{ band: 2, seite: 349 }"
+        >
+          <BaseChart :option="verteilung" hoehe="420px" @legendselectchanged="legendeGeaendert" />
+        </ChartCard>
 
-      <ChartCard
-        titel="Wo der Spielraum liegt"
-        beschreibung="Nur die verhandelbaren Stufen „freiwillig“ und „dem Grunde nach“, je Produktbereich. Ein Bereich kann viel Geld bewegen und hier trotzdem kurz ausfallen — dass ein Balken klein ist, heißt also nicht, dass der Bereich klein ist, sondern dass wenig davon zur Entscheidung steht. Der Vergleich zum vorigen Diagramm lohnt sich."
-        :quelle="QUELLE"
-        :pdf="{ band: 2, seite: 349 }"
-      >
-        <BaseChart :option="spielraum" hoehe="440px" />
-      </ChartCard>
+        <ChartCard
+          titel="Wo der Spielraum liegt"
+          beschreibung="Nur die verhandelbaren Stufen „freiwillig“ und „dem Grunde nach“, je Produktbereich. Ein Bereich kann viel Geld bewegen und hier trotzdem kurz ausfallen — dass ein Balken klein ist, heißt also nicht, dass der Bereich klein ist, sondern dass wenig davon zur Entscheidung steht. Der Vergleich mit der Gesamtverteilung daneben lohnt sich."
+          :quelle="QUELLE"
+          :pdf="{ band: 2, seite: 349 }"
+        >
+          <BaseChart :option="spielraum" hoehe="440px" />
+        </ChartCard>
+      </div>
 
       <ChartCard
         titel="Bis wann ist das Geld zugesagt?"
@@ -621,7 +630,8 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         <p class="mm-fussnote">
           Nicht in der Kurve: {{ zahl(ohneEnddatum.length) }} Posten über zusammen
           {{ euroKurz(summe(ohneEnddatum)) }} nennen kein Enddatum, sondern eine Laufzeitregel wie
-          „jährlich“, „Schuljahr“ oder „10 Jahre“. In der Tabelle unten stehen sie mit dieser Angabe.
+          „jährlich“, „Schuljahr“ oder „10 Jahre“. In der Tabelle unten stehen sie mit dieser
+          Angabe.
         </p>
       </ChartCard>
 
@@ -664,7 +674,12 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         <p class="mm-treffer" aria-live="polite">
           {{ zahl(gefiltert.length) }} von {{ zahl(alle.length) }} Posten ·
           {{ euroKurz(summe(gefiltert)) }} in 2026
-          <wa-button v-if="filterAktiv" size="small" appearance="plain" @click="filterZuruecksetzen">
+          <wa-button
+            v-if="filterAktiv"
+            size="small"
+            appearance="plain"
+            @click="filterZuruecksetzen"
+          >
             Filter zurücksetzen
           </wa-button>
         </p>
@@ -711,13 +726,12 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           </table>
         </div>
 
-        <p v-if="gefiltert.length === 0" class="mm-treffer">
-          Kein Posten passt zu diesen Filtern.
-        </p>
+        <p v-if="gefiltert.length === 0" class="mm-treffer">Kein Posten passt zu diesen Filtern.</p>
 
         <p v-if="widerspruch" class="mm-fussnote">
-          <strong>Ein Widerspruch in der Quelle:</strong> Der Posten „{{ widerspruch.zweck }}“
-          ({{ euro(widerspruch.eur2026) }}, Produktgruppe {{ widerspruch.produktgruppe }}) ist als
+          <strong>Ein Widerspruch in der Quelle:</strong> Der Posten „{{ widerspruch.zweck }}“ ({{
+            euro(widerspruch.eur2026)
+          }}, Produktgruppe {{ widerspruch.produktgruppe }}) ist als
           <em>{{ widerspruch.grad }}</em> eingestuft, nennt sich im Verwendungszweck aber
           ausdrücklich „Freiwillige Zuschüsse“. Beides steht so im Haushaltsplan. Wir haben es nicht
           stillschweigend korrigiert.
@@ -734,12 +748,12 @@ async function zeigeQuelle(p: Posten): Promise<void> {
   color: var(--wa-color-text-quiet);
 }
 
-/* Die drei großen Zahlen über dem ersten Diagramm. */
+/* Die drei großen Zahlen als Blickfang über der Seite. */
 .mm-kennzahlen {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
   gap: var(--wa-space-l);
-  margin: 0 0 var(--wa-space-l);
+  margin: 0;
 }
 
 .mm-kennzahl dt {
@@ -749,7 +763,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 
 .mm-kennzahl dd {
   margin: var(--wa-space-3xs) 0 0;
-  font-size: var(--wa-font-size-2xl);
+  font-size: var(--wa-font-size-3xl);
   font-weight: var(--wa-font-weight-bold);
   line-height: 1.1;
 }
