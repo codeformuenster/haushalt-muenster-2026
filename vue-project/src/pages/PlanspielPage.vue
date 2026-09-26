@@ -6,6 +6,7 @@
 import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef } from 'vue'
 import type { EChartsOption } from 'echarts'
 import PageIntro from '@/components/ui/PageIntro.vue'
+import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
@@ -230,7 +231,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
     <wa-callout variant="neutral" appearance="outlined">
       <strong>Ein Spiel, keine Prognose.</strong> Das Planspiel vereinfacht stark. Die Beträge
       folgen dem Haushaltsplan, die Wirkungen sind aber grobe Rechenbeispiele: Viele Ausgaben sind
-      gesetzlich vorgeschrieben, und Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu
+      <GlossarBegriff id="pflichtaufgabe">gesetzlich vorgeschrieben</GlossarBegriff>, und Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu
       bekommen, was die Stadt tut und wie groß die einzelnen Posten sind. Regler und Karten werden
       einfach addiert, jeweils bezogen auf den Plan.
     </wa-callout>

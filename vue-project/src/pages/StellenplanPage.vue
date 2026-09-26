@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import type { EChartsOption } from 'echarts'
 import { RouterLink, useRoute } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
+import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
@@ -448,10 +449,11 @@ function zurUebersicht() {
     />
     <div class="stellen-kennzahlen" aria-live="polite">
       <div>
-        <span>Stadt insgesamt · {{ jahr }}</span
-        ><strong>{{
-          kennzahl === 'vzae' ? `${vzae(kennzahlGesamt)} VZÄ` : euroKurz(kennzahlGesamt)
-        }}</strong>
+        <span>Stadt insgesamt · {{ jahr }}</span>
+        <strong v-if="kennzahl === 'vzae'"
+          >{{ vzae(kennzahlGesamt) }} <GlossarBegriff id="vzae">VZÄ</GlossarBegriff></strong
+        >
+        <strong v-else>{{ euroKurz(kennzahlGesamt) }}</strong>
       </div>
       <div>
         <span>Veränderung 2026 → 2027 · Stadt insgesamt</span
