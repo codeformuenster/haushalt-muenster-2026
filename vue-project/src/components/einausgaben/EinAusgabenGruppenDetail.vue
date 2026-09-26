@@ -21,6 +21,12 @@ const props = defineProps<{
   selectedYear: 2026 | 2027
 }>()
 
+function formatProductNodeLabel(name: string): string {
+  if (name.startsWith('Einnahmen aus ')) return name.replace('Einnahmen aus ', '')
+  if (name.startsWith('Ausgaben für ')) return name.replace('Ausgaben für ', '')
+  return name
+}
+
 const option = computed<EChartsOption>(() => {
   const products = props.rows
     .filter((row) => row.Gruppe === props.groupCode)
@@ -84,22 +90,39 @@ const option = computed<EChartsOption>(() => {
   return {
     tooltip: {
       trigger: 'item',
-      valueFormatter: (v) => euro(Number(v)),
+      triggerOn: 'mousemove',
+      formatter: (params: unknown) => {
+        const data = params as { dataType?: string; name?: string; data?: unknown }
+
+        if (data?.dataType === 'edge') {
+          const edge = data.data as { source?: string; target?: string; value?: number } | undefined
+          const source = edge?.source ?? ''
+          const target = edge?.target ?? ''
+          const name = source === mitteNode ? target : source
+          return `${formatProductNodeLabel(name)}<br>${euro(Number(edge?.value) || 0)}`
+        }
+        return formatProductNodeLabel(data?.name ?? '')
+      },
     },
     series: [
       {
         type: 'sankey',
-        left: 16,
-        right: 24,
-        top: 24,
-        bottom: 24,
+        layout: 'none',
         emphasis: { focus: 'adjacency' },
-        nodeAlign: 'justify',
-        nodeGap: 14,
+        nodeGap: 12,
         lineStyle: { color: 'source', curveness: 0.5 },
-        label: { formatter: ({ name }: { name: string }) => name },
+        label: {
+          fontSize: 11,
+          formatter: ({ name }: { name: string }) => formatProductNodeLabel(name),
+        },
         data: nodes,
         links,
+        levels: [
+          { depth: 0, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          { depth: 1, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          { depth: 2, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
+        ],
+        nodeWidth: 14,
       },
     ],
   }
