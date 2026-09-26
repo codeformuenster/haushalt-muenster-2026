@@ -29,15 +29,15 @@ function onChartClick(params: unknown): void {
 }
 
 const sankeyOption = computed<EChartsOption>(() => {
-  const totalEinnahmenNode = `Einnahmen ${props.selectedYear} gesamt`
-  const totalAusgabenNode = `Ausgaben ${props.selectedYear} gesamt`
+  //const totalEinnahmenNode = `Einnahmen ${props.selectedYear} gesamt`
+  const totalAusgabenNode = `Haushalt ${props.selectedYear}`
 
   const links: Array<{ source: string; target: string; value: number }> = []
   const einnahmenProGruppe = new Map<string, number>()
   const ausgabenProGruppe = new Map<string, number>()
 
   props.rows.forEach((row) => {
-    const gruppeLabel = `${row.Gruppe} ${row.Gruppenbezeichnung}`
+    const gruppeLabel = `${row.Gruppenbezeichnung}`
     const gruppeEinnahmenNode = `Einnahmen ${gruppeLabel}`
     const gruppeAusgabenNode = `Ausgaben ${gruppeLabel}`
 
@@ -59,7 +59,7 @@ const sankeyOption = computed<EChartsOption>(() => {
   let einnahmenGesamt = 0
   einnahmenProGruppe.forEach((summe, gruppeNode) => {
     if (summe > 0) {
-      links.push({ source: gruppeNode, target: totalEinnahmenNode, value: summe })
+      links.push({ source: gruppeNode, target: totalAusgabenNode, value: summe })
       einnahmenGesamt += summe
     }
   })
@@ -72,13 +72,7 @@ const sankeyOption = computed<EChartsOption>(() => {
     }
   })
 
-  links.push({
-    source: totalEinnahmenNode,
-    target: totalAusgabenNode,
-    value: Math.max(0, Math.min(einnahmenGesamt, ausgabenGesamt)),
-  })
-
-  const nodeNames = new Set<string>([totalEinnahmenNode, totalAusgabenNode])
+  const nodeNames = new Set<string>([totalAusgabenNode])
   links.forEach((link) => {
     nodeNames.add(link.source)
     nodeNames.add(link.target)
@@ -109,16 +103,24 @@ const sankeyOption = computed<EChartsOption>(() => {
 
           return {
             name,
+			label: {
+			formatter: params => {
+				if (params.name.startsWith("Einnahmen")) {
+					return params.name.replace("Einnahmen ", "")
+				} else if (params.name.startsWith("Ausgaben")) {
+					return params.name.replace("Ausgaben ", "")
+				}
+			}
+			},
             nodeType: isGroup ? 'group' : 'other',
             groupCode,
           }
         }),
         links,
         levels: [
-          { depth: 0, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 1, itemStyle: { color: '#b3cde3' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 2, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },
-          { depth: 3, itemStyle: { color: '#decbe4' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          { depth: 0, itemStyle: { color: '#ccebc5' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          { depth: 1, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
+          { depth: 2, itemStyle: { color: '#fbb4ae' }, lineStyle: { color: 'source', opacity: 0.6 } },
         ],
         lineStyle: { color: 'source', curveness: 0.5 },
         nodeWidth: 14,
