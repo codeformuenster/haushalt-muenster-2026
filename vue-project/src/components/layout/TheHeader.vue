@@ -2,14 +2,12 @@
 /**
  * Kopfzeile für alle Seiten: Wortmarke plus Navigation.
  *
- * Die Links werden aus den Routen mit `meta.nav` erzeugt — neue Seite anlegen
- * heißt also: Eintrag in src/router/index.ts, hier ist nichts zu tun.
+ * Die sichtbaren Einträge werden aus den Routen mit `meta.nav` erzeugt. Für
+ * die Gruppierung in „Entdecken“ und „Ausprobieren“ gibt es feste Pfadlisten.
  *
- * Ab Tablet-Breite steht die Navigation offen in der Kopfzeile. Darunter ist
- * dafür kein Platz: acht Links brächen in drei Zeilen um und schöben den
- * Seiteninhalt nach unten. Deshalb liegen sie dort in einer Seitenleiste, die
- * das Burger-Menü öffnet. Welche der beiden Varianten sichtbar ist, entscheidet
- * CSS — die Links stehen einmal im Markup und werden zweimal ausgegeben.
+ * Ab Tablet-Breite steht die Navigation offen in der Kopfzeile (als Buttons,
+ * teils in Dropdowns). Darunter zeigt das Burger-Menü die mobile Linkliste.
+ * Welche der beiden Varianten sichtbar ist, entscheidet CSS.
  */
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -30,15 +28,50 @@ const navIcons: Record<string, string> = {
 const router = useRouter()
 const route = useRoute()
 
-const links = computed(() =>
+type NavLink = {
+  ziel: string
+  text: string
+  icon: string
+}
+
+const NAV_ENTDECKEN = ['/ein-ausgaben', '/stellenplan', '/zuschuesse', '/bezirke'] as const
+const NAV_AUSPROBIEREN = ['/planspiel', '/eine-million', '/mehr-oder-weniger'] as const
+
+const links = computed<NavLink[]>(() =>
   router.options.routes
-    .filter((route) => route.meta?.nav)
-    .map((route) => ({
-      ziel: route.path,
-      text: route.meta!.nav as string,
-      icon: navIcons[route.path] ?? 'circle',
+    .filter((routenEintrag) => routenEintrag.meta?.nav && routenEintrag.path !== '/')
+    .map((routenEintrag) => ({
+      ziel: routenEintrag.path,
+      text: routenEintrag.meta!.nav as string,
+      icon: navIcons[routenEintrag.path] ?? 'circle',
     })),
 )
+
+const linkNachPfad = computed(() => new Map(links.value.map((link) => [link.ziel, link])))
+
+const ueberblickLink = computed(() => linkNachPfad.value.get('/ueberblick'))
+const glossarLink = computed(() => linkNachPfad.value.get('/glossar'))
+
+function linksNachPfaden(pfade: readonly string[]): NavLink[] {
+  return pfade
+    .map((pfad) => linkNachPfad.value.get(pfad))
+    .filter((link): link is NavLink => Boolean(link))
+}
+
+const entdeckenLinks = computed(() => linksNachPfaden(NAV_ENTDECKEN))
+const ausprobierenLinks = computed(() => linksNachPfaden(NAV_AUSPROBIEREN))
+
+function istAktiv(ziel: string): boolean {
+  return route.path === ziel || route.path.startsWith(`${ziel}/`)
+}
+
+function gruppeIstAktiv(gruppenLinks: NavLink[]): boolean {
+  return gruppenLinks.some((link) => istAktiv(link.ziel))
+}
+
+function geheZu(ziel: string): void {
+  void router.push(ziel)
+}
 
 const menueOffen = ref(false)
 
@@ -66,17 +99,93 @@ function nachDemSchliessen(ereignis: Event): void {
     </RouterLink>
 
     <nav class="mm-header__nav" aria-label="Hauptnavigation">
-      <RouterLink
-        v-for="link in links"
-        :key="link.ziel"
-        :to="link.ziel"
+      <wa-button
+        v-if="ueberblickLink"
         :class="{
-          'router-link-active': link.ziel !== '/' && route.path.startsWith(`${link.ziel}/`),
+          'mm-header__nav-button': true,
+          'mm-header__nav-button--aktiv': istAktiv(ueberblickLink.ziel),
         }"
+        size="small"
+        appearance="plain"
+        :variant="istAktiv(ueberblickLink.ziel) ? 'brand' : 'neutral'"
+        @click="geheZu(ueberblickLink.ziel)"
       >
-        <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
-        <span>{{ link.text }}</span>
-      </RouterLink>
+        <wa-icon :name="ueberblickLink.icon" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
+        <span>{{ ueberblickLink.text }}</span>
+      </wa-button>
+
+      <wa-dropdown class="mm-header__dropdown">
+        <wa-button
+          slot="trigger"
+          :class="{
+            'mm-header__dropdown-trigger': true,
+            'mm-header__dropdown-trigger--aktiv': gruppeIstAktiv(entdeckenLinks),
+          }"
+          size="small"
+          appearance="plain"
+          :variant="gruppeIstAktiv(entdeckenLinks) ? 'brand' : 'neutral'"
+          with-caret
+        >
+          <wa-icon name="compass" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
+          Entdecken
+        </wa-button>
+
+        <div class="mm-header__dropdown-inhalt">
+          <RouterLink
+            v-for="link in entdeckenLinks"
+            :key="link.ziel"
+            :to="link.ziel"
+            :class="{ 'router-link-active': istAktiv(link.ziel) }"
+          >
+            <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
+            <span>{{ link.text }}</span>
+          </RouterLink>
+        </div>
+      </wa-dropdown>
+
+      <wa-dropdown class="mm-header__dropdown">
+        <wa-button
+          slot="trigger"
+          :class="{
+            'mm-header__dropdown-trigger': true,
+            'mm-header__dropdown-trigger--aktiv': gruppeIstAktiv(ausprobierenLinks),
+          }"
+          size="small"
+          appearance="plain"
+          :variant="gruppeIstAktiv(ausprobierenLinks) ? 'brand' : 'neutral'"
+          with-caret
+        >
+          <wa-icon name="flask" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
+          Ausprobieren
+        </wa-button>
+
+        <div class="mm-header__dropdown-inhalt">
+          <RouterLink
+            v-for="link in ausprobierenLinks"
+            :key="link.ziel"
+            :to="link.ziel"
+            :class="{ 'router-link-active': istAktiv(link.ziel) }"
+          >
+            <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
+            <span>{{ link.text }}</span>
+          </RouterLink>
+        </div>
+      </wa-dropdown>
+
+      <wa-button
+        v-if="glossarLink"
+        :class="{
+          'mm-header__nav-button': true,
+          'mm-header__nav-button--aktiv': istAktiv(glossarLink.ziel),
+        }"
+        size="small"
+        appearance="plain"
+        :variant="istAktiv(glossarLink.ziel) ? 'brand' : 'neutral'"
+        @click="geheZu(glossarLink.ziel)"
+      >
+        <wa-icon :name="glossarLink.icon" aria-hidden="true" slot="start" class="mm-header__nav-icon" />
+        <span>{{ glossarLink.text }}</span>
+      </wa-button>
     </nav>
 
     <wa-button
@@ -104,9 +213,7 @@ function nachDemSchliessen(ereignis: Event): void {
           v-for="link in links"
           :key="link.ziel"
           :to="link.ziel"
-          :class="{
-            'router-link-active': link.ziel !== '/' && route.path.startsWith(`${link.ziel}/`),
-          }"
+          :class="{ 'router-link-active': istAktiv(link.ziel) }"
         >
           <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
           <span>{{ link.text }}</span>
@@ -157,9 +264,64 @@ function nachDemSchliessen(ereignis: Event): void {
    * Seite breiter als der Bildschirm.
    */
   flex-wrap: wrap;
-  gap: var(--wa-space-2xs) var(--wa-space-l);
+  gap: var(--wa-space-2xs) var(--wa-space-xs);
   margin-inline-start: auto;
   min-width: 0;
+}
+
+.mm-header__dropdown {
+  display: inline-flex;
+}
+
+.mm-header__nav-button,
+.mm-header__dropdown-trigger {
+  font-size: var(--wa-font-size-s);
+}
+
+.mm-header__nav-button::part(base),
+.mm-header__dropdown-trigger::part(base) {
+  min-height: 2rem;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+.mm-header__nav-button--aktiv::part(base),
+.mm-header__dropdown-trigger--aktiv::part(base) {
+  background-image: linear-gradient(var(--wa-color-brand-border-loud), var(--wa-color-brand-border-loud));
+  background-size: calc(100% - 28px) 2px;
+}
+
+.mm-header__dropdown-inhalt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-3xs);
+  min-width: 14rem;
+  padding: var(--wa-space-2xs);
+}
+
+.mm-header__dropdown-inhalt a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-2xs);
+  padding: var(--wa-space-2xs) var(--wa-space-s);
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  border-bottom: none;
+  border-radius: var(--wa-border-radius-s);
+}
+
+.mm-header__dropdown-inhalt a:hover {
+  color: var(--wa-color-text-normal);
+  background-color: var(--mm-auswahl-flaeche);
+}
+
+.mm-header__dropdown-inhalt a.router-link-active {
+  color: var(--wa-color-brand-on-quiet);
+  background-color: var(--mm-auswahl-flaeche);
+  border-bottom: none;
 }
 
 .mm-header__nav a,
