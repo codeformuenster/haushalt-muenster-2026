@@ -6,7 +6,7 @@
  * heißt also: Eintrag in src/router/index.ts, hier ist nichts zu tun.
  */
 import { computed } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import logoUrl from '/src/assets/images/Logo.svg'
 
 const navIcons: Record<string, string> = {
@@ -21,6 +21,7 @@ const navIcons: Record<string, string> = {
 }
 
 const router = useRouter()
+const route = useRoute()
 
 const links = computed(() =>
   router.options.routes
@@ -41,7 +42,14 @@ const links = computed(() =>
     </RouterLink>
 
     <nav class="mm-header__nav" aria-label="Hauptnavigation">
-      <RouterLink v-for="link in links" :key="link.ziel" :to="link.ziel">
+      <RouterLink
+        v-for="link in links"
+        :key="link.ziel"
+        :to="link.ziel"
+        :class="{
+          'router-link-active': link.ziel !== '/' && route.path.startsWith(`${link.ziel}/`),
+        }"
+      >
         <wa-icon :name="link.icon" aria-hidden="true" class="mm-header__nav-icon" />
         <span>{{ link.text }}</span>
       </RouterLink>
