@@ -450,6 +450,7 @@ function zurUebersicht() {
       titel="Stellenatlas Münster"
       beschreibung="Wo arbeitet die Stadt? Der Stellenatlas zeigt geplante Stellen in Vollzeitäquivalenten (VZÄ)."
     />
+
     <wa-card class="mm-kennzahlen-band">
       <dl class="mm-kennzahlen" aria-live="polite">
         <div class="mm-kennzahl">
@@ -471,7 +472,7 @@ function zurUebersicht() {
         </div>
         <div v-if="kennzahl === 'vzae'" class="mm-kennzahl">
           <dt>Aufgaben der Stadt</dt>
-          <dd>63 Produktgruppen</dd>
+          <dd>63 <GlossarBegriff id="vzae">Produktgruppen</GlossarBegriff></dd>
         </div>
         <div v-else class="mm-kennzahl">
           <dt>Davon mit Näherungswert</dt>
@@ -480,6 +481,7 @@ function zurUebersicht() {
         </div>
       </dl>
     </wa-card>
+
     <div class="stellen-filter" aria-label="Darstellung filtern">
       <div class="stellen-metrik" role="group" aria-label="Kennzahl">
         <button type="button" :aria-pressed="kennzahl === 'vzae'" @click="kennzahl = 'vzae'">
