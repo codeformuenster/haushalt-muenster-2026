@@ -141,7 +141,9 @@ const dashboardKarten = computed(() => [
   {
     titel: 'Einnahmen',
     wert: euroKurz(asNumber(gesamtZeile?.Ertraege_2026_EUR)),
-    trend: trend(asNumber(gesamtZeile?.Ertraege_2027_EUR) - asNumber(gesamtZeile?.Ertraege_2026_EUR)),
+    trend: trend(
+      asNumber(gesamtZeile?.Ertraege_2027_EUR) - asNumber(gesamtZeile?.Ertraege_2026_EUR),
+    ),
   },
   {
     titel: 'Ausgaben',
@@ -177,9 +179,10 @@ const dashboardKarten = computed(() => [
           <p class="mm-hero__subhead">Der Haushaltsplan 2026/2027</p>
           <h1>Wofür gibt Münster Geld aus?</h1>
           <p class="mm-hero__lead">
-            Der <GlossarBegriff id="haushalt">Haushaltsplan</GlossarBegriff> der Stadt Münster für 2026 und
-            2027 umfasst mehrere hundert Seiten Tabellen. Darin steht, wofür die Stadt in den nächsten zwei Jahren Geld ausgibt — von
-            Kitaplätzen über Straßenbau bis zur Feuerwehr. Nur liest ihn so gut wie niemand.
+            Der <GlossarBegriff id="haushalt">Haushaltsplan</GlossarBegriff> der Stadt Münster für
+            2026 und 2027 umfasst mehrere hundert Seiten Tabellen. Darin steht, wofür die Stadt in
+            den nächsten zwei Jahren Geld ausgibt — von Kitaplätzen über Straßenbau bis zur
+            Feuerwehr. Nur liest ihn so gut wie niemand.
           </p>
           <p class="mm-hero__lead">
             Münster Money nimmt die Zahlen aus diesem Plan und macht sie sichtbar: als Diagramme,
@@ -202,11 +205,14 @@ const dashboardKarten = computed(() => [
       </div>
     </section>
 
-    <wa-divider style="--color: var(--wa-color-brand-border-quiet)"></wa-divider>
-
     <section class="mm-dashboard">
       <div class="dashboard-cards" aria-label="Haushalts-Kennzahlen">
-        <wa-card v-for="karte in dashboardKarten" :key="karte.titel" appearance="outlined" class="mm-dashboard-card">
+        <wa-card
+          v-for="karte in dashboardKarten"
+          :key="karte.titel"
+          appearance="outlined"
+          class="mm-dashboard-card"
+        >
           <div class="mm-dashboard-card__kopf">
             <h3>{{ karte.titel }}</h3>
           </div>
@@ -218,15 +224,20 @@ const dashboardKarten = computed(() => [
         </wa-card>
       </div>
       <p class="mm-dashboard__quelle">
-        Datenjahr 2026 · Veränderung zu 2027 · Quelle: Haushaltsplan 2026/27, Gesamtübersicht Einnahmen/Ausgaben
+        Datenjahr 2026 · Veränderung zu 2027 · Quelle: Haushaltsplan 2026/27, Gesamtübersicht
+        Einnahmen/Ausgaben
       </p>
 
       <div class="mm-dashboard__erklaerung">
         <h2 class="mm-abschnitt-titel">Was ist eigentlich ein Haushalt?</h2>
         <p class="mm-hero__lead">
-          Der Haushalt ist der Finanzplan der Stadt. Er legt fest, welche Einnahmen und Ausgaben für die kommenden Jahre erwartet werden und welche finanziellen Mittel für die unterschiedlichen Aufgaben vorgesehen sind.
-          Dabei geht es um weit mehr als die Verwaltung im Rathaus: Der Haushalt finanziert unter anderem Schulen und Kitas, Straßen und Verkehr, Feuerwehr, Kultur, Sport, Soziales und viele weitere Aufgaben.
-          Der Haushalt wird vom Rat der Stadt beschlossen und bildet damit eine wichtige Grundlage für die Arbeit der Stadtverwaltung.
+          Der Haushalt ist der Finanzplan der Stadt. Er legt fest, welche Einnahmen und Ausgaben für
+          die kommenden Jahre erwartet werden und welche finanziellen Mittel für die
+          unterschiedlichen Aufgaben vorgesehen sind. Dabei geht es um weit mehr als die Verwaltung
+          im Rathaus: Der Haushalt finanziert unter anderem Schulen und Kitas, Straßen und Verkehr,
+          Feuerwehr, Kultur, Sport, Soziales und viele weitere Aufgaben. Der Haushalt wird vom Rat
+          der Stadt beschlossen und bildet damit eine wichtige Grundlage für die Arbeit der
+          Stadtverwaltung.
         </p>
       </div>
     </section>
@@ -251,8 +262,6 @@ const dashboardKarten = computed(() => [
       </div>
     </section>
 
-    <wa-divider style="--color: var(--wa-color-brand-border-quiet)"></wa-divider>
-
     <section>
       <h2 class="mm-abschnitt-titel">Woher die Zahlen kommen</h2>
       <p>
@@ -262,9 +271,9 @@ const dashboardKarten = computed(() => [
         nachschlagen kann.
       </p>
       <p class="mm-fliesstext--folge">
-        Fachwörter wie <GlossarBegriff id="doppelhaushalt">Doppelhaushalt</GlossarBegriff> sind farbig
-        hinterlegt und gepunktet unterstrichen. Tippe oder klicke darauf, dann erscheint eine kurze
-        Erklärung. Alle Begriffe stehen im <RouterLink to="/glossar">Glossar</RouterLink>.
+        Fachwörter wie <GlossarBegriff id="doppelhaushalt">Doppelhaushalt</GlossarBegriff> sind
+        farbig hinterlegt und gepunktet unterstrichen. Tippe oder klicke darauf, dann erscheint eine
+        kurze Erklärung. Alle Begriffe stehen im <RouterLink to="/glossar">Glossar</RouterLink>.
       </p>
 
       <!-- Stand September 2026; entfernen, sobald ein Nachtragshaushalt oder neuer Plan vorliegt. -->
@@ -272,10 +281,11 @@ const dashboardKarten = computed(() => [
         <wa-icon slot="icon" name="triangle-exclamation"></wa-icon>
         <strong>Nachtrag: 2027 fehlen rund 92 Mio. € vom Land.</strong> Nach der Berechnung des
         Landes NRW vom August 2026 erhält Münster 2027 nur rund 2,8 Mio. €
-        <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff>, eingeplant waren
-        rund 95 Mio. €. Alle Zahlen für 2027 in dieser App zeigen den Plan vor dieser Kürzung. Die
-        Stadt hat eine <GlossarBegriff id="haushaltssperre">Haushaltssperre</GlossarBegriff> erlassen und
-        arbeitet an Gegenmaßnahmen.
+        <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff>, eingeplant
+        waren rund 95 Mio. €. Alle Zahlen für 2027 in dieser App zeigen den Plan vor dieser Kürzung.
+        Die Stadt hat eine
+        <GlossarBegriff id="haushaltssperre">Haushaltssperre</GlossarBegriff> erlassen und arbeitet
+        an Gegenmaßnahmen.
         <a
           href="https://www.stadt-muenster.de/aktuelles/newsdetail/doppelhaushalt-2026-2027-verliert-in-2027-schluesselzuweisungen-in-millionenhoehe"
           target="_blank"
@@ -288,6 +298,12 @@ const dashboardKarten = computed(() => [
 </template>
 
 <style scoped>
+/* Die Startseite atmet mehr als die Themenseiten: groessere Abstaende
+   zwischen den Abschnitten als der globale --mm-block-abstand. */
+.mm-seite {
+  gap: 7rem;
+}
+
 .mm-hero h1 {
   margin: 0;
   max-width: var(--mm-lesebreite);
@@ -430,6 +446,10 @@ const dashboardKarten = computed(() => [
 }
 
 @media (max-width: 52rem) {
+  .mm-seite {
+    gap: var(--wa-space-4xl);
+  }
+
   .mm-hero__inhalt {
     grid-template-columns: 1fr;
   }
