@@ -76,12 +76,13 @@ const router = createRouter({
     },
   ],
   // Sprungziele wie #/glossar#vzae (Links aus <GlossarBegriff>): zum Eintrag scrollen,
-  // mit Abstand für den klebenden Seitenkopf. Sonst immer nach oben.
+  // mit Abstand für den klebenden Seitenkopf. Der ist auf schmalen Bildschirmen
+  // mehrzeilig, daher seine tatsächliche Höhe. Sonst immer nach oben.
   scrollBehavior: (to) =>
     to.hash
       ? {
           el: to.hash,
-          top: 80,
+          top: (document.querySelector('.mm-shell__header')?.clientHeight ?? 64) + 16,
           behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
         }
       : { top: 0 },

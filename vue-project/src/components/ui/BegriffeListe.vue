@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /**
- * Alle Fachwörter aus src/data/glossar.ts, alphabetisch sortiert. Jeder Eintrag
+ * Alle Fachwörter aus src/data/glossar.ts, alphabetisch sortiert und wie in
+ * einem gedruckten Wörterbuch nach Anfangsbuchstaben gruppiert. Jeder Eintrag
  * hat seine ID als Sprungziel, damit <GlossarBegriff> per /glossar#<id> hierher
  * verlinken kann.
  *
@@ -18,6 +19,20 @@ const begriffe = (Object.keys(GLOSSAR) as BegriffId[])
     return { ...e, id, siehe: e.siehe ?? [] }
   })
   .sort((a, b) => a.begriff.localeCompare(b.begriff, 'de'))
+
+/** Anfangsbuchstabe ohne Umlaut, damit „Ä“ unter A steht. */
+function buchstabe(wort: string): string {
+  return wort.normalize('NFD').charAt(0).toUpperCase()
+}
+
+/** Begriffe je Anfangsbuchstabe, in der sortierten Reihenfolge. */
+const gruppen = begriffe.reduce<{ zeichen: string; eintraege: typeof begriffe }[]>((liste, b) => {
+  const zeichen = buchstabe(b.begriff)
+  const letzte = liste.at(-1)
+  if (letzte?.zeichen === zeichen) letzte.eintraege.push(b)
+  else liste.push({ zeichen, eintraege: [b] })
+  return liste
+}, [])
 
 const route = useRoute()
 const markiert = ref<BegriffId | null>(null)
@@ -46,30 +61,37 @@ onBeforeUnmount(() => clearTimeout(zeitgeber))
       farbig hinterlegt und führen hierher.
     </p>
 
-    <div class="mm-begriffe__liste">
-      <article
-        v-for="b in begriffe"
-        :id="b.id"
-        :key="b.id"
-        class="mm-begriff"
-        :class="{ 'mm-begriff--markiert': markiert === b.id }"
-      >
-        <h3>
-          {{ b.begriff
-          }}<span v-if="b.abkuerzung" class="mm-begriff__abkuerzung"> ({{ b.abkuerzung }})</span>
-        </h3>
-        <p>{{ b.kurz }}</p>
-        <p v-if="b.lang">{{ b.lang }}</p>
-        <p v-if="b.siehe.length" class="mm-begriff__siehe">
-          Siehe auch:
-          <template v-for="(andere, i) in b.siehe" :key="andere">
-            <RouterLink :to="{ path: '/glossar', hash: `#${andere}` }">{{
-              GLOSSAR[andere].begriff
-            }}</RouterLink
-            ><template v-if="i < b.siehe.length - 1">, </template>
-          </template>
-        </p>
-      </article>
+    <div>
+      <div v-for="gruppe in gruppen" :key="gruppe.zeichen" class="mm-buchstabe">
+        <span class="mm-buchstabe__zeichen" aria-hidden="true">{{ gruppe.zeichen }}</span>
+        <div class="mm-buchstabe__eintraege">
+          <article
+            v-for="b in gruppe.eintraege"
+            :id="b.id"
+            :key="b.id"
+            class="mm-begriff"
+            :class="{ 'mm-begriff--markiert': markiert === b.id }"
+          >
+            <h3>
+              {{ b.begriff
+              }}<span v-if="b.abkuerzung" class="mm-begriff__abkuerzung">
+                ({{ b.abkuerzung }})</span
+              >
+            </h3>
+            <p>{{ b.kurz }}</p>
+            <p v-if="b.lang" class="mm-begriff__lang">{{ b.lang }}</p>
+            <p v-if="b.siehe.length" class="mm-begriff__siehe">
+              Siehe auch:
+              <template v-for="(andere, i) in b.siehe" :key="andere">
+                <RouterLink :to="{ path: '/glossar', hash: `#${andere}` }">{{
+                  GLOSSAR[andere].begriff
+                }}</RouterLink
+                ><template v-if="i < b.siehe.length - 1">, </template>
+              </template>
+            </p>
+          </article>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -93,35 +115,47 @@ onBeforeUnmount(() => clearTimeout(zeitgeber))
   line-height: 1.6;
 }
 
-/* Rahmen wie das Produkt-Akkordeon darunter, Einträge durch Linien getrennt. */
-.mm-begriffe__liste {
-  border: var(--wa-border-width-s) solid var(--wa-color-surface-border);
-  border-radius: var(--wa-border-radius-m);
-  background-color: var(--wa-color-surface-default);
+/* Wörterbuch: links der Buchstabe, rechts die Einträge, Linien zwischen den Buchstaben. */
+.mm-buchstabe {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: var(--wa-space-m);
+  padding-block: var(--wa-space-l);
+  border-top: 1px solid var(--wa-color-surface-border);
 }
 
+.mm-buchstabe__zeichen {
+  color: var(--wa-color-brand-on-quiet);
+  font-size: var(--wa-font-size-3xl);
+  font-weight: var(--wa-font-weight-bold);
+  line-height: 1;
+}
+
+.mm-buchstabe__eintraege {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wa-space-l);
+}
+
+/* Padding mit Gegen-Margin gibt der kurzen Hervorhebung Luft, ohne den Text zu verschieben. */
 .mm-begriff {
-  padding: var(--wa-space-m) var(--wa-space-l);
+  max-width: var(--mm-lesebreite);
+  margin: calc(-1 * var(--wa-space-s));
+  padding: var(--wa-space-s);
+  border-radius: var(--wa-border-radius-m);
   /* Platz für den klebenden Seitenkopf, falls der Browser selbst scrollt. */
   scroll-margin-top: 5rem;
   transition: background-color var(--wa-transition-slow);
-}
-
-.mm-begriff + .mm-begriff {
-  border-top: 1px solid var(--wa-color-surface-border);
 }
 
 .mm-begriff--markiert {
   background-color: var(--wa-color-brand-fill-quiet);
 }
 
-.mm-begriff > * {
-  max-width: var(--mm-lesebreite);
-}
-
 .mm-begriff h3 {
-  margin: 0 0 var(--wa-space-xs);
-  font-size: var(--wa-font-size-m);
+  margin: 0 0 var(--wa-space-2xs);
+  color: var(--wa-color-text-normal);
+  font-size: var(--wa-font-size-l);
   line-height: 1.3;
 }
 
@@ -131,7 +165,7 @@ onBeforeUnmount(() => clearTimeout(zeitgeber))
 }
 
 .mm-begriff p {
-  margin: 0 0 var(--wa-space-s);
+  margin: 0 0 var(--wa-space-xs);
   line-height: 1.6;
 }
 
@@ -139,12 +173,23 @@ onBeforeUnmount(() => clearTimeout(zeitgeber))
   margin-bottom: 0;
 }
 
+.mm-begriff__lang {
+  color: var(--wa-color-text-quiet);
+}
+
 .mm-begriff__siehe {
   color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-s);
 }
 
-.mm-begriff__siehe a {
-  color: var(--wa-color-brand-fill-loud);
+@media (max-width: 40rem) {
+  .mm-buchstabe {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: var(--wa-space-s);
+  }
+
+  .mm-buchstabe__zeichen {
+    font-size: var(--wa-font-size-2xl);
+  }
 }
 </style>
