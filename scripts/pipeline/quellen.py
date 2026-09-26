@@ -97,6 +97,19 @@ def pdf_box(pdf: pdfplumber.PDF, datei: str, schluessel: str) -> list[float]:
     return treffer[0]
 
 
+def text_box(pdf: pdfplumber.PDF, nr: int, muster: str) -> list[float]:
+    """Rechteck [x0, top, x1, bottom] in PDF-Punkten der einen Textstelle auf Seite nr, die auf muster (Regex) passt.
+
+    Für Tabellen ohne Linien, die find_tables nicht erkennt (von Hand übertragen
+    nach daten/manuell/). ValueError bei keinem oder mehreren Treffern.
+    """
+    treffer = pdf.pages[nr - 1].search(muster)
+    if len(treffer) != 1:
+        raise ValueError(f"Seite {nr}: {muster!r} kommt im PDF {len(treffer)}-mal vor")
+    t = treffer[0]
+    return [round(w, 1) for w in (t["x0"], t["top"], t["x1"], t["bottom"])]
+
+
 def rendere_seite(pdf: pdfplumber.PDF, band: int, nr: int, ziel: Path) -> dict:
     """Speichert eine PDF-Seite als ziel/band<N>_p<PPP>.webp; gibt Bildpfad und Seitengröße für das JSON zurück."""
     ziel.mkdir(parents=True, exist_ok=True)

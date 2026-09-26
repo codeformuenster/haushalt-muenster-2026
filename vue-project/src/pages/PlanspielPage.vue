@@ -156,6 +156,8 @@ interface Quellen {
       band: number
       seite: number
       box: [number, number, number, number]
+      /** Unterordner von daten/; fehlt bei den Roh-CSVs aus raw_table_extraction/. */
+      ordner?: string
       csv: string
       zeile: number
       zellen: string[]
@@ -163,8 +165,7 @@ interface Quellen {
   >
 }
 
-const ROHDATEN_URL =
-  'https://github.com/codeformuenster/haushalt-muenster-2026/blob/main/daten/raw_table_extraction/'
+const DATEN_URL = 'https://github.com/codeformuenster/haushalt-muenster-2026/blob/main/daten/'
 
 const quelleOffen = ref(false)
 const quelle = ref<Quelle | null>(null)
@@ -214,7 +215,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       datei: eintrag.csv,
       zeile: eintrag.zeile,
       zellen: eintrag.zellen,
-      url: `${ROHDATEN_URL}${eintrag.csv}?plain=1#L${eintrag.zeile}`,
+      url: `${DATEN_URL}${eintrag.ordner ?? 'raw_table_extraction'}/${eintrag.csv}?plain=1#L${eintrag.zeile}`,
     },
   }
 }
@@ -232,9 +233,10 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Ein Spiel, keine Prognose.</strong> Das Planspiel vereinfacht stark. Die Beträge
       folgen dem Haushaltsplan, die Wirkungen sind aber grobe Rechenbeispiele: Viele Ausgaben sind
-      <GlossarBegriff id="pflichtaufgabe">gesetzlich vorgeschrieben</GlossarBegriff>, und Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu
-      bekommen, was die Stadt tut und wie groß die einzelnen Posten sind. Regler und Karten werden
-      einfach addiert, jeweils bezogen auf den Plan.
+      <GlossarBegriff id="pflichtaufgabe">gesetzlich vorgeschrieben</GlossarBegriff>, und
+      Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu bekommen, was die Stadt tut und
+      wie groß die einzelnen Posten sind. Regler und Karten werden einfach addiert, jeweils bezogen
+      auf den Plan.
     </wa-callout>
 
     <div ref="diagramme" class="mm-raster">

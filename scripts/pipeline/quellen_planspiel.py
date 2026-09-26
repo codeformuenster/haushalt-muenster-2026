@@ -5,6 +5,8 @@ einer Zeile im Haushaltsplan entspricht, sucht das Skript die Zeile in der Roh-C
 unter daten/raw_table_extraction/ und dieselbe Zeile als Rechteck auf der Seite im
 PDF unter daten/pdfs/ (nicht im Repo, beide Bände). Summen aus mehreren Zeilen
 oder Tabellen (alle Zuschüsse, Stellen im Bürgerbüro) haben keine Quelle.
+Werte aus von Hand übertragenen Tabellen (MANUELL) stehen in daten/manuell/;
+ihre Zeile im PDF findet eine Textsuche.
 
 Prüft außerdem, dass der Wert 2026 in der gefundenen Zeile dem Wert entspricht,
 den die App aus vue-project/src/data/planspiel.json zeigt.
@@ -19,6 +21,7 @@ ihr Wert abweicht.
 """
 
 import json
+import re
 from collections.abc import Callable
 from pathlib import Path
 
@@ -26,7 +29,8 @@ import pdfplumber
 import polars as pl
 import typer
 
-from quellen import PDF_URLS, PDFS, als_json, csv_zeile, ort, pdf_box, rendere_seite
+from planspiel_daten import STEUERARTEN_DATEI
+from quellen import PDF_URLS, PDFS, als_json, csv_zeile, ort, pdf_box, rendere_seite, text_box
 from rohdaten import zahl
 
 DATEN = Path(__file__).resolve().parents[2] / "daten"
@@ -102,6 +106,14 @@ QUELLEN: dict[str, tuple[str, str, int, float, Wert]] = {
 }
 
 
+# Von Hand übertragene Tabellen unter daten/manuell/ (dort Dezimalpunkt statt deutscher
+# Zahlen): Schlüssel -> (CSV, erste Zelle der Zeile, Spalte mit 2026 ab 0, Faktor zu €,
+# Wert der App). Das Rechteck im PDF kommt aus einer Textsuche nach der Zeile.
+MANUELL: dict[str, tuple[str, str, int, float, Wert]] = {
+    "steuer-hunde": (STEUERARTEN_DATEI, "Hundesteuer", 1, 1_000_000, lambda d: d["hundesteuer"][JAHR]),
+}
+
+
 def betrag(text: str) -> float | None:
     """Deutscher Zahlentext als Zahl (wie rohdaten.zahl), None bei leerer Zelle."""
     return pl.select(zahl(pl.lit(text))).item()
@@ -134,6 +146,27 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
             if im_plan is None or abs(im_plan * faktor - erwartet) > 0.5:
                 fehler.append(f"{schluessel}: {zellen[spalte]!r} in {datei} passt nicht zu {erwartet} in planspiel.json")
             posten[schluessel] = {"band": band, "seite": seite, "box": box, "csv": datei, "zeile": zeile, "zellen": zellen}
+
+        for schluessel, (datei, zeile_schluessel, spalte, faktor, wert) in MANUELL.items():
+            band, seite, _ = ort(datei)
+            try:
+                zeile, zellen = csv_zeile(daten / "manuell" / datei, zeile_schluessel)
+                box = text_box(pdfs[band], seite, rf"{re.escape(zeile_schluessel)}(\s+[\d.,]+)+")
+            except ValueError as e:
+                fehler.append(f"{schluessel}: {e}")
+                continue
+            erwartet = wert(app)
+            if abs(float(zellen[spalte]) * faktor - erwartet) > 0.5:
+                fehler.append(f"{schluessel}: {zellen[spalte]!r} in {datei} passt nicht zu {erwartet} in planspiel.json")
+            posten[schluessel] = {
+                "band": band,
+                "seite": seite,
+                "box": box,
+                "ordner": "manuell",
+                "csv": datei,
+                "zeile": zeile,
+                "zellen": zellen,
+            }
 
         for meldung in fehler:
             typer.echo(meldung)

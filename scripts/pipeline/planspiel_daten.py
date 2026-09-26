@@ -47,7 +47,7 @@ AUSGABE = Path(__file__).resolve().parents[2] / "vue-project" / "src" / "data" /
 TOLERANZ_EUR = 1.0
 # Aufstellung der Steuerarten, Band 1, PDF-Seite 545 (von Hand übertragen). Die Beträge sind
 # in Mio. € auf höchstens 0,05 Mio. € gerundet, daher diese Toleranz je Zeile beim Summenvergleich.
-STEUERARTEN_DATEI = "band1_p545_PG1601_Erlaeuterungen_Steuerarten.csv"
+STEUERARTEN_DATEI = "band1_p545_PG1601_Erlaeuterungen_Steuerarten_t0.csv"
 RUNDUNG_MIO = 0.05
 JAHRE = ("2026", "2027")
 # Spalten der Roh-CSVs: Zeilennummer, Bezeichnung, 2024, 2025, 2026, 2027, ...

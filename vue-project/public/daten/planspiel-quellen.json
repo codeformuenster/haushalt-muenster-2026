@@ -14,6 +14,7 @@
     "1-387": {"bild": "quellen/band1_p387.webp", "breite": 841.9, "hoehe": 595.3},
     "1-445": {"bild": "quellen/band1_p445.webp", "breite": 841.9, "hoehe": 595.3},
     "1-459": {"bild": "quellen/band1_p459.webp", "breite": 841.9, "hoehe": 595.3},
+    "1-545": {"bild": "quellen/band1_p545.webp", "breite": 842.0, "hoehe": 595.2},
     "2-20": {"bild": "quellen/band2_p020.webp", "breite": 595.0, "hoehe": 842.0},
     "2-143": {"bild": "quellen/band2_p143.webp", "breite": 595.0, "hoehe": 842.0}
   },
@@ -38,6 +39,7 @@
     "pg-1201-17": {"band": 1, "seite": 459, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p459_PG1201_BereitstellungvonVerkehrsflachenund_anlagen_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "87.364.461,91", "80.435.250", "83.066.730", "83.089.990", "83.496.580", "84.276.950", "84.673.010"]},
     "pb-04-17": {"band": 1, "seite": 210, "box": [28.3, 305.4, 813.6, 317.4], "csv": "band1_p210_PB04_KulturundWissenschaft_Teilergebnisplan_t0.csv", "zeile": 19, "zellen": ["17", "= OrdentlicheAufwendungen", "55.752.212,21", "53.234.650", "55.652.360", "56.835.750", "56.601.630", "56.782.100", "57.245.920"]},
     "steuer-sonstige": {"band": 2, "seite": 20, "box": [90.6, 722.6, 524.2, 733.1], "csv": "band2_p020_Vorbericht_Ergebnisplan_t1.csv", "zeile": 7, "zellen": ["Sonstige kommunale Steuern", "8,4", "8,6", "9,9", "10,4", "10,8", "10,8", "10,8"]},
-    "stadtwerke": {"band": 2, "seite": 143, "box": [63.4, 225.0, 523.3, 243.0], "csv": "band2_p143_Uebersicht_Wirtschaftslage_Unternehmen_Tabelle_t0.csv", "zeile": 7, "zellen": ["Stadtwerke Münster GmbH", "(1)", "6.500", "6.500", "6.500"]}
+    "stadtwerke": {"band": 2, "seite": 143, "box": [63.4, 225.0, 523.3, 243.0], "csv": "band2_p143_Uebersicht_Wirtschaftslage_Unternehmen_Tabelle_t0.csv", "zeile": 7, "zellen": ["Stadtwerke Münster GmbH", "(1)", "6.500", "6.500", "6.500"]},
+    "steuer-hunde": {"band": 1, "seite": 545, "box": [42.6, 281.0, 383.0, 290.0], "ordner": "manuell", "csv": "band1_p545_PG1601_Erlaeuterungen_Steuerarten_t0.csv", "zeile": 6, "zellen": ["Hundesteuer", "1.8", "1.85"]}
   }
 }

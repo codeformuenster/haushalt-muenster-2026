@@ -252,6 +252,7 @@ export const KARTEN: Karte[] = [
     ...anteilVon(0.2, hundesteuer, 'Hundesteuer'),
     wissen: `Die Hundesteuer ist eine kleine örtliche Steuer. Den Steuersatz legt der Rat in einer Satzung fest. Sie bringt rund ${euroKurz(hundesteuer)} im Jahr, die Grundsteuer zum Vergleich ${euroKurz(daten.grundsteuer[JAHR])}.`,
     vergleich: [
+      { name: 'Hundesteuer', betrag: hundesteuer, quelle: 'steuer-hunde' },
       {
         name: 'Sonstige kommunale Steuern',
         betrag: daten.sonstigeSteuern[JAHR],
