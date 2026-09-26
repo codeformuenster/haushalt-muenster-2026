@@ -37,6 +37,7 @@ const bereiche = daten.produktbereiche.map((bereich, index) => {
     .filter((gruppe) => gruppe.value > 0)
 
   return {
+    code: bereich.code,
     name: bereich.name,
     value: gruppen.reduce((summe, gruppe) => summe + gruppe.value, 0),
     farbe: KATEGORIE_FARBEN[index % KATEGORIE_FARBEN.length],
@@ -50,7 +51,7 @@ const gesamt = computed(() => bereiche.reduce((summe, bereich) => summe + bereic
 
 /*
  * Welcher Bereich aufgeklappt ist, hält die Seite selbst — nicht der
- * Treemap-Zoom von ECharts. So wirken Klick ins Diagramm, die Schaltflächen
+ * Treemap-Zoom von ECharts. So wirken Klick ins Diagramm, die Auswahl
  * und die Brotkrumen über der Karte alle auf denselben Zustand, und alles
  * davon ist auch per Tastatur bedienbar.
  */
@@ -62,7 +63,7 @@ const bereichDaten = computed(() =>
 /** Text für die Live-Region: sagt den Wechsel für Screenreader an. */
 const ansage = ref('')
 
-const alleBereicheKnopf = ref<HTMLElement | null>(null)
+const bereichsAuswahl = ref<HTMLElement | null>(null)
 
 function waehleBereich(name: string | null): void {
   ausgewaehlterBereich.value = name
@@ -72,11 +73,20 @@ function waehleBereich(name: string | null): void {
     : `Alle ${zahl(bereiche.length)} Aufgabenbereiche, zusammen ${euroKurz(gesamt.value)}.`
 }
 
-/** Brotkrume „Alle Bereiche“: verschwindet beim Klick, der Fokus springt zur Schaltfläche. */
+/**
+ * Bereich aus dem <wa-select> übernehmen. Die Optionen tragen den Bereichscode
+ * als Wert: Leerzeichen in den Namen würde Web Awesome als Wertetrenner lesen.
+ */
+function bereichGewaehlt(ereignis: Event): void {
+  const code = (ereignis.target as HTMLInputElement).value
+  waehleBereich(bereiche.find((bereich) => bereich.code === code)?.name ?? null)
+}
+
+/** Brotkrume „Alle Bereiche“: verschwindet beim Klick, der Fokus springt zur Auswahl. */
 async function zurueckZurGesamtansicht(): Promise<void> {
   waehleBereich(null)
   await nextTick()
-  alleBereicheKnopf.value?.focus()
+  bereichsAuswahl.value?.focus()
 }
 
 function diagrammKlick(ereignis: unknown): void {
@@ -158,38 +168,27 @@ const treemap = computed<EChartsOption>(() => {
   <div class="mm-seite">
     <PageIntro
       titel="Der Haushalt im Überblick"
-      beschreibung="Die Stadt Münster plant für 2026 Ausgaben in mehreren Aufgabenbereichen. Je größer die Fläche, desto mehr Geld fließt in den Bereich. Ein Klick auf einen Bereich — oder auf seine Schaltfläche über dem Diagramm — führt eine Ebene tiefer, zu den einzelnen Themen."
+      beschreibung="Die Stadt Münster plant für 2026 Ausgaben in mehreren Aufgabenbereichen. Je größer die Fläche, desto mehr Geld fließt in den Bereich. Ein Klick auf einen Bereich — oder die Auswahl über dem Diagramm — führt eine Ebene tiefer, zu den einzelnen Themen."
     />
 
     <ChartCard
       titel="Ausgaben nach Aufgabenbereich"
-      beschreibung="Geplante Aufwendungen 2026, aufgeteilt auf die Aufgabenbereiche der Stadt. Ein Klick auf eine Fläche oder eine Schaltfläche zeigt die Produktgruppen des Bereichs, „Alle Bereiche“ führt zurück. Alle Werte stehen unter dem Diagramm auch als Tabelle."
+      beschreibung="Geplante Aufwendungen 2026, aufgeteilt auf die Aufgabenbereiche der Stadt. Ein Klick auf eine Fläche oder die Auswahl „Aufgabenbereich“ zeigt die Produktgruppen des Bereichs, „Alle Bereiche“ führt zurück. Alle Werte stehen unter dem Diagramm auch als Tabelle."
       quelle="Haushaltsplan 2026/27, Band 2, Haushaltsquerschnitt, S. 67 ff."
       :pdf="{ band: 2, seite: 71 }"
     >
-      <div class="mm-bereichswahl" role="group" aria-label="Aufgabenbereich anzeigen">
-        <wa-button
-          ref="alleBereicheKnopf"
-          size="s"
-          :appearance="ausgewaehlterBereich === null ? 'filled-outlined' : 'outlined'"
-          :class="{ 'mm-aktiv': ausgewaehlterBereich === null }"
-          :aria-pressed="ausgewaehlterBereich === null"
-          @click="waehleBereich(null)"
-        >
-          Alle Bereiche
-        </wa-button>
-        <wa-button
-          v-for="bereich in bereiche"
-          :key="bereich.name"
-          size="s"
-          :appearance="ausgewaehlterBereich === bereich.name ? 'filled-outlined' : 'outlined'"
-          :class="{ 'mm-aktiv': ausgewaehlterBereich === bereich.name }"
-          :aria-pressed="ausgewaehlterBereich === bereich.name"
-          @click="waehleBereich(bereich.name)"
-        >
+      <wa-select
+        ref="bereichsAuswahl"
+        class="mm-bereichswahl"
+        label="Aufgabenbereich"
+        :value="bereichDaten?.code ?? 'alle'"
+        @change="bereichGewaehlt"
+      >
+        <wa-option value="alle">Alle Bereiche</wa-option>
+        <wa-option v-for="bereich in bereiche" :key="bereich.code" :value="bereich.code">
           {{ bereich.name }}
-        </wa-button>
-      </div>
+        </wa-option>
+      </wa-select>
 
       <nav class="mm-brotkrumen" aria-label="Ebene im Diagramm">
         <ol>
@@ -247,35 +246,10 @@ const treemap = computed<EChartsOption>(() => {
 </template>
 
 <style scoped>
+/* Breit genug für lange Bereichsnamen, auf dem Handy nie breiter als die Karte. */
 .mm-bereichswahl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--wa-space-2xs);
+  max-width: min(100%, 28rem);
   margin-bottom: var(--wa-space-m);
-}
-
-/* Lange Bereichsnamen dürfen auf dem Handy umbrechen, statt die Seite zu verbreitern. */
-.mm-bereichswahl wa-button {
-  max-width: 100%;
-}
-
-.mm-bereichswahl wa-button::part(base) {
-  height: auto;
-  min-height: var(--wa-form-control-height);
-}
-
-.mm-bereichswahl wa-button::part(label) {
-  white-space: normal;
-  text-align: start;
-}
-
-/* Der gewählte Bereich: leicht orange hinterlegt mit passendem Rand. Web
-   Awesome liest diese Tokens im Shadow DOM, deshalb hier am Host setzen. */
-.mm-bereichswahl .mm-aktiv {
-  --wa-color-fill-normal: var(--mm-auswahl-flaeche);
-  --wa-color-border-normal: var(--mm-auswahl-rand);
-  --wa-color-on-normal: var(--mm-auswahl-text);
-  font-weight: var(--wa-font-weight-semibold);
 }
 
 .mm-brotkrumen ol {
