@@ -37,3 +37,8 @@ const VZAE = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumF
 export function vzae(wert: number): string {
   return VZAE.format(wert)
 }
+
+/** 0.1234 -> "12,3 %" — für Anteile in Tooltips und Beschriftungen. */
+export function prozent(anteil: number): string {
+  return `${ZAHL.format(anteil * 100)} %`
+}
