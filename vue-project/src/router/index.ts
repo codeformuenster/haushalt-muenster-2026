@@ -75,6 +75,12 @@ const router = createRouter({
       meta: { nav: '1 Mio. €' },
     },
     {
+      path: '/mehr-oder-weniger',
+      name: 'mehr-oder-weniger',
+      component: () => import('@/pages/MehrOderWenigerPage.vue'),
+      meta: { nav: 'Schätzduell' },
+    },
+    {
       path: '/glossar',
       name: 'glossar',
       component: () => import('@/pages/GlossarPage.vue'),
