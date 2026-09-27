@@ -77,6 +77,7 @@ onMounted(async () => {
     registerMap(KARTE, geo as Parameters<typeof registerMap>[1])
     karteBereit.value = true
     daten.value = zahlen as Daten
+    bezirk.value = daten.value.bezirke[0]?.name ?? null
   } catch {
     ladefehler.value = true
   }
@@ -95,7 +96,12 @@ type Jahr = (typeof JAHRE)[number]
 
 const jahr = ref<Jahr>('2026')
 
-/** Kein Bezirk gewählt heißt: die ganze Stadt. */
+/**
+ * Immer genau ein Bezirk, nach dem Laden der erste. Eine Ansicht für die ganze
+ * Stadt gibt es nicht: Bezirksübergreifende Maßnahmen stehen im Plan unter jedem
+ * betroffenen Bezirk mit dem vollen Betrag, eine Summe über alle Bezirke zählt
+ * sie mehrfach.
+ */
 const bezirk = ref<string | null>(null)
 
 const alle = computed<Posten[]>(() => daten.value?.posten ?? [])
@@ -109,19 +115,12 @@ const summeEin = (liste: Posten[]): number => liste.reduce((s, p) => s + ein(p),
 
 const imBezirk = (name: string): Posten[] => alle.value.filter((p) => p.bezirk === name)
 
-/** Die Posten, um die es gerade geht: ein Bezirk oder die ganze Stadt. */
-const auswahl = computed<Posten[]>(() =>
-  bezirk.value === null ? alle.value : imBezirk(bezirk.value),
-)
+/** Die Posten des gewählten Bezirks. */
+const auswahl = computed<Posten[]>(() => (bezirk.value === null ? [] : imBezirk(bezirk.value)))
 
-const auswahlName = computed(() => bezirk.value ?? 'allen sechs Bezirken')
-
-const gesamt = computed(() => summeAus(alle.value))
+const auswahlName = computed(() => bezirk.value ?? '–')
 
 // --------------------------------------------------------------- Aggregate
-
-/** 0.286 -> "28,6 %" */
-const prozent = (anteil: number): string => `${zahl(anteil * 100)} %`
 
 const jeBezirk = computed(() =>
   bezirke.value.map((name) => ({ name, wert: summeAus(imBezirk(name)) })),
@@ -158,10 +157,7 @@ const kennzahlen = computed(() => [
   {
     titel: `Investitionen ${jahr.value} in ${auswahlName.value}`,
     wert: euroKurz(summeAus(auswahl.value)),
-    zusatz:
-      bezirk.value === null
-        ? `verteilt auf ${zahl(jeFachthema.value.length)} Fachthemen`
-        : `${prozent(summeAus(auswahl.value) / gesamt.value)} der Investitionen im Stadtgebiet`,
+    zusatz: `verteilt auf ${zahl(jeFachthema.value.length)} Fachthemen`,
   },
   {
     titel: 'davon gegenfinanziert',
@@ -171,12 +167,9 @@ const kennzahlen = computed(() => [
   {
     titel: 'größter Posten',
     wert: euroKurz(groesstesThema.value.wert),
-    zusatz: `${groesstesThema.value.name} — ${prozent(groesstesThema.value.wert / summeAus(auswahl.value))}`,
+    zusatz: groesstesThema.value.name,
   },
 ])
-
-/** Gesamtstädtische Posten, die in jeder Bezirksvertretung gleich auftauchen. */
-const gesamtstaedtisch = computed(() => alle.value.filter((p) => !p.bezirksspezifisch))
 
 // --------------------------------------------------------------- Diagramme
 
@@ -233,7 +226,6 @@ const karte = computed<EChartsOption>(() => {
         return [
           `<strong>${name}</strong>`,
           `${euro(value)} in ${jahr.value}`,
-          `${prozent(value / gesamt.value)} der Investitionen im Stadtgebiet`,
           `<br>größter Posten: ${spitze.name}`,
           euro(spitze.wert),
         ].join('<br>')
@@ -310,8 +302,7 @@ const fachthemen = computed<EChartsOption>(() => {
         const teile = info as Array<{ axisValue: string; value: number }>
         const erste = teile[0]
         if (!erste) return ''
-        const anteil = prozent(erste.value / summeAus(auswahl.value))
-        return `<strong>${erste.axisValue}</strong><br>${euro(erste.value)}<br>${anteil} der Auswahl`
+        return `<strong>${erste.axisValue}</strong><br>${euro(erste.value)}`
       },
     },
     // containLabel rechnet den Platz der Achsenbeschriftungen selbst dazu.
@@ -376,20 +367,24 @@ const fachthemenBeschreibung = computed(
 
 // ----------------------------------------------------------------- Tabelle
 
-/** Alle Fachthemen über alle Bezirke — die Karte als Zahlen, größtes zuerst. */
+/**
+ * Alle Fachthemen je Bezirk, die Karte als Zahlen. Sortiert nach dem größten
+ * Einzelbetrag in einem Bezirk; eine Zeilensumme würde Mehrfachnennungen addieren.
+ */
 const matrix = computed(() => {
   const themen = [...new Set(alle.value.map((p) => p.fachthema))]
   return themen
     .map((name) => {
       const teil = alle.value.filter((p) => p.fachthema === name)
+      const werte = bezirke.value.map((b) => summeAus(teil.filter((p) => p.bezirk === b)))
       return {
         name,
-        werte: bezirke.value.map((b) => summeAus(teil.filter((p) => p.bezirk === b))),
-        gesamt: summeAus(teil),
+        werte,
+        hoechster: Math.max(0, ...werte),
         nurGesamtstaedtisch: teil.every((p) => !p.bezirksspezifisch),
       }
     })
-    .sort((a, b) => b.gesamt - a.gesamt)
+    .sort((a, b) => b.hoechster - a.hoechster)
 })
 
 // ------------------------------------------------------------ Interaktion
@@ -398,11 +393,11 @@ const matrix = computed(() => {
 const ansage = ref('')
 
 function sageAuswahlAn(): void {
-  ansage.value = `${bezirk.value ?? 'Ganze Stadt'}, ${jahr.value}: Investitionen ${euroKurz(summeAus(auswahl.value))}.`
+  ansage.value = `${auswahlName.value}, ${jahr.value}: Investitionen ${euroKurz(summeAus(auswahl.value))}.`
 }
 
-function waehle(name: string | null): void {
-  bezirk.value = bezirk.value === name ? null : name
+function waehle(name: string): void {
+  bezirk.value = name
   sageAuswahlAn()
 }
 
@@ -424,17 +419,19 @@ function jahrGewaehlt(ereignis: Event): void {
   <div class="mm-seite">
     <PageIntro
       titel="Die Bezirke"
-      beschreibung="Münster hat sechs Stadtbezirke mit eigenen Bezirksvertretungen. Für jeden von ihnen weist der Haushaltsplan aus, welche Investitionen im Bezirk geplant sind — von der Schulsanierung über den Kanalbau bis zum Spielplatz. Die Karte zeigt, wie sich diese Investitionen über das Stadtgebiet verteilen, und wofür sie vorgesehen sind."
+      beschreibung="Münster hat sechs Stadtbezirke mit eigenen Bezirksvertretungen. Für jeden von ihnen weist der Haushaltsplan aus, welche Investitionen im Bezirk geplant sind — von der Schulsanierung über den Kanalbau bis zum Spielplatz. Die Karte zeigt die Investitionen je Bezirk und wofür sie vorgesehen sind."
     />
 
     <wa-callout variant="brand" appearance="filled">
       <wa-icon slot="icon" name="info" aria-hidden="true"></wa-icon>
       <strong>Investitionen im Bezirk, nicht Geld der Bezirksvertretung.</strong> Gezeigt werden
-      Bauvorhaben und Anschaffungen, die räumlich in einem Bezirk liegen — bezahlt und beschlossen
-      werden sie überwiegend gesamtstädtisch. Über die frei verfügbaren Mittel der
-      Bezirksvertretungen selbst entscheidet der Haushalt an anderer Stelle; das sind erheblich
-      kleinere Beträge. Nicht enthalten ist außerdem der laufende Betrieb: Personal,
-      Sozialleistungen und Zuschüsse sind räumlich nicht aufgeteilt.
+      Bauvorhaben und Anschaffungen, die der Haushaltsplan einem Bezirk zuordnet.
+      Bezirksübergreifende Maßnahmen (z. B. Velorouten, Schulerweiterungen) stehen dort unter jedem
+      betroffenen Bezirk mit dem vollen Betrag. Bezahlt und beschlossen werden die Investitionen
+      überwiegend gesamtstädtisch. Über die frei verfügbaren Mittel der Bezirksvertretungen selbst
+      entscheidet der Haushalt an anderer Stelle; das sind erheblich kleinere Beträge. Nicht
+      enthalten ist außerdem der laufende Betrieb: Personal, Sozialleistungen und Zuschüsse sind
+      räumlich nicht aufgeteilt.
     </wa-callout>
 
     <!-- Bleibt immer im DOM; nur der Text wechselt. -->
@@ -461,15 +458,6 @@ function jahrGewaehlt(ereignis: Event): void {
           </wa-select>
 
           <div class="mm-bezirkswahl" role="group" aria-label="Bezirk auswählen">
-            <wa-button
-              size="small"
-              :appearance="bezirk === null ? 'filled-outlined' : 'outlined'"
-              :class="{ 'mm-aktiv': bezirk === null }"
-              :aria-pressed="bezirk === null"
-              @click="waehle(null)"
-            >
-              ganze Stadt
-            </wa-button>
             <wa-button
               v-for="b in bezirke"
               :key="b"
@@ -533,7 +521,6 @@ function jahrGewaehlt(ereignis: Event): void {
             <tr>
               <th scope="col">Fachthema</th>
               <th v-for="b in bezirke" :key="b" scope="col" class="mm-zahl">{{ b }}</th>
-              <th scope="col" class="mm-zahl">Gesamt</th>
             </tr>
           </thead>
           <tbody>
@@ -551,32 +538,23 @@ function jahrGewaehlt(ereignis: Event): void {
                 </template>
                 <template v-else>{{ euro(wert) }}</template>
               </td>
-              <td class="mm-zahl">
-                <template v-if="zeile.gesamt === 0">
-                  <span aria-hidden="true">–</span
-                  ><span class="mm-visually-hidden">kein Betrag</span>
-                </template>
-                <template v-else>{{ euro(zeile.gesamt) }}</template>
-              </td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row">Gesamt</th>
+              <th scope="row">Summe im Bezirk</th>
               <td v-for="b in bezirke" :key="b" class="mm-zahl">
                 {{ euro(summeAus(imBezirk(b))) }}
               </td>
-              <td class="mm-zahl">{{ euro(gesamt) }}</td>
             </tr>
           </tfoot>
         </DatenTabelle>
 
         <p class="mm-fussnote">
-          <strong>Eine Unschärfe der Quelle:</strong> {{ zahl(gesamtstaedtisch.length) }} Posten
-          über zusammen {{ euroKurz(summeAus(gesamtstaedtisch)) }} stehen in jeder Bezirksvertretung
-          mit demselben Betrag. Sie sind gesamtstädtisch und dem Bezirk nur nachrichtlich zugeordnet
-          — in den Summen oben zählen sie deshalb mehrfach. Gemessen an {{ euroKurz(gesamt) }} fällt
-          das kaum ins Gewicht, wir lassen es aber nicht unerwähnt.
+          <strong>Keine Stadtsumme:</strong> Bezirksübergreifende Maßnahmen (z. B. Velorouten,
+          Schulerweiterungen) stehen im Haushaltsplan unter jedem betroffenen Bezirk mit dem vollen
+          Betrag. Sie sind deshalb in mehreren Bezirkssummen enthalten. Die Bezirkssummen lassen
+          sich nicht zu einer Stadtsumme addieren.
         </p>
       </ChartCard>
 
