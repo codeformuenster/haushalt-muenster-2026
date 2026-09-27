@@ -256,7 +256,7 @@ const stufen = computed<EChartsOption>(() => ({
       return `<strong>${seriesName}</strong><br>${euro(value)}<br>${prozent(value / gesamt.value)} der Zuschüsse`
     },
   },
-  // Die Legende ist hier die Beschriftung des Balkens — sie steht dicht
+  // Die Legende ist hier die Beschriftung des Balkens, sie steht dicht
   // darunter. Wird sie auf schmalen Bildschirmen zwei- oder dreizeilig,
   // wächst sie von unten nach oben und schließt den Abstand von allein.
   legend: { bottom: 0 },
@@ -709,8 +709,8 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       <wa-icon slot="icon" name="info"></wa-icon>
       <strong>Das ist nicht der ganze Haushalt.</strong> Der Zuschussbericht umfasst nur die
       Zuwendungen an Dritte. Personal, Bau, Sozialtransfers und der Betrieb der Verwaltung stehen
-      nicht darin — sie machen den weitaus größten Teil des Haushalts aus. Für sie weist der Plan
-      die Freiwilligkeit nicht aus.
+      nicht darin. Sie machen den weitaus größten Teil des Haushalts aus. Für sie weist der Plan die
+      Freiwilligkeit nicht aus.
     </wa-callout>
 
     <p v-if="!posten && !ladefehler" class="mm-laden" role="status">Zahlen werden geladen …</p>
@@ -732,9 +732,9 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 
         <wa-details class="mm-erklaerung" summary="Was heißt „dem Grunde nach“?">
           <p>
-            Das Kommunalrecht trennt beim Pflichtgrad einer Aufgabe zwei Fragen: das <em>Ob</em> —
-            muss die Stadt überhaupt tätig werden? — und das <em>Wie</em> — steht auch der Betrag
-            schon fest? Die vier Stufen sind die vier Kombinationen daraus.
+            Das Kommunalrecht trennt beim Pflichtgrad einer Aufgabe zwei Fragen: das
+            <em>Ob</em> (muss die Stadt überhaupt tätig werden?) und das <em>Wie</em> (steht auch
+            der Betrag schon fest?). Die vier Stufen sind die vier Kombinationen daraus.
           </p>
           <DatenTabelle
             beschriftung="Die vier Stufen der Verpflichtung: Postenzahl und Betrag 2026"
@@ -764,9 +764,9 @@ async function zeigeQuelle(p: Posten): Promise<void> {
           <p>
             In der gebundenen Ecke rechts unten stehen Zuwendungen wie die nach dem KiBiz: Das
             Gesetz schreibt sowohl den Betrieb von Kindertageseinrichtungen als auch die
-            Kindpauschalen vor, der Rat entscheidet darüber nichts. Bei „dem Grunde nach“ — etwa
-            OGS, offene Kinder- und Jugendarbeit oder Schulsozialarbeit — muss die Stadt tätig
-            werden, entscheidet aber selbst, mit wie viel Geld.
+            Kindpauschalen vor, der Rat entscheidet darüber nichts. Bei „dem Grunde nach“ (etwa OGS,
+            offene Kinder- und Jugendarbeit oder Schulsozialarbeit) muss die Stadt tätig werden,
+            entscheidet aber selbst, mit wie viel Geld.
             <strong
               >Verhandelbar sind also nur die beiden linken Stufen „freiwillig“ und „dem Grunde
               nach“.</strong
@@ -778,7 +778,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       <div class="mm-raster">
         <ChartCard
           titel="Alle Zuschüsse nach Produktbereich"
-          beschreibung="Wohin das Geld überhaupt fließt. Der Ring zeigt die Aufteilung auf die Produktbereiche des Haushalts — die sieben größten einzeln, die übrigen zusammengefasst. Hier geht es nur um den Betrag, nicht darum, wie frei die Stadt darüber entscheiden kann; das zeigt der Vergleich mit dem Spielraum-Diagramm daneben."
+          beschreibung="Wohin das Geld überhaupt fließt. Der Ring zeigt die Aufteilung auf die Produktbereiche des Haushalts, die sieben größten einzeln und die übrigen zusammengefasst. Hier geht es nur um den Betrag, nicht darum, wie frei die Stadt darüber entscheiden kann; das zeigt der Vergleich mit dem Spielraum-Diagramm daneben."
           :quelle="QUELLE"
           :pdf="{ band: 2, seite: 349 }"
         >
@@ -836,7 +836,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 
         <ChartCard
           titel="Wo der Spielraum liegt"
-          beschreibung="Nur die verhandelbaren Stufen „freiwillig“ und „dem Grunde nach“, je Produktbereich. Ein Bereich kann viel Geld bewegen und hier trotzdem kurz ausfallen — dass ein Balken klein ist, heißt also nicht, dass der Bereich klein ist, sondern dass wenig davon zur Entscheidung steht. Der Vergleich mit der Gesamtverteilung daneben lohnt sich."
+          beschreibung="Nur die verhandelbaren Stufen „freiwillig“ und „dem Grunde nach“, je Produktbereich. Ein Bereich kann viel Geld bewegen und hier trotzdem kurz ausfallen. Dass ein Balken klein ist, heißt also nicht, dass der Bereich klein ist, sondern dass wenig davon zur Entscheidung steht. Der Vergleich mit der Gesamtverteilung daneben lohnt sich."
           :quelle="QUELLE"
           :pdf="{ band: 2, seite: 349 }"
         >
@@ -871,7 +871,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 
       <ChartCard
         titel="Bis wann ist das Geld zugesagt?"
-        beschreibung="Zusagen laufen aus, und erst dann wird wieder über das Geld entschieden. Die Fläche zeigt, wie viel nach Ende des jeweiligen Jahres noch zugesagt ist: links alles, was ein Enddatum hat, und dann von Jahr zu Jahr weniger, bis rechts nichts mehr läuft. Wo die Fläche steil abfällt, wird in dem Jahr besonders viel neu verhandelt — jedenfalls bei den Stufen „freiwillig“ und „dem Grunde nach“; die gebundenen Mittel laufen zwar auch aus, werden aber gesetzlich fortgeschrieben."
+        beschreibung="Zusagen laufen aus, und erst dann wird wieder über das Geld entschieden. Die Fläche zeigt, wie viel nach Ende des jeweiligen Jahres noch zugesagt ist: links alles, was ein Enddatum hat, und dann von Jahr zu Jahr weniger, bis rechts nichts mehr läuft. Wo die Fläche steil abfällt, wird in dem Jahr besonders viel neu verhandelt, jedenfalls bei den Stufen „freiwillig“ und „dem Grunde nach“; die gebundenen Mittel laufen zwar auch aus, werden aber gesetzlich fortgeschrieben."
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 349 }"
       >
