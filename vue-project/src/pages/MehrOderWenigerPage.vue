@@ -3,6 +3,7 @@ import { computed, nextTick, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
+import ProduktgruppeInfo from '@/components/ui/ProduktgruppeInfo.vue'
 import { euro, euroKurz } from '@/charts/format'
 import {
   faktor,
@@ -141,7 +142,7 @@ neuesSpiel()
   <div class="mm-seite">
     <PageIntro
       titel="Mehr oder weniger?"
-      beschreibung="Was kostet die Stadt mehr? Links sehen Sie, wie viel eine Aufgabe 2026 aus allgemeinen Mitteln wie Steuern braucht. Schätzen Sie, ob die Aufgabe rechts mehr oder weniger kostet – wie lange hält Ihre Serie?"
+      beschreibung="Was kostet die Stadt mehr? Links sehen Sie, wie viel eine Aufgabe 2026 aus allgemeinen Mitteln wie Steuern braucht. Schätzen Sie, ob die Aufgabe rechts mehr oder weniger kostet – wie lange hält Ihre Serie? Ein Klick auf den Namen einer Aufgabe erklärt, was dahintersteckt."
     />
 
     <ChartCard
@@ -153,7 +154,7 @@ neuesSpiel()
         <div class="duell">
           <div class="karte">
             <span class="karte__bereich">{{ links.bereich }}</span>
-            <strong class="karte__name">{{ links.bezeichnung }}</strong>
+            <strong class="karte__name"><ProduktgruppeInfo :posten="links" aufgedeckt /></strong>
             <span class="karte__betrag" :title="euro(links.bedarf)"
               ><span aria-hidden="true">{{ euroKurz(links.bedarf) }}</span
               ><span class="mm-visually-hidden">{{ euro(links.bedarf) }}</span></span
@@ -164,7 +165,9 @@ neuesSpiel()
 
           <div class="karte" :class="{ 'karte--verdeckt': phase === 'frage' }">
             <span class="karte__bereich">{{ rechts.bereich }}</span>
-            <strong class="karte__name">{{ rechts.bezeichnung }}</strong>
+            <strong class="karte__name"
+              ><ProduktgruppeInfo :posten="rechts" :aufgedeckt="phase !== 'frage'"
+            /></strong>
             <span v-if="phase === 'frage'" class="karte__betrag"
               ><span aria-hidden="true">?</span
               ><span class="mm-visually-hidden">Betrag verdeckt</span></span

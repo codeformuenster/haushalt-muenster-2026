@@ -6,8 +6,14 @@
  *
  * Alles, was dazugehört, steckt in dieser Komponente — Daten laden und der
  * Umschalter auf Einfache Sprache. Einbauen heißt: <ProduktAkkordeon />.
+ *
+ * Jede Produktgruppe hat die ID `pg-<Nummer>` als Sprungziel (etwa aus dem
+ * Spiel „Mehr oder weniger?“). Die Daten kommen erst nach dem Seitenwechsel an,
+ * deshalb klappt die Komponente die Gruppe samt Produktbereich selbst auf und
+ * scrollt hin, sobald beides da ist.
  */
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   absaetze,
   hatInhalt,
@@ -40,6 +46,25 @@ onMounted(() => {
       ladefehler.value = true
     })
 })
+
+const route = useRoute()
+
+/** Bei `#pg-<Nummer>` die Gruppe und ihren Produktbereich aufklappen und hinscrollen. */
+async function springeZuGruppe(): Promise<void> {
+  if (!/^#pg-\d+$/.test(route.hash) || !bereiche.value.length) return
+  await nextTick()
+  const gruppe = document.getElementById(route.hash.slice(1))?.closest('wa-accordion-item')
+  if (!gruppe) return
+  gruppe.expanded = true
+  // Erst nach dem Aufklappen scrollen: Sonst überholt das Scrollen des Routers
+  // (mit der Position im noch zugeklappten Bereich) unser eigenes.
+  await gruppe.parentElement?.closest('wa-accordion-item')?.expand()
+  const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches
+  gruppe.scrollIntoView({ behavior: ruhig ? 'auto' : 'smooth', block: 'start' })
+  gruppe.focus({ preventScroll: true })
+}
+
+watch([() => route.hash, bereiche], springeZuGruppe)
 
 /** „1 Produkt" statt „1 Produkte". */
 function menge(anzahl: number, einzahl: string, mehrzahl: string): string {
@@ -117,7 +142,11 @@ function merkmale(produkt: Produkt): { bezeichnung: string; wert: string }[] {
         </span>
 
         <wa-accordion class="mm-akkordeon" appearance="plain" heading-level="4">
-          <wa-accordion-item v-for="gruppe in bereich.gruppen" :key="gruppe.nummer">
+          <wa-accordion-item
+            v-for="gruppe in bereich.gruppen"
+            :id="`pg-${gruppe.nummer}`"
+            :key="gruppe.nummer"
+          >
             <span slot="label" class="mm-akkordeon__titel">
               <code>{{ gruppe.nummer }}</code>
               <span>{{ gruppe.name }}</span>
