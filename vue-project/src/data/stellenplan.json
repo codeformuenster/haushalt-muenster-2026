@@ -8,7 +8,7 @@
     "06": "Kinder-, Jugend- und Familienhilfe",
     "07": "Gesundheitsdienste",
     "08": "Sportförderung",
-    "09": "Räumliche Planung und Entwicklung",
+    "09": "Räumliche Planung, Entwicklung/GeoInfo",
     "10": "Bauen und Wohnen",
     "11": "Ver- und Entsorgung",
     "12": "Verkehrsflächen u. -anlagen, ÖPNV",
@@ -38,7 +38,7 @@
         "Tarif_E04": 0.53,
         "Tarif_E03": 1.66,
         "Tarif_E02": 0.77,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -62,7 +62,7 @@
         "Tarif_E04": 0.53,
         "Tarif_E03": 1.66,
         "Tarif_E02": 0.77,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -90,7 +90,7 @@
         "Tarif_E08": 7.0,
         "Tarif_E07": 4.0,
         "Tarif_E05": 1.26,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -118,7 +118,7 @@
         "Tarif_E08": 7.0,
         "Tarif_E07": 4.0,
         "Tarif_E05": 1.26,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -194,7 +194,7 @@
         "Tarif_E12": 3.5,
         "Tarif_E11": 0.82,
         "Tarif_E06": 0.5,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -209,7 +209,7 @@
         "Tarif_E12": 3.5,
         "Tarif_E11": 0.82,
         "Tarif_E06": 0.5,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -436,7 +436,7 @@
         "Tarif_E04": 1.0,
         "Tarif_E03": 1.54,
         "Tarif_E02": 64.0,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -468,7 +468,7 @@
         "Tarif_E04": 1.0,
         "Tarif_E03": 1.54,
         "Tarif_E02": 64.0,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -923,7 +923,7 @@
         "Tarif_E07": 5.46,
         "Tarif_E06": 3.84,
         "Tarif_S17": 1.0,
-        "Tarif_S02": 0.02
+        "Tarif_TVOEDFEST": 0.02
       }
     },
     {
@@ -954,7 +954,7 @@
         "Tarif_E07": 5.46,
         "Tarif_E06": 3.84,
         "Tarif_S17": 1.0,
-        "Tarif_S02": 0.02
+        "Tarif_TVOEDFEST": 0.02
       }
     },
     {
@@ -985,7 +985,7 @@
         "Tarif_E08": 1.9,
         "Tarif_E07": 0.54,
         "Tarif_E06": 4.43,
-        "Tarif_S02": 3.8
+        "Tarif_TVOEDFEST": 3.8
       }
     },
     {
@@ -1016,7 +1016,7 @@
         "Tarif_E08": 1.9,
         "Tarif_E07": 0.54,
         "Tarif_E06": 4.43,
-        "Tarif_S02": 3.8
+        "Tarif_TVOEDFEST": 3.8
       }
     },
     {
@@ -1511,7 +1511,7 @@
         "Tarif_S15": 4.0,
         "Tarif_S12": 1.0,
         "Tarif_S11B": 60.57,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -1546,7 +1546,7 @@
         "Tarif_S15": 4.0,
         "Tarif_S12": 1.0,
         "Tarif_S11B": 59.57,
-        "Tarif_S02": 1.0
+        "Tarif_TVOEDFEST": 1.0
       }
     },
     {
@@ -1573,7 +1573,7 @@
         "Tarif_S18": 0.7,
         "Tarif_S17": 0.64,
         "Tarif_S12": 2.75,
-        "Tarif_S02": 0.5
+        "Tarif_TVOEDFEST": 0.5
       }
     },
     {
@@ -1600,7 +1600,7 @@
         "Tarif_S18": 0.7,
         "Tarif_S17": 0.64,
         "Tarif_S12": 2.75,
-        "Tarif_S02": 0.5
+        "Tarif_TVOEDFEST": 0.5
       }
     },
     {
@@ -1633,7 +1633,7 @@
         "Tarif_S15": 7.0,
         "Tarif_S12": 42.71,
         "Tarif_S11B": 0.5,
-        "Tarif_S02": 0.5
+        "Tarif_TVOEDFEST": 0.5
       }
     },
     {
@@ -1666,7 +1666,7 @@
         "Tarif_S15": 7.0,
         "Tarif_S12": 42.71,
         "Tarif_S11B": 0.5,
-        "Tarif_S02": 0.5
+        "Tarif_TVOEDFEST": 0.5
       }
     },
     {
@@ -1738,7 +1738,7 @@
         "Tarif_S08B": 15.97,
         "Tarif_S08A": 308.27,
         "Tarif_S03": 75.4,
-        "Tarif_S02": 0.3
+        "Tarif_TVOEDFEST": 0.3
       }
     },
     {
@@ -1776,7 +1776,7 @@
         "Tarif_S08B": 15.97,
         "Tarif_S08A": 308.27,
         "Tarif_S03": 75.4,
-        "Tarif_S02": 0.3
+        "Tarif_TVOEDFEST": 0.3
       }
     },
     {
@@ -1811,7 +1811,8 @@
         "Tarif_S09": 1.0,
         "Tarif_S08B": 1.62,
         "Tarif_S08A": 63.32,
-        "Tarif_S02": 54.01
+        "Tarif_S02": 53.91,
+        "Tarif_TVOEDFEST": 0.1
       }
     },
     {
@@ -1846,7 +1847,8 @@
         "Tarif_S09": 1.0,
         "Tarif_S08B": 1.62,
         "Tarif_S08A": 57.92,
-        "Tarif_S02": 49.77
+        "Tarif_S02": 49.67,
+        "Tarif_TVOEDFEST": 0.1
       }
     },
     {
@@ -1869,7 +1871,7 @@
         "Tarif_S15": 4.16,
         "Tarif_S12": 17.96,
         "Tarif_S09": 5.0,
-        "Tarif_S02": 0.15
+        "Tarif_TVOEDFEST": 0.15
       }
     },
     {
@@ -1892,7 +1894,7 @@
         "Tarif_S15": 4.16,
         "Tarif_S12": 17.96,
         "Tarif_S09": 5.0,
-        "Tarif_S02": 0.15
+        "Tarif_TVOEDFEST": 0.15
       }
     },
     {
@@ -1917,7 +1919,7 @@
         "Tarif_S15": 1.83,
         "Tarif_S14": 1.52,
         "Tarif_S12": 3.81,
-        "Tarif_S02": 0.15
+        "Tarif_TVOEDFEST": 0.15
       }
     },
     {
@@ -1942,7 +1944,7 @@
         "Tarif_S15": 1.83,
         "Tarif_S14": 1.52,
         "Tarif_S12": 3.81,
-        "Tarif_S02": 0.15
+        "Tarif_TVOEDFEST": 0.15
       }
     },
     {
@@ -1973,7 +1975,7 @@
         "Tarif_S15": 5.73,
         "Tarif_S14": 42.59,
         "Tarif_S12": 23.67,
-        "Tarif_S02": 0.3
+        "Tarif_TVOEDFEST": 0.3
       }
     },
     {
@@ -2004,7 +2006,7 @@
         "Tarif_S15": 5.73,
         "Tarif_S14": 42.59,
         "Tarif_S12": 23.67,
-        "Tarif_S02": 0.3
+        "Tarif_TVOEDFEST": 0.3
       }
     },
     {
