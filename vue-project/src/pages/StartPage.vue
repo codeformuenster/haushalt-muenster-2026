@@ -3,7 +3,6 @@
  * Landing Page: erklärt in wenigen Sätzen, was Münster Money ist, und führt
  * von dort in die einzelnen Themenseiten.
  */
-import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import heroImageUrl from '@/assets/images/Hero-image.png'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
@@ -131,10 +130,10 @@ type GesamtuebersichtRow = {
   Finanzmittelueberschuss_fehlbetrag_2027_EUR?: string
 }
 
-function trend(delta: number): { pfeil: string; text: string; klasse: string } {
-  if (delta > 0) return { pfeil: '▲', text: `+${euroKurz(delta)} zu 2027`, klasse: 'ist-plus' }
-  if (delta < 0) return { pfeil: '▼', text: `${euroKurz(delta)} zu 2027`, klasse: 'ist-minus' }
-  return { pfeil: '→', text: 'unverändert zu 2027', klasse: 'ist-neutral' }
+/** Wert 2027 mit Differenz zu 2026, bewusst ohne Wertung (Farbe, Pfeil). */
+function trend(wert2026: number, wert2027: number): string {
+  const delta = wert2027 - wert2026
+  return `2027: ${euroKurz(wert2027)} (${delta > 0 ? '+' : ''}${euroKurz(delta)})`
 }
 
 const gesamtuebersichtRows = toObjects<GesamtuebersichtRow>(rawGesamtuebersicht)
@@ -143,38 +142,31 @@ const gesamtZeile =
     (row) => row.Code.trim() === '' || row.Bezeichnung.trim() === 'Gesamtsumme Stadt Münster',
   ) ?? null
 
-const dashboardKarten = computed(() => [
-  {
-    titel: 'Einnahmen',
-    wert: euroKurz(asNumber(gesamtZeile?.Ertraege_2026_EUR)),
-    trend: trend(
-      asNumber(gesamtZeile?.Ertraege_2027_EUR) - asNumber(gesamtZeile?.Ertraege_2026_EUR),
-    ),
-  },
-  {
-    titel: 'Ausgaben',
-    wert: euroKurz(asNumber(gesamtZeile?.Aufwendungen_2026_EUR)),
-    trend: trend(
-      asNumber(gesamtZeile?.Aufwendungen_2027_EUR) - asNumber(gesamtZeile?.Aufwendungen_2026_EUR),
-    ),
-  },
-  {
-    titel: 'Investitionssaldo',
-    wert: euroKurz(asNumber(gesamtZeile?.SaldoInvestitionstaetigkeit_2026_EUR)),
-    trend: trend(
-      asNumber(gesamtZeile?.SaldoInvestitionstaetigkeit_2027_EUR) -
-        asNumber(gesamtZeile?.SaldoInvestitionstaetigkeit_2026_EUR),
-    ),
-  },
-  {
-    titel: 'Kassenplus/-minus',
-    wert: euroKurz(asNumber(gesamtZeile?.Finanzmittelueberschuss_fehlbetrag_2026_EUR)),
-    trend: trend(
-      asNumber(gesamtZeile?.Finanzmittelueberschuss_fehlbetrag_2027_EUR) -
-        asNumber(gesamtZeile?.Finanzmittelueberschuss_fehlbetrag_2026_EUR),
-    ),
-  },
-])
+/** Kennzahl aus der Gesamtsummenzeile; `faktor` -1 dreht das Vorzeichen um. */
+function karte(
+  titel: string,
+  spalte:
+    | 'Ertraege'
+    | 'Aufwendungen'
+    | 'OrdentlErgebnis'
+    | 'SaldoInvestitionstaetigkeit'
+    | 'Finanzmittelueberschuss_fehlbetrag',
+  faktor = 1,
+  breit = false,
+) {
+  const wert2026 = faktor * asNumber(gesamtZeile?.[`${spalte}_2026_EUR`])
+  const wert2027 = faktor * asNumber(gesamtZeile?.[`${spalte}_2027_EUR`])
+  return { titel, wert: euroKurz(wert2026), trend: trend(wert2026, wert2027), breit }
+}
+
+const dashboardKarten = [
+  karte('Ordentliche Erträge', 'Ertraege'),
+  karte('Ordentliche Aufwendungen', 'Aufwendungen'),
+  karte('Ordentliches Ergebnis', 'OrdentlErgebnis', 1, true),
+  karte('Investitionssaldo', 'SaldoInvestitionstaetigkeit'),
+  // Fehlbetrag als positiver Bedarf, damit Titel und Vorzeichen zusammenpassen.
+  karte('Finanzierungsbedarf (vor Krediten)', 'Finanzmittelueberschuss_fehlbetrag', -1),
+]
 </script>
 
 <template>
@@ -204,7 +196,7 @@ const dashboardKarten = computed(() => [
             class="mm-hero__bild"
           />
           <p class="mm-hero__claim">
-            Kannst du den Haushalt ausgleichen? Spiele unser
+            Kannst du das Minus im Haushalt 2026 auf null bringen? Spiele unser
             <RouterLink to="/planspiel">Planspiel</RouterLink>
           </p>
         </aside>
@@ -219,21 +211,25 @@ const dashboardKarten = computed(() => [
           :key="karte.titel"
           appearance="outlined"
           class="mm-dashboard-card"
+          :class="{ 'mm-dashboard-card--breit': karte.breit }"
         >
           <div class="mm-dashboard-card__kopf">
             <h3>{{ karte.titel }}</h3>
           </div>
           <p class="mm-dashboard-card__wert">{{ karte.wert }}</p>
-          <p class="mm-dashboard-card__trend" :class="karte.trend.klasse">
-            <span aria-hidden="true">{{ karte.trend.pfeil }}</span>
-            {{ karte.trend.text }}
-          </p>
+          <p class="mm-dashboard-card__trend">{{ karte.trend }}</p>
         </wa-card>
       </div>
-      <p class="mm-dashboard__quelle">
-        Datenjahr 2026 · Veränderung zu 2027 · Quelle: Haushaltsplan 2026/27, Gesamtübersicht
-        Einnahmen/Ausgaben
-      </p>
+      <div class="mm-dashboard__fuss">
+        <p class="mm-dashboard__hinweis">
+          Große Zahl: Plan 2026. Werte für 2027 laut Plan vom Mai 2026. Inzwischen fehlen 2027 rund
+          92 Mio. € Schlüsselzuweisungen, siehe Hinweis unten.
+        </p>
+        <p class="mm-dashboard__quelle">
+          Planwerte · Haushaltsplan 2026/2027, Band 1, S. 9 (Ergebnisplan) und S. 11–12
+          (Finanzplan), PDF-Seiten
+        </p>
+      </div>
 
       <div class="mm-dashboard__erklaerung">
         <h2 class="mm-abschnitt-titel">Was ist eigentlich ein Haushalt?</h2>
@@ -272,10 +268,12 @@ const dashboardKarten = computed(() => [
     <section>
       <h2 class="mm-abschnitt-titel">Woher die Zahlen kommen</h2>
       <p>
-        Alle Angaben stammen aus dem offiziellen Haushaltsplan 2026/2027 der Stadt Münster (Stand
-        20.05.2026), Band 1 und Band 2. Wir rechnen die Zahlen nicht um und schätzen nichts dazu —
-        jede Darstellung nennt die Seite im Plan, aus der sie stammt, damit man sie dort
-        nachschlagen kann.
+        Alle Zahlen stammen aus dem Haushaltsplan 2026/2027 der Stadt Münster (Stand 20.05.2026),
+        Band 1 und 2. Es sind Planwerte: Sie zeigen, womit die Stadt rechnet, nicht was am Ende
+        tatsächlich ausgegeben wird. Die meisten Darstellungen übernehmen die Zahlen unverändert und
+        nennen die Seite im Plan. Wo wir selbst rechnen oder schätzen, etwa im Planspiel oder bei
+        den Gehaltskosten im Stellenplan, steht das dort, mit den Annahmen. Münster Money ist ein
+        ehrenamtliches Projekt und keine Seite der Stadt Münster.
       </p>
       <p class="mm-fliesstext--folge">
         Fachwörter wie <GlossarBegriff id="doppelhaushalt">Doppelhaushalt</GlossarBegriff> sind
@@ -286,18 +284,20 @@ const dashboardKarten = computed(() => [
       <!-- Stand September 2026; entfernen, sobald ein Nachtragshaushalt oder neuer Plan vorliegt. -->
       <wa-callout variant="brand" appearance="filled">
         <wa-icon slot="icon" name="triangle-exclamation" aria-hidden="true"></wa-icon>
-        <strong>Nachtrag: 2027 fehlen rund 92 Mio. € vom Land.</strong> Nach der Berechnung des
-        Landes NRW vom August 2026 erhält Münster 2027 nur rund 2,8 Mio. €
+        <strong>Aktueller Hinweis: 2027 fehlen rund 92 Mio. € vom Land.</strong> Nach der Berechnung
+        des Landes NRW erhält Münster 2027 nur rund 2,8 Mio. €
         <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff>, eingeplant
         waren rund 95 Mio. €. Alle Zahlen für 2027 in dieser App zeigen den Plan vor dieser Kürzung.
         Die Stadt hat eine
         <GlossarBegriff id="haushaltssperre">Haushaltssperre</GlossarBegriff> erlassen und arbeitet
         an Gegenmaßnahmen.
         <a
-          href="https://www.stadt-muenster.de/aktuelles/newsdetail/doppelhaushalt-2026-2027-verliert-in-2027-schluesselzuweisungen-in-millionenhoehe"
+          href="https://www.stadt-muenster.de/aktuelles/newsdetail/kaemmerin-zeller-informiert-finanzausschuss"
           target="_blank"
           rel="noopener"
-          >Meldung der Stadt<span class="mm-visually-hidden"> (öffnet in neuem Tab)</span></a
+          >Meldung der Stadt vom 9. September 2026<span class="mm-visually-hidden">
+            (öffnet in neuem Tab)</span
+          ></a
         >
       </wa-callout>
     </section>
@@ -435,26 +435,25 @@ const dashboardKarten = computed(() => [
   line-height: 1.4;
 }
 
-.mm-dashboard-card__trend span {
-  margin-right: var(--wa-space-3xs);
+/* Das Ergebnis aus Erträgen und Aufwendungen steht über die ganze Breite darunter. */
+.mm-dashboard-card--breit {
+  grid-column: 1 / -1;
 }
 
-.mm-dashboard-card__trend.ist-plus {
-  color: var(--wa-color-success-on-quiet);
+.mm-dashboard__fuss {
+  grid-column: 1;
 }
 
-.mm-dashboard-card__trend.ist-minus {
-  color: var(--wa-color-danger-on-quiet);
-}
-
-.mm-dashboard-card__trend.ist-neutral {
+.mm-dashboard__fuss p {
+  margin: var(--wa-space-2xs) 0 0;
   color: var(--wa-color-text-quiet);
+}
+
+.mm-dashboard__hinweis {
+  font-size: var(--wa-font-size-xs);
 }
 
 .mm-dashboard__quelle {
-  margin: var(--wa-space-2xs) 0 0;
-  grid-column: 1;
-  color: var(--wa-color-text-quiet);
   font-size: var(--wa-font-size-2xs);
 }
 
@@ -484,7 +483,7 @@ const dashboardKarten = computed(() => [
     grid-template-columns: 1fr;
   }
 
-  .mm-dashboard__quelle,
+  .mm-dashboard__fuss,
   .mm-dashboard__erklaerung {
     grid-column: auto;
     grid-row: auto;

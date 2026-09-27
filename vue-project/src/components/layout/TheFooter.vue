@@ -24,6 +24,9 @@
         <span class="mm-visually-hidden">(öffnet in neuem Tab)</span></a
       >
     </nav>
+    <p class="mm-footer__hinweis">
+      Kein Angebot der Stadt Münster · Planwerte des Haushalts 2026/2027
+    </p>
   </div>
 </template>
 
@@ -43,6 +46,13 @@
 .mm-footer p {
   margin: 0;
   max-width: var(--mm-lesebreite);
+}
+
+/* Eigene Zeile unter Datengrundlage und Links. */
+.mm-footer .mm-footer__hinweis {
+  flex-basis: 100%;
+  max-width: none;
+  font-size: var(--wa-font-size-xs);
 }
 
 .mm-footer nav {
