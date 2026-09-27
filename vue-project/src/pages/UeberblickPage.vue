@@ -168,7 +168,7 @@ const treemap = computed<EChartsOption>(() => {
   <div class="mm-seite">
     <PageIntro
       titel="Der Haushalt im Überblick"
-      beschreibung="Die Stadt Münster plant für 2026 Ausgaben in mehreren Aufgabenbereichen. Je größer die Fläche, desto mehr Geld fließt in den Bereich. Ein Klick auf einen Bereich — oder die Auswahl über dem Diagramm — führt eine Ebene tiefer, zu den einzelnen Themen."
+      beschreibung="Die Stadt Münster plant für 2026 Ausgaben in mehreren Aufgabenbereichen. Je größer die Fläche, desto mehr Geld fließt in den Bereich. Ein Klick auf einen Bereich (oder die Auswahl über dem Diagramm) führt eine Ebene tiefer, zu den einzelnen Themen."
     />
 
     <ChartCard

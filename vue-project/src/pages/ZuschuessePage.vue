@@ -110,12 +110,12 @@ const kennzahlen = computed(() => [
   {
     wert: euroKurz(verhandelbar.value),
     titel: 'davon verhandelbar',
-    zusatz: `${prozent(verhandelbar.value / gesamt.value)} — der Rat entscheidet mindestens über die Höhe`,
+    zusatz: `${prozent(verhandelbar.value / gesamt.value)} - der Rat entscheidet mindestens über die Höhe`,
   },
   {
     wert: euroKurz(frei.value),
     titel: 'davon völlig frei',
-    zusatz: `${prozent(frei.value / gesamt.value)} — weder Grund noch Höhe sind vorgeschrieben`,
+    zusatz: `${prozent(frei.value / gesamt.value)} - weder Grund noch Höhe sind vorgeschrieben`,
   },
 ])
 
@@ -692,7 +692,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
   <div class="mm-seite">
     <PageIntro
       titel="Zuschüsse an Vereine und Verbände"
-      beschreibung="Die Stadt gibt jedes Jahr Geld an Vereine, Verbände und andere Träger weiter. Für diese Zuschüsse — und nur für sie — sagt der Haushaltsplan selbst, wie stark die Stadt dabei gesetzlich gebunden ist. Deshalb lässt sich hier genau zeigen, worüber der Rat tatsächlich entscheiden kann und worüber nicht."
+      beschreibung="Die Stadt gibt jedes Jahr Geld an Vereine, Verbände und andere Träger weiter. Für diese Zuschüsse (und nur für sie) sagt der Haushaltsplan selbst, wie stark die Stadt dabei gesetzlich gebunden ist. Deshalb lässt sich hier genau zeigen, worüber der Rat tatsächlich entscheiden kann und worüber nicht."
     />
 
     <wa-card v-if="posten" class="mm-kennzahlen-band">

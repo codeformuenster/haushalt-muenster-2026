@@ -179,7 +179,7 @@ const dashboardKarten = [
           <p class="mm-hero__lead">
             Der <GlossarBegriff id="haushalt">Haushaltsplan</GlossarBegriff> der Stadt Münster für
             2026 und 2027 umfasst mehrere hundert Seiten Tabellen. Darin steht, wofür die Stadt in
-            den nächsten zwei Jahren Geld ausgibt — von Kitaplätzen über Straßenbau bis zur
+            den nächsten zwei Jahren Geld ausgibt: von Kitaplätzen über Straßenbau bis zur
             Feuerwehr. Nur liest ihn so gut wie niemand.
           </p>
           <p class="mm-hero__lead">
