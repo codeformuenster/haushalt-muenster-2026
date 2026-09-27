@@ -2,7 +2,8 @@
 /**
  * Name einer Produktgruppe im Spiel „Mehr oder weniger?“, klickbar wie ein
  * Fachwort (<GlossarBegriff>). Das Fenster erklärt kurz, was in der Gruppe
- * steckt, und verlinkt auf ihren Eintrag im Glossar (/glossar#pg-<Code>).
+ * steckt, und verlinkt in einem neuen Tab auf ihren Eintrag im Glossar (/glossar#pg-<Code>),
+ * damit der Spielstand erhalten bleibt.
  *
  * Solange `aufgedeckt` falsch ist, zeigt das Fenster nichts, was den Betrag
  * verrät: keine Summen, keine Hinweise auf 2027, keine Besonderheiten. Erst nach
@@ -125,9 +126,13 @@ function umschalten(ereignis: Event, zustand: boolean) {
         <RouterLink
           :to="{ path: '/glossar', hash: `#pg-${posten.code}` }"
           class="mm-produktgruppe__link"
+          target="_blank"
+          rel="noopener"
           data-popover="close"
         >
-          Mehr im Glossar <wa-icon name="arrow-right" aria-hidden="true"></wa-icon>
+          Mehr im Glossar
+          <wa-icon name="arrow-up-right-from-square" aria-hidden="true"></wa-icon>
+          <span class="mm-visually-hidden">(öffnet in neuem Tab)</span>
         </RouterLink>
       </span>
     </wa-popover>
