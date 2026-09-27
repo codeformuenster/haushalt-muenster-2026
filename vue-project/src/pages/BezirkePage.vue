@@ -419,7 +419,7 @@ function jahrGewaehlt(ereignis: Event): void {
   <div class="mm-seite">
     <PageIntro
       titel="Die Bezirke"
-      beschreibung="Münster hat sechs Stadtbezirke mit eigenen Bezirksvertretungen. Für jeden von ihnen weist der Haushaltsplan aus, welche Investitionen im Bezirk geplant sind — von der Schulsanierung über den Kanalbau bis zum Spielplatz. Die Karte zeigt die Investitionen je Bezirk und wofür sie vorgesehen sind."
+      beschreibung="Münster hat sechs Stadtbezirke mit eigenen Bezirksvertretungen. Für jeden von ihnen weist der Haushaltsplan aus, welche Investitionen im Bezirk geplant sind, von der Schulsanierung über den Kanalbau bis zum Spielplatz. Die Karte zeigt die Investitionen je Bezirk und wofür sie vorgesehen sind."
     />
 
     <wa-callout variant="brand" appearance="filled">
@@ -489,7 +489,7 @@ function jahrGewaehlt(ereignis: Event): void {
         />
 
         <p class="mm-fussnote">
-          Die Bezirke sind unterschiedlich groß und unterschiedlich dicht bewohnt — dass in
+          Die Bezirke sind unterschiedlich groß und unterschiedlich dicht bewohnt. Dass in
           {{ groesster.name }} am meisten investiert wird ({{ euroKurz(groesster.wert) }}), heißt
           für sich genommen wenig. Aussagekräftiger ist, <em>wofür</em> das Geld vorgesehen ist: ein
           einzelnes Schulbauvorhaben verschiebt die Verteilung um zweistellige Millionenbeträge.
@@ -497,7 +497,7 @@ function jahrGewaehlt(ereignis: Event): void {
       </ChartCard>
 
       <ChartCard
-        :titel="`Wofür — ${auswahlName}`"
+        :titel="`Wofür: ${auswahlName}`"
         beschreibung="Die Investitionen der Auswahl nach Fachthema. Über der Karte lässt sich der Bezirk wechseln."
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 147 }"

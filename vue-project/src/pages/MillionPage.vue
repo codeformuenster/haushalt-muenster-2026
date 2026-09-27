@@ -86,7 +86,7 @@ onBeforeUnmount(() => clearTimeout(ansageTimer))
   <div class="mm-seite">
     <PageIntro
       titel="Was könnte man mit 1 Million Euro machen?"
-      beschreibung="Viele Aufgaben der Stadt kosten mehr, als sie einbringen. Die Differenz – der Zuschussbedarf – wird aus allgemeinen Mitteln wie Steuern bezahlt. Wählen Sie einen Betrag und sehen Sie, welche Aufgaben sich damit ein ganzes Jahr lang finanzieren ließen."
+      beschreibung="Viele Aufgaben der Stadt kosten mehr, als sie einbringen. Die Differenz (der Zuschussbedarf) wird aus allgemeinen Mitteln wie Steuern bezahlt. Wählen Sie einen Betrag und sehen Sie, welche Aufgaben sich damit ein ganzes Jahr lang finanzieren ließen."
     />
 
     <ChartCard titel="Betrag wählen">
@@ -160,8 +160,8 @@ onBeforeUnmount(() => clearTimeout(ansageTimer))
       <p v-else class="fazit">
         Dafür reicht es noch für kein ganzes Produkt.
         <template v-if="guenstigstes">
-          Das günstigste – {{ guenstigstes.bezeichnung }} – braucht
-          {{ euro(guenstigstes.bedarf) }} im Jahr.
+          Das günstigste, {{ guenstigstes.bezeichnung }}, braucht {{ euro(guenstigstes.bedarf) }} im
+          Jahr.
         </template>
       </p>
     </ChartCard>

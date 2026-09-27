@@ -736,9 +736,10 @@ function zurUebersicht() {
 
     <section class="stellen-gesamt" aria-labelledby="gesamtuebersicht-titel">
       <div>
-        <h2 id="gesamtuebersicht-titel">Alle Aufgaben und Produktgruppen auf einen Blick</h2>
+        <h2 id="gesamtuebersicht-titel">Alle Themenbereiche und Produktgruppen</h2>
         <p>
-          Die vollständige Hierarchie des Stellenplans als interaktive Gesamtübersicht erkunden.
+          Der ganze Stellenplan in einem Diagramm, von der Stadt über die Themenbereiche bis zu den
+          Produktgruppen.
         </p>
       </div>
       <RouterLink
@@ -809,9 +810,8 @@ function zurUebersicht() {
       </details>
     </ChartCard>
     <p class="stellen-hinweis">
-      Die Summen werden aus den Besoldungsgruppen berechnet. Gegenüber der separaten
-      Stellenübersicht ergeben sich kleine Abweichungen (2026: 0,06 VZÄ; 2027: 0,07 VZÄ), die noch
-      am Originalplan geprüft werden müssen.
+      Die Summen werden aus den Besoldungsgruppen berechnet. Sie weichen leicht von der
+      Stellenübersicht im Plan ab (2026: 0,06 VZÄ; 2027: 0,07 VZÄ).
     </p>
   </div>
 </template>

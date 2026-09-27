@@ -52,7 +52,7 @@ const einstiege = [
     ziel: '/planspiel',
     titel: 'Planspiel',
     icon: 'chess-knight',
-    text: 'Gleich den Haushalt 2026 aus: Triff Entscheidungen wie kostenlose Kitas oder eine höhere Grundsteuer und sieh sofort, was sie bewirken.',
+    text: 'Bring das Minus im Haushalt 2026 auf null: Triff Entscheidungen wie kostenlose Kitas oder eine höhere Grundsteuer und sieh sofort, was sie bewirken.',
   },
 ]
 
@@ -235,12 +235,10 @@ const dashboardKarten = [
         <h2 class="mm-abschnitt-titel">Was ist eigentlich ein Haushalt?</h2>
         <p class="mm-hero__lead">
           Der Haushalt ist der Finanzplan der Stadt. Er legt fest, welche Einnahmen und Ausgaben für
-          die kommenden Jahre erwartet werden und welche finanziellen Mittel für die
-          unterschiedlichen Aufgaben vorgesehen sind. Dabei geht es um weit mehr als die Verwaltung
-          im Rathaus: Der Haushalt finanziert unter anderem Schulen und Kitas, Straßen und Verkehr,
-          Feuerwehr, Kultur, Sport, Soziales und viele weitere Aufgaben. Der Haushalt wird vom Rat
-          der Stadt beschlossen und bildet damit eine wichtige Grundlage für die Arbeit der
-          Stadtverwaltung.
+          die kommenden Jahre erwartet werden und wie viel Geld für welche Aufgaben vorgesehen ist.
+          Aus dem Haushalt werden unter anderem Schulen und Kitas, Straßen und Verkehr, Feuerwehr, Kultur,
+          Sport und Soziales bezahlt. Der Rat der Stadt beschließt den Haushalt, die Verwaltung
+          setzt ihn um.
         </p>
       </div>
     </section>

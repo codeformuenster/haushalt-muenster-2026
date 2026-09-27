@@ -142,7 +142,7 @@ neuesSpiel()
   <div class="mm-seite">
     <PageIntro
       titel="Mehr oder weniger?"
-      beschreibung="Was kostet die Stadt mehr? Links sehen Sie, wie viel eine Aufgabe 2026 aus allgemeinen Mitteln wie Steuern braucht. Schätzen Sie, ob die Aufgabe rechts mehr oder weniger kostet – wie lange hält Ihre Serie? Ein Klick auf den Namen einer Aufgabe erklärt, was dahintersteckt."
+      beschreibung="Was kostet die Stadt mehr? Links sehen Sie, wie viel eine Aufgabe 2026 aus allgemeinen Mitteln wie Steuern braucht. Schätzen Sie, ob die Aufgabe rechts mehr oder weniger kostet. Wie lange hält Ihre Serie? Ein Klick auf den Namen einer Aufgabe erklärt, was dahintersteckt."
     />
 
     <ChartCard
@@ -223,7 +223,7 @@ neuesSpiel()
           <p class="ende__zahl">{{ serie }}</p>
           <p>
             <template v-if="durchgespielt">
-              Alle Aufgaben durchgespielt – mehr Vergleiche gibt der Haushalt nicht her.
+              Alle Aufgaben durchgespielt. Mehr Vergleiche gibt der Haushalt nicht her.
             </template>
             <template v-else-if="serie === 1">richtige Antwort in Folge.</template>
             <template v-else>richtige Antworten in Folge.</template>

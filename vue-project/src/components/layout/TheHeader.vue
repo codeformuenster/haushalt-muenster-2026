@@ -95,7 +95,7 @@ function nachDemSchliessen(ereignis: Event): void {
 
 <template>
   <div class="mm-header">
-    <RouterLink to="/" class="mm-header__marke" aria-label="Münster Money – Startseite">
+    <RouterLink to="/" class="mm-header__marke" aria-label="Münster Money, Startseite">
       <img :src="logoUrl" alt="" class="mm-header__logo" aria-hidden="true" />
       Münster<span>Money</span>
     </RouterLink>
