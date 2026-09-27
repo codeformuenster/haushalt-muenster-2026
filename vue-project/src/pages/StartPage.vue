@@ -7,6 +7,7 @@ import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import heroImageUrl from '@/assets/images/Hero-image.png'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
+import SpamProtectedEmail from '@/components/ui/SpamProtectedEmail.vue'
 import rawGesamtuebersicht from '../../../daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv?raw'
 import { euroKurz } from '@/charts/format'
 
@@ -299,6 +300,21 @@ const dashboardKarten = computed(() => [
           >Meldung der Stadt<span class="mm-visually-hidden"> (öffnet in neuem Tab)</span></a
         >
       </wa-callout>
+    </section>
+
+    <section>
+      <h2 class="mm-abschnitt-titel">Über dieses Projekt</h2>
+      <p>
+        Münster Money ist beim Münsterhack 2026 entstanden. Unser Ziel ist, den städtischen Haushalt verständlicher und leichter
+        zugänglich zu machen. Wir sind aber leider keine Haushaltsexpertinnen und Haushaltsexperten. Daher freuen wir uns sehr über 
+        Anregungen, Kritik, Fehlerkorrekturen, Hilfsangebote, Verbesserungsvorschläge, etc. an die Emailadresse
+        <SpamProtectedEmail />. 
+      </p><p>
+        Die von uns extrahierten Haushaltsdaten, die Datenpipelines und diese Webseite haben wir als Open Source veröfffentlicht. 
+        Technisch versierte Nutzer können in unserem Repository gern direkt Pull-Requests mit Verbesserungsvorschlägen stellen: <a href="https://github.com/codeformuenster/haushalt-muenster-2026"  target="_blank"
+          rel="noopener">Github Repository "codeformuenster/haushalt-muenster-2026"</a> 
+      </p>
+      <br />
     </section>
   </div>
 </template>

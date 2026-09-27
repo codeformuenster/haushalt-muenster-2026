@@ -19,6 +19,10 @@
       <a href="https://muensterhack.de" target="_blank" rel="noopener"
         >Münsterhack 2026 <span class="mm-visually-hidden">(öffnet in neuem Tab)</span></a
       >
+      <a href="https://codeformuenster.org/impressum/" target="_blank" rel="noopener"
+        >Impressum &amp; Datenschutz
+        <span class="mm-visually-hidden">(öffnet in neuem Tab)</span></a
+      >
     </nav>
   </div>
 </template>
