@@ -198,7 +198,7 @@ export const KARTEN: Karte[] = [
     text: 'Die Stadtwerke Münster zahlen der Stadt 50 % mehr von ihrem Gewinn aus.',
     // Ausschüttungen sind Finanzerträge (Zeile 19) und zählen nicht zum ordentlichen Ergebnis.
     wirkung: 0,
-    wissen: `Die Stadtwerke Münster GmbH gehört der Stadt und schüttet 2026 voraussichtlich ${euroKurz(daten.stadtwerkeAusschuettung[JAHR])} an sie aus. Solche Ausschüttungen bucht die Stadt wie Zinsen als Finanzerträge, getrennt vom laufenden Betrieb. Sie ändern das ordentliche Ergebnis deshalb nicht. Mit Gewinnen aus dem Energiegeschäft gleichen die Stadtwerke außerdem Verluste im Busverkehr aus (Querverbund).`,
+    wissen: `Die Stadtwerke Münster GmbH gehört der Stadt und schüttet 2026 voraussichtlich ${euroKurz(daten.stadtwerkeAusschuettung[JAHR])} an sie aus. Solche Ausschüttungen bucht die Stadt wie Zinsen als Finanzerträge, getrennt vom laufenden Betrieb. Auf das ordentliche Ergebnis haben sie deshalb keine Wirkung. Das Jahresergebnis würde über das Finanzergebnis steigen. Mit Gewinnen aus dem Energiegeschäft gleichen die Stadtwerke außerdem Verluste im Busverkehr aus (Querverbund).`,
     vergleich: [
       {
         name: 'Ausschüttung der Stadtwerke',
@@ -206,7 +206,7 @@ export const KARTEN: Karte[] = [
         quelle: 'stadtwerke',
       },
     ],
-    annahme: `Auch 50 % mehr Ausschüttung (rund ${euroKurz(0.5 * daten.stadtwerkeAusschuettung[JAHR])}) landen im Finanzergebnis. Das Planspiel zählt nur das ordentliche Ergebnis.`,
+    annahme: `Auch 50 % mehr Ausschüttung (rund ${euroKurz(0.5 * daten.stadtwerkeAusschuettung[JAHR])}) landen im Finanzergebnis. Das Jahresergebnis würde sich dadurch verbessern, das ordentliche Ergebnis bleibt gleich. Das Planspiel zählt nur das ordentliche Ergebnis.`,
     quelle:
       'Haushaltsplan Band 2, S. 143 (PDF), Übersicht zur Wirtschaftslage der Unternehmen; Band 1, S. 516 (PDF), Zeile 19; Querverbund: ms-aktuell.de, 2026 (https://ms-aktuell.de/muenster/oepnv-mit-millionenpublikum-muenster-plant/)',
   },
@@ -472,11 +472,12 @@ export const KARTEN: Karte[] = [
     text: 'Die Stadt leiht sich Geld, um das Minus zu stopfen.',
     wirkung: 0,
     wissen:
-      'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im Ergebnis bleibt, und die Zinsen belasten die folgenden Jahre. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
+      'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im ordentlichen Ergebnis bleibt. Die Zinsen verschlechtern über das Finanzergebnis das Jahresergebnis, auch in den folgenden Jahren. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
     vergleich: [
       { name: 'Zinsen und Finanzaufwand', betrag: daten.zinsaufwand[JAHR], quelle: 'gesamt-20' },
     ],
-    annahme: 'Ein Kredit ändert das ordentliche Ergebnis nicht, er steht nur im Finanzplan.',
+    annahme:
+      'Ein Kredit selbst hat keine Wirkung auf das ordentliche Ergebnis, er steht nur im Finanzplan. Seine Zinsen verschlechtern über das Finanzergebnis das Jahresergebnis.',
     quelle:
       'Gemeindeordnung NRW, §§ 86 und 89, 2026 (https://recht.nrw.de/lrgv/gesetz/01012026-gemeindeordnung-fuer-das-land-nordrhein-westfalen-bekanntmachung-der/)',
   },
@@ -487,7 +488,7 @@ export const KARTEN: Karte[] = [
     text: `Die Stadt baut eine neue Grundschule mit Sporthalle für ${euroKurz(schulKosten)}.`,
     wirkung: -schulKosten / schulNutzungsdauer,
     rechnung: `= ${euroKurz(schulKosten)} Baukosten ÷ ${schulNutzungsdauer} Jahre Nutzungsdauer`,
-    wissen: `Eine Investition belastet das Ergebnis nicht auf einmal. Der Wert des Gebäudes wird über seine Nutzungsdauer verteilt abgeschrieben, hier ${euroKurz(schulKosten / schulNutzungsdauer)} im Jahr. Deshalb wirken große Bauprojekte im ordentlichen Ergebnis klein. Zinsen für Kredite kommen im Finanzergebnis hinzu.`,
+    wissen: `Eine Investition belastet das Ergebnis nicht auf einmal. Der Wert des Gebäudes wird über seine Nutzungsdauer verteilt abgeschrieben, hier ${euroKurz(schulKosten / schulNutzungsdauer)} im Jahr. Deshalb wirken große Bauprojekte im ordentlichen Ergebnis klein. Zinsen für Kredite kommen im Finanzergebnis hinzu und verschlechtern das Jahresergebnis.`,
     vergleich: [
       {
         name: 'Alle Abschreibungen der Stadt',
@@ -495,7 +496,7 @@ export const KARTEN: Karte[] = [
         quelle: 'gesamt-14',
       },
     ],
-    annahme: `Die Schule kostet so viel wie die neue vierzügige Grundschule im York-Quartier und ist 2026 ein volles Jahr in Betrieb. Die Stadt schreibt sie gleichmäßig über ${schulNutzungsdauer} Jahre ab (in NRW sind für Schulgebäude 40 bis 80 Jahre erlaubt). Fördermittel und Betriebskosten sind nicht eingerechnet. Zinsen zählen im Planspiel nicht mit, weil sie außerhalb des ordentlichen Ergebnisses stehen. Bei einem Kredit zu ${zahl(schulZins * 100)} % wären es im ersten Jahr rund ${euroKurz(schulZins * schulKosten)}.`,
+    annahme: `Die Schule kostet so viel wie die neue vierzügige Grundschule im York-Quartier und ist 2026 ein volles Jahr in Betrieb. Die Stadt schreibt sie gleichmäßig über ${schulNutzungsdauer} Jahre ab (in NRW sind für Schulgebäude 40 bis 80 Jahre erlaubt). Fördermittel und Betriebskosten sind nicht eingerechnet. Zinsen zählen im Planspiel nicht mit, weil sie außerhalb des ordentlichen Ergebnisses stehen. Das Jahresergebnis würden sie über das Finanzergebnis verschlechtern. Bei einem Kredit zu ${zahl(schulZins * 100)} % wären es im ersten Jahr rund ${euroKurz(schulZins * schulKosten)}.`,
     quelle:
       'Stadt Münster, Neue Grundschule York, 2024 (https://www.presse-service.de/data.aspx/static/1170051.html); NKF-Rahmentabelle der Gesamtnutzungsdauer, 2025 (https://recht.nrw.de/system/files/BA/54831-53146-smbl_6300_20250312_a_anlage18.pdf)',
   },

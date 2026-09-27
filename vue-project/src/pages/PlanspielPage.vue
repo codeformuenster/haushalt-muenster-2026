@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /**
- * Planspiel: Wer den Haushalt 2026 ausgleichen will, dreht an Einnahmen und
- * Ausgaben und sieht sofort, wie sich das ordentliche Ergebnis verändert.
+ * Planspiel: Wer das Minus im ordentlichen Ergebnis 2026 schließen will, dreht an
+ * Einnahmen und Ausgaben und sieht sofort, wie sich das Ergebnis verändert.
  */
 import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 import type { EChartsOption } from 'echarts'
@@ -46,6 +46,9 @@ const ERTRAG_REGLER = ertraege.map((_, i) => i).filter((i) => i !== 7)
 const BEREICH_REGLER = bereiche.map((_, i) => i).filter((i) => bereiche[i]?.code !== '17')
 
 const START = gesamt(ZEILE.ertraege) - gesamt(ZEILE.aufwendungen)
+// Jahresergebnis 2026 laut Plan (ordentliches Ergebnis plus Finanzergebnis). Steht nicht in
+// planspiel.json. Quelle: Haushaltsplan Band 1, S. 9 (PDF), Zeile 26.
+const JAHRESERGEBNIS = -46_765_030
 const GRENZE = 20
 
 const ertragProzent = reactive<number[]>(ertraege.map(() => 0))
@@ -100,9 +103,12 @@ onBeforeUnmount(() => {
   document.documentElement.style.removeProperty('--mm-kopf-extra')
 })
 
+/** Nur in der großen Box, in der klebenden Kompaktbox wäre er zu lang. */
+const jahresergebnisHinweis = `Für den gesetzlich maßgeblichen Haushaltsausgleich zählen auch Zinsen und Finanzerträge: Das Jahresergebnis liegt im Plan bei ${euroKurz(JAHRESERGEBNIS)}.`
+
 const bilanzText = computed(() =>
   geschafft.value
-    ? 'Geschafft! Der Haushalt 2026 ist ausgeglichen.'
+    ? 'Geschafft: Das ordentliche Ergebnis 2026 ist ausgeglichen.'
     : `Noch ${euroKurz(-ergebnis.value)} bis zur Null.`,
 )
 
@@ -115,7 +121,8 @@ const bilanzAnsage = ref('')
 let ansageTimer: ReturnType<typeof setTimeout> | undefined
 watch(bilanzText, (text) => {
   clearTimeout(ansageTimer)
-  ansageTimer = setTimeout(() => (bilanzAnsage.value = text), 400)
+  const ansage = geschafft.value ? `${text} ${jahresergebnisHinweis}` : text
+  ansageTimer = setTimeout(() => (bilanzAnsage.value = ansage), 400)
 })
 onBeforeUnmount(() => clearTimeout(ansageTimer))
 
@@ -278,8 +285,8 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 <template>
   <div class="mm-seite">
     <PageIntro
-      titel="Planspiel: Gleich den Haushalt aus!"
-      beschreibung="Im Jahr 2026 plant Münster mehr auszugeben, als es einnimmt. Schaffst du es, das Minus auf null zu bringen? Triff Entscheidungen und sieh sofort, was sich ändert."
+      titel="Planspiel: Bring das Minus auf null!"
+      beschreibung="Im Jahr 2026 plant Münster mehr auszugeben, als es einnimmt. Schaffst du es, das Minus im ordentlichen Ergebnis auf null zu bringen? Triff Entscheidungen und sieh sofort, was sich ändert."
     />
 
     <!-- PLATZHALTER: Text vom Team noch abzustimmen. -->
@@ -290,7 +297,11 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       <GlossarBegriff id="pflichtaufgabe">gesetzlich vorgeschrieben</GlossarBegriff>, und
       Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu bekommen, was die Stadt tut und
       wie groß die einzelnen Posten sind. Regler und Karten werden einfach addiert, jeweils bezogen
-      auf den Plan.
+      auf den Plan. Das Spiel betrachtet das ordentliche Ergebnis, also die laufenden Erträge und
+      Aufwendungen. Zinsen und Finanzerträge sind nicht enthalten. Maßgeblich für den
+      Haushaltsausgleich ist das
+      <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>:
+      {{ euroKurz(JAHRESERGEBNIS) }} im Plan 2026 (Band 1, S. 9).
     </wa-callout>
 
     <div ref="diagramme" class="mm-raster">
@@ -362,7 +373,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
     >
       <div class="pl-bilanz__kopf">
         <div>
-          <div class="pl-bilanz__label">Dein Ergebnis 2026</div>
+          <div class="pl-bilanz__label">Dein ordentliches Ergebnis 2026</div>
           <div class="pl-bilanz__zahl">{{ mitVorzeichen(ergebnis) }}</div>
         </div>
         <div class="pl-bilanz__info">
@@ -374,6 +385,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
         <div class="pl-bilanz__fuellung" :style="{ width: `${fortschritt * 100}%` }" />
       </div>
       <p class="pl-bilanz__text">{{ bilanzText }}</p>
+      <p v-if="geschafft && !kompakt" class="pl-bilanz__hinweis">{{ jahresergebnisHinweis }}</p>
       <!-- Entprellte Ansage; bleibt immer im DOM. -->
       <p class="mm-visually-hidden" aria-live="polite">{{ bilanzAnsage }}</p>
     </section>
@@ -415,7 +427,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                 :class="{ gut: karte.wirkung > 0, schlecht: karte.wirkung < 0 }"
               >
                 <template v-if="karte.wirkung === 0">
-                  0 € <small>keine Wirkung auf das Ergebnis</small>
+                  0 € <small>keine Wirkung auf das ordentliche Ergebnis</small>
                 </template>
                 <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
               </span>
@@ -652,6 +664,11 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
   transition:
     margin-top 0.3s,
     font-size 0.3s;
+}
+
+.pl-bilanz__hinweis {
+  margin: var(--wa-space-2xs) 0 0;
+  font-size: var(--wa-font-size-s);
 }
 
 .pl-bilanz--geschafft {

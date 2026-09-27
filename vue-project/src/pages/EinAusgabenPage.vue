@@ -2,9 +2,11 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
+import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import EinAusgabenSankey from '@/components/einausgaben/EinAusgabenSankey.vue'
 import EinAusgabenGruppenDetail from '@/components/einausgaben/EinAusgabenGruppenDetail.vue'
 import EinAusgabenGruppenTabelle from '@/components/einausgaben/EinAusgabenGruppenTabelle.vue'
+import { euroKurz } from '@/charts/format'
 import { asNumber, gruppenNamen as groupMap, produkte, type DataRow } from '@/data/einAusgaben'
 
 type ViewRow = DataRow & {
@@ -23,6 +25,13 @@ type TableGroup = {
 
 const selectedYear = ref<2026 | 2027>(2026)
 
+// Jahresergebnis laut Plan (mit Zinsen und Finanzerträgen), steht nicht in den Daten dieser
+// Seite. Quelle: Haushaltsplan Band 1, S. 9 (PDF), Zeile 26.
+const JAHRESERGEBNIS = { 2026: -46_765_030, 2027: -37_888_100 } as const
+// Erste PDF-Seite des Haushaltsquerschnitts Teil 1 (Ergebnisplanung) je Jahr in Band 2.
+const QUERSCHNITT_SEITE = { 2026: 71, 2027: 74 } as const
+const QUELLE = 'Haushaltsplan Band 2, S. 71–76 (PDF), Haushaltsquerschnitt Teil 1: Ergebnisplanung'
+
 const rows = computed<ViewRow[]>(() => {
   const ertraegeField: 'Ertraege_2026' | 'Ertraege_2027' =
     selectedYear.value === 2026 ? 'Ertraege_2026' : 'Ertraege_2027'
@@ -38,6 +47,10 @@ const rows = computed<ViewRow[]>(() => {
     }))
     .filter((row) => row.ErtraegeNum > 0 || row.AufwendungenNum > 0)
 })
+
+const ordentlichesErgebnis = computed(() =>
+  rows.value.reduce((summe, row) => summe + row.ErtraegeNum - row.AufwendungenNum, 0),
+)
 
 const tableGroups = computed<TableGroup[]>(() => {
   const groups = new Map<string, TableGroup>()
@@ -115,9 +128,20 @@ async function clearSelection(): Promise<void> {
       beschreibung="Wo nimmt die Stadt Geld ein und wo gibt sie es aus?"
     />
 
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="info" aria-hidden="true"></wa-icon>
+      Das Diagramm zeigt die ordentlichen Erträge und Aufwendungen {{ selectedYear }} aus dem
+      Ergebnisplan. Zinsen und Finanzerträge sind nicht enthalten. Ordentliches Ergebnis
+      {{ selectedYear }}: {{ euroKurz(ordentlichesErgebnis) }}. Mit Zinsen und Finanzerträgen ergibt
+      sich das <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>:
+      {{ euroKurz(JAHRESERGEBNIS[selectedYear]) }}.
+    </wa-callout>
+
     <ChartCard
       titel="Erträge und Aufwendungen"
       beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktgruppe. Wählen Sie eine Produktgruppe aus (oder klicken Sie im Diagramm darauf), um ihre Produkte zu sehen. Alle Werte stehen auch in der Tabelle unten."
+      :quelle="QUELLE"
+      :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
     >
       <div class="eingaben-ausgaben-toolbar">
         <wa-select
@@ -163,7 +187,11 @@ async function clearSelection(): Promise<void> {
       />
     </ChartCard>
 
-    <ChartCard :titel="`Tabellarische Übersicht nach Produktgruppe (${selectedYear})`">
+    <ChartCard
+      :titel="`Tabellarische Übersicht nach Produktgruppe (${selectedYear})`"
+      :quelle="QUELLE"
+      :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
+    >
       <EinAusgabenGruppenTabelle :groups="tableGroups" :selected-year="selectedYear" />
     </ChartCard>
   </div>
