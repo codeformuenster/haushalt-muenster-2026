@@ -1,6 +1,17 @@
 
 Dies ist der Quellcode vom Münsterhack '26 Projekt "Münster Money"
 
+## Lizenz
+
+Der selbst entwickelte Programmcode steht unter der **GNU General Public License,
+Version 3 (GPL-3.0-only)**. Der vollständige, unveränderte Lizenztext steht in
+[`LICENSE`](LICENSE).
+
+Übernommene Daten, Dokumente, PDF-Ausschnitte und sonstige Inhalte Dritter sind
+von dieser Code-Lizenz ausgenommen, auch wenn sie mit der Anwendung ausgeliefert
+werden. Herkunft, gesetzliche Nutzungsgrundlagen und geltende Datenlizenzen stehen in
+[`DATA-LICENSE.md`](DATA-LICENSE.md). Abhängigkeiten behalten ihre eigenen Lizenzen.
+
 ## Webseite auf GitHub Pages
 
 Die Vue-App in `vue-project/` wird durch `.github/workflows/deploy-pages.yml`
