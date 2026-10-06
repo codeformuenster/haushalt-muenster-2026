@@ -15,9 +15,10 @@ import daten from '@/data/planspiel.json'
 
 const JAHR = '2026'
 const ZEILE_AUFWENDUNGEN = daten.zeilen.indexOf('Ordentliche Aufwendungen')
+const ZEILE_ZINSEN = daten.zeilen.indexOf('Zinsen und sonstige Finanzaufwendungen')
 
 /**
- * Ordentliche Aufwendungen 2026 in zwei Ebenen: Produktbereiche mit ihren
+ * Aufwendungen 2026 einschließlich Zinsen (Zeilen 17 und 20) in zwei Ebenen: Produktbereiche mit ihren
  * Produktgruppen als Kinder. Die Zuordnung steckt im Code — die Gruppe "0101"
  * gehört zum Bereich "01".
  *
@@ -30,7 +31,8 @@ const bereiche = daten.produktbereiche.map((bereich, index) => {
     .filter((gruppe) => gruppe.code.startsWith(bereich.code))
     .map((gruppe) => ({
       name: gruppe.name,
-      value: gruppe.werte[JAHR][ZEILE_AUFWENDUNGEN] ?? 0,
+      value:
+        (gruppe.werte[JAHR][ZEILE_AUFWENDUNGEN] ?? 0) + (gruppe.werte[JAHR][ZEILE_ZINSEN] ?? 0),
     }))
     // Gruppen ohne Aufwand (z. B. die eigenwirtschaftliche Abfallwirtschaft)
     // hätten keine Fläche und stünden im Drilldown nur als leere Kachel herum.
@@ -173,9 +175,9 @@ const treemap = computed<EChartsOption>(() => {
 
     <ChartCard
       titel="Ausgaben nach Aufgabenbereich"
-      beschreibung="Geplante Aufwendungen 2026, aufgeteilt auf die Aufgabenbereiche der Stadt. Ein Klick auf eine Fläche oder die Auswahl „Aufgabenbereich“ zeigt die Produktgruppen des Bereichs, „Alle Bereiche“ führt zurück. Alle Werte stehen unter dem Diagramm auch als Tabelle."
-      quelle="Haushaltsplan 2026/27, Band 2, Haushaltsquerschnitt, S. 67 ff."
-      :pdf="{ band: 2, seite: 71 }"
+      beschreibung="Geplante Aufwendungen 2026 einschließlich Zinsen, aufgeteilt auf die Aufgabenbereiche der Stadt. Die Zinsen für die Kredite der Stadt stecken im Bereich Allgemeine Finanzwirtschaft. Ein Klick auf eine Fläche oder die Auswahl „Aufgabenbereich“ zeigt die Produktgruppen des Bereichs, „Alle Bereiche“ führt zurück. Alle Werte stehen unter dem Diagramm auch als Tabelle."
+      quelle="Haushaltsplan 2026/27, Band 1, Gesamtergebnisplan und Teilergebnispläne der Produktgruppen"
+      :pdf="{ band: 1, seite: 9 }"
     >
       <wa-select
         ref="bereichsAuswahl"

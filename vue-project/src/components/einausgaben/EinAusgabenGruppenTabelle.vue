@@ -7,6 +7,8 @@ type TableRow = {
   Bezeichnung: string
   ErtraegeNum: number
   AufwendungenNum: number
+  /** Zeile 26: ordentliches Ergebnis plus Finanzergebnis und außerordentliches Ergebnis. */
+  ErgebnisNum: number
 }
 
 type TableGroup = {
@@ -15,6 +17,7 @@ type TableGroup = {
   rows: TableRow[]
   sumErtraege: number
   sumAufwendungen: number
+  sumErgebnis: number
 }
 
 const props = defineProps<{
@@ -34,24 +37,27 @@ const props = defineProps<{
         <th scope="col">Bezeichnung</th>
         <th scope="col" class="mm-zahl">Erträge</th>
         <th scope="col" class="mm-zahl">Aufwendungen</th>
+        <th scope="col" class="mm-zahl">Ergebnis mit Finanzergebnis</th>
       </tr>
     </thead>
     <!-- Je Produktgruppe ein eigener <tbody>, damit die Gruppenüberschrift als
          Kopf ihrer Zeilengruppe gilt. -->
     <tbody v-for="group in props.groups" :key="group.code">
       <tr class="mm-gruppe-trenner">
-        <th colspan="4" scope="rowgroup">{{ group.code }} {{ group.name }}</th>
+        <th colspan="5" scope="rowgroup">{{ group.code }} {{ group.name }}</th>
       </tr>
       <tr v-for="row in group.rows" :key="`${group.code}-${row.Code}`">
         <td>{{ row.Code }}</td>
         <th scope="row">{{ row.Bezeichnung }}</th>
         <td class="mm-zahl">{{ euro(row.ErtraegeNum) }}</td>
         <td class="mm-zahl">{{ euro(row.AufwendungenNum) }}</td>
+        <td class="mm-zahl">{{ euro(row.ErgebnisNum) }}</td>
       </tr>
       <tr class="mm-summe">
         <th colspan="2" scope="row">Summe {{ group.code }}</th>
         <td class="mm-zahl">{{ euro(group.sumErtraege) }}</td>
         <td class="mm-zahl">{{ euro(group.sumAufwendungen) }}</td>
+        <td class="mm-zahl">{{ euro(group.sumErgebnis) }}</td>
       </tr>
     </tbody>
   </DatenTabelle>

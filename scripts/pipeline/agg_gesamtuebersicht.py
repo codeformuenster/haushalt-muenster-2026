@@ -3,7 +3,10 @@
 Liest den Haushaltsquerschnitt (Band 2, PDF-Seiten 71-80) aus daten/raw_table_extraction/:
 
 - Ergebnisplanung 2026 (S. 71-73) und 2027 (S. 74-76): ordentliche Erträge,
-  ordentliche Aufwendungen, ordentliches Ergebnis.
+  ordentliche Aufwendungen, ordentliches Ergebnis, Finanzergebnis, Ergebnis der
+  laufenden Verwaltungstätigkeit, außerordentliches Ergebnis und das Ergebnis des
+  Teilhaushaltes (Spalte Ergebnis, Zeile 26 der Teilergebnispläne, ohne interne
+  Leistungsbeziehungen; in der Gesamtsumme das Jahresergebnis).
 - Finanzplanung 2026 (S. 77-78) und 2027 (S. 79-80): Ein-/Auszahlungen aus
   laufender Verwaltungstätigkeit und Investitionstätigkeit, Salden,
   Finanzmittelüberschuss/-fehlbetrag.
@@ -26,7 +29,15 @@ AUSGABE = "agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv"
 
 c = pl.col
 
-ERGEBNIS_SPALTEN = ["Ertraege", "Aufwendungen", "OrdentlErgebnis"]
+ERGEBNIS_SPALTEN = [
+    "Ertraege",
+    "Aufwendungen",
+    "OrdentlErgebnis",
+    "Finanzergebnis",
+    "ErgebnisLfdVerw",
+    "AoErgebnis",
+    "Ergebnis",
+]
 FINANZ_SPALTEN = [
     "Einzahlungen_lfdVerw",
     "Auszahlungen_lfdVerw",

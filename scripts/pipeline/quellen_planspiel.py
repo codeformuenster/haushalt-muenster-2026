@@ -51,18 +51,18 @@ def plan(datei: str, zeile: str, wert: Wert) -> tuple[str, str, int, float, Wert
 
 
 def gesamt(nr: int) -> tuple[str, str, int, float, Wert]:
-    """Zeile 01-17 des Gesamtergebnisplans (Band 1, PDF-Seite 9)."""
+    """Zeile 01-26 des Gesamtergebnisplans (Band 1, PDF-Seite 9)."""
     return plan(GESAMT, f"{nr:02d}", lambda d: d["gesamt"][JAHR][nr - 1])
 
 
 def pg(datei: str, nr: int) -> tuple[str, str, int, float, Wert]:
-    """Zeile 01-17 im Teilergebnisplan einer Produktgruppe; der PG-Code steht im Dateinamen."""
+    """Zeile 01-26 im Teilergebnisplan einer Produktgruppe; der PG-Code steht im Dateinamen."""
     code = datei.split("_PG")[1][:4]
     return plan(datei, f"{nr:02d}", lambda d: _pg_werte(d, code)[nr - 1])
 
 
 def _pg_werte(daten: dict, code: str) -> list[int]:
-    """Werte 2026 der Zeilen 01-17 einer Produktgruppe aus planspiel.json."""
+    """Werte 2026 der Zeilen 01-26 einer Produktgruppe aus planspiel.json."""
     return next(p for p in daten["produktgruppen"] if p["code"] == code)["werte"][JAHR]
 
 
@@ -74,7 +74,7 @@ QUELLEN: dict[str, tuple[str, str, int, float, Wert]] = {
     "gesamt-11": gesamt(11),
     "gesamt-14": gesamt(14),
     "gesamt-17": gesamt(17),
-    "gesamt-20": plan(GESAMT, "20", lambda d: d["zinsaufwand"][JAHR]),
+    "gesamt-20": gesamt(20),
     "finanzplan-19": plan("band1_p011_PG12_Finanzplan_t0.csv", "19", lambda d: d["verkaufSachanlagen"][JAHR]),
     "pg-0204-11": pg("band1_p129_PG0204_Burgerangelegenheiten_Teilergebnisplan_t0.csv", 11),
     "pg-0209-17": pg("band1_p163_PG0209_BrandschutzundfeuerwehrtechnischeHilfeleistung_Teilergebnisplan_t0.csv", 17),

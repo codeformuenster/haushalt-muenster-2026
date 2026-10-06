@@ -58,8 +58,26 @@ export const GLOSSAR = {
   jahresergebnis: {
     begriff: 'Jahresergebnis',
     kurz: 'Das Jahresergebnis ist die Differenz aus allen Erträgen und Aufwendungen eines Jahres. Ist es negativ, spricht man von einem Fehlbetrag oder Defizit.',
-    lang: 'Es setzt sich vor allem aus dem ordentlichen Ergebnis (laufender Betrieb der Stadt) und dem Finanzergebnis (Zinsen, Gewinnausschüttungen von Beteiligungen) zusammen. Ein Fehlbetrag verringert das Eigenkapital der Stadt: zuerst die Ausgleichsrücklage, danach die allgemeine Rücklage.',
-    siehe: ['ergebnisplan', 'ausgleichsruecklage', 'haushaltssicherungskonzept'],
+    lang: 'Es setzt sich vor allem aus dem ordentlichen Ergebnis (laufender Betrieb der Stadt) und dem Finanzergebnis (Zinsen, Gewinnausschüttungen von Beteiligungen) zusammen. Ein außerordentliches Ergebnis kommt nur bei seltenen, ungewöhnlichen Ereignissen hinzu. Das Jahresergebnis entscheidet, ob der Haushalt ausgeglichen ist. Ein Fehlbetrag verringert das Eigenkapital der Stadt: zuerst die Ausgleichsrücklage, danach die allgemeine Rücklage.',
+    siehe: [
+      'ordentliches-ergebnis',
+      'finanzergebnis',
+      'ausgleichsruecklage',
+      'allgemeine-ruecklage',
+      'haushaltssicherungskonzept',
+    ],
+  },
+  'ordentliches-ergebnis': {
+    begriff: 'Ordentliches Ergebnis',
+    kurz: 'Das ordentliche Ergebnis ist der Saldo aus den ordentlichen Erträgen und Aufwendungen, also aus dem laufenden Betrieb der Stadt. Zinsen und Gewinnausschüttungen zählen nicht dazu.',
+    lang: 'Zum laufenden Betrieb gehören auf der einen Seite zum Beispiel Steuern, Gebühren und Zuweisungen, auf der anderen Personal, Sozialleistungen und Abschreibungen. Zusammen mit dem Finanzergebnis ergibt es das Jahresergebnis.',
+    siehe: ['jahresergebnis', 'finanzergebnis', 'ertraege', 'aufwendungen'],
+  },
+  finanzergebnis: {
+    begriff: 'Finanzergebnis',
+    kurz: 'Das Finanzergebnis ist der Saldo aus Finanzerträgen und Zinsaufwendungen. Finanzerträge sind etwa Gewinnausschüttungen städtischer Unternehmen, Zinsaufwendungen vor allem Zinsen für Kredite.',
+    lang: 'Je mehr Kredite eine Stadt hat und je höher die Zinsen sind, desto stärker belastet das Finanzergebnis den Haushalt. Es steht im Ergebnisplan getrennt vom ordentlichen Ergebnis, zählt für den Haushaltsausgleich aber mit.',
+    siehe: ['jahresergebnis', 'ordentliches-ergebnis'],
   },
   ertraege: {
     begriff: 'Erträge',
@@ -161,7 +179,19 @@ export const GLOSSAR = {
     begriff: 'Ausgleichsrücklage',
     kurz: 'Die Ausgleichsrücklage ist ein Polster im Eigenkapital der Stadt, aus dem sie Fehlbeträge im Ergebnisplan decken darf. Solange sie reicht, gilt der Haushalt rechtlich als ausgeglichen.',
     lang: 'Gebildet wird sie aus Überschüssen früherer Jahre. Ist sie aufgebraucht, muss die Stadt die allgemeine Rücklage angreifen, und das muss die Aufsichtsbehörde genehmigen. Schrumpft die allgemeine Rücklage zu stark, wird ein Haushaltssicherungskonzept nötig.',
-    siehe: ['jahresergebnis', 'haushaltssicherungskonzept'],
+    siehe: ['jahresergebnis', 'allgemeine-ruecklage', 'haushaltssicherungskonzept'],
+  },
+  'allgemeine-ruecklage': {
+    begriff: 'Allgemeine Rücklage',
+    kurz: 'Die allgemeine Rücklage ist der größte Teil des Eigenkapitals der Stadt. Sie ist kein Geld auf einem Konto, sondern eine Rechengröße in der Bilanz.',
+    lang: 'Ist die Ausgleichsrücklage aufgebraucht, verringert jeder Fehlbetrag die allgemeine Rücklage. Das muss die Aufsichtsbehörde genehmigen. Sinkt sie zu schnell, muss die Stadt ein Haushaltssicherungskonzept aufstellen.',
+    siehe: ['ausgleichsruecklage', 'jahresergebnis', 'haushaltssicherungskonzept'],
+  },
+  'globaler-minderaufwand': {
+    begriff: 'Globaler Minderaufwand',
+    kurz: 'Ein globaler Minderaufwand ist eine pauschale Kürzung der Aufwendungen im Plan, ohne schon festzulegen, wo genau gespart wird. Er verbessert das geplante Jahresergebnis.',
+    lang: 'Die Verwaltung muss die Einsparung im Lauf des Jahres erbringen, zum Beispiel weil erfahrungsgemäß nicht alle eingeplanten Mittel ausgegeben werden. Gelingt das nicht, fällt das tatsächliche Ergebnis schlechter aus als geplant. In NRW ist er nur in begrenzter Höhe zulässig.',
+    siehe: ['jahresergebnis', 'aufwendungen'],
   },
   nkf: {
     begriff: 'Neues Kommunales Finanzmanagement',
@@ -174,8 +204,13 @@ export const GLOSSAR = {
     begriff: 'Haushaltssicherungskonzept',
     abkuerzung: 'HSK',
     kurz: 'Ein Haushaltssicherungskonzept muss eine Kommune aufstellen, wenn Fehlbeträge ihre Rücklagen stark schrumpfen lassen. Darin legt sie fest, wie sie den Haushalt innerhalb einer gesetzlichen Frist wieder ausgleicht.',
-    lang: 'In NRW ist das zum Beispiel der Fall, wenn die allgemeine Rücklage in einem Jahr um mehr als ein Viertel sinkt. Das Konzept muss die Aufsichtsbehörde genehmigen. Solange es gilt, hat die Kommune weniger Spielraum, vor allem bei freiwilligen Leistungen.',
-    siehe: ['ausgleichsruecklage', 'jahresergebnis', 'freiwillige-leistung'],
+    lang: 'In NRW ist das der Fall, wenn die allgemeine Rücklage in einem Jahr um mehr als ein Viertel sinkt, in zwei Jahren nacheinander um jeweils mehr als ein Zwanzigstel (5 %) oder wenn sie aufgebraucht wird. Das Konzept muss die Aufsichtsbehörde genehmigen. Solange es gilt, hat die Kommune weniger Spielraum, vor allem bei freiwilligen Leistungen.',
+    siehe: [
+      'ausgleichsruecklage',
+      'allgemeine-ruecklage',
+      'jahresergebnis',
+      'freiwillige-leistung',
+    ],
   },
 } as const satisfies Record<string, Begriff>
 

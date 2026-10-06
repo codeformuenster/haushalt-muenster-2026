@@ -8,11 +8,13 @@ import EinAusgabenGruppenDetail from '@/components/einausgaben/EinAusgabenGruppe
 import EinAusgabenGruppenTabelle from '@/components/einausgaben/EinAusgabenGruppenTabelle.vue'
 import { euroKurz } from '@/charts/format'
 import { asNumber, gruppenNamen as groupMap, produkte, type DataRow } from '@/data/einAusgaben'
+import ergebnisplan from '@/data/planspiel.json'
 
 type ViewRow = DataRow & {
   Gruppenbezeichnung: string
   ErtraegeNum: number
   AufwendungenNum: number
+  ErgebnisNum: number
 }
 
 type TableGroup = {
@@ -21,36 +23,53 @@ type TableGroup = {
   rows: ViewRow[]
   sumErtraege: number
   sumAufwendungen: number
+  sumErgebnis: number
 }
 
 const selectedYear = ref<2026 | 2027>(2026)
 
-// Jahresergebnis laut Plan (mit Zinsen und Finanzerträgen), steht nicht in den Daten dieser
-// Seite. Quelle: Haushaltsplan Band 1, S. 9 (PDF), Zeile 26.
-const JAHRESERGEBNIS = { 2026: -46_765_030, 2027: -37_888_100 } as const
+/** Zeilen 19, 20 und 26 des Gesamtergebnisplans (Band 1, S. 9) als Index in planspiel.json. */
+const ZEILE = { finanzertraege: 18, zinsen: 19, jahresergebnis: 25 } as const
 // Erste PDF-Seite des Haushaltsquerschnitts Teil 1 (Ergebnisplanung) je Jahr in Band 2.
 const QUERSCHNITT_SEITE = { 2026: 71, 2027: 74 } as const
-const QUELLE = 'Haushaltsplan Band 2, S. 71–76 (PDF), Haushaltsquerschnitt Teil 1: Ergebnisplanung'
+const QUELLE =
+  'Haushaltsplan Band 2, S. 71–76 (PDF), Haushaltsquerschnitt Teil 1: Ergebnisplanung; Finanzerträge, Zinsen und Jahresergebnis: Band 1, S. 9 (PDF), Gesamtergebnisplan'
 
 const rows = computed<ViewRow[]>(() => {
   const ertraegeField: 'Ertraege_2026' | 'Ertraege_2027' =
     selectedYear.value === 2026 ? 'Ertraege_2026' : 'Ertraege_2027'
   const aufwendungenField: 'Aufwendungen_2026' | 'Aufwendungen_2027' =
     selectedYear.value === 2026 ? 'Aufwendungen_2026' : 'Aufwendungen_2027'
+  const ergebnisField: 'Ergebnis_2026' | 'Ergebnis_2027' =
+    selectedYear.value === 2026 ? 'Ergebnis_2026' : 'Ergebnis_2027'
 
-  return produkte
-    .map((row) => ({
-      ...row,
-      Gruppenbezeichnung: groupMap.get(row.Gruppe) ?? row.Gruppe,
-      ErtraegeNum: asNumber(row[ertraegeField]),
-      AufwendungenNum: asNumber(row[aufwendungenField]),
-    }))
-    .filter((row) => row.ErtraegeNum > 0 || row.AufwendungenNum > 0)
+  return (
+    produkte
+      .map((row) => ({
+        ...row,
+        Gruppenbezeichnung: groupMap.get(row.Gruppe) ?? row.Gruppe,
+        ErtraegeNum: asNumber(row[ertraegeField]),
+        AufwendungenNum: asNumber(row[aufwendungenField]),
+        ErgebnisNum: asNumber(row[ergebnisField]),
+      }))
+      // Die Abfallwirtschaft hat nur ein Finanzergebnis und bleibt so in der Tabelle.
+      .filter((row) => row.ErtraegeNum > 0 || row.AufwendungenNum > 0 || row.ErgebnisNum !== 0)
+  )
 })
 
 const ordentlichesErgebnis = computed(() =>
   rows.value.reduce((summe, row) => summe + row.ErtraegeNum - row.AufwendungenNum, 0),
 )
+
+/** Finanzerträge, Zinsen und Jahresergebnis der Stadt im gewählten Jahr. */
+const finanzen = computed(() => {
+  const zeilen = ergebnisplan.gesamt[String(selectedYear.value) as '2026' | '2027']
+  return {
+    finanzertraege: zeilen[ZEILE.finanzertraege] ?? 0,
+    zinsen: zeilen[ZEILE.zinsen] ?? 0,
+    jahresergebnis: zeilen[ZEILE.jahresergebnis] ?? 0,
+  }
+})
 
 const tableGroups = computed<TableGroup[]>(() => {
   const groups = new Map<string, TableGroup>()
@@ -64,6 +83,7 @@ const tableGroups = computed<TableGroup[]>(() => {
         rows: [row],
         sumErtraege: row.ErtraegeNum,
         sumAufwendungen: row.AufwendungenNum,
+        sumErgebnis: row.ErgebnisNum,
       })
       return
     }
@@ -71,6 +91,7 @@ const tableGroups = computed<TableGroup[]>(() => {
     existing.rows.push(row)
     existing.sumErtraege += row.ErtraegeNum
     existing.sumAufwendungen += row.AufwendungenNum
+    existing.sumErgebnis += row.ErgebnisNum
   })
 
   return Array.from(groups.values())
@@ -130,16 +151,20 @@ async function clearSelection(): Promise<void> {
 
     <wa-callout variant="brand" appearance="filled">
       <wa-icon slot="icon" name="info" aria-hidden="true"></wa-icon>
-      Das Diagramm zeigt die ordentlichen Erträge und Aufwendungen {{ selectedYear }} aus dem
-      Ergebnisplan. Zinsen und Finanzerträge sind nicht enthalten. Ordentliches Ergebnis
-      {{ selectedYear }}: {{ euroKurz(ordentlichesErgebnis) }}. Mit Zinsen und Finanzerträgen ergibt
-      sich das <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>:
-      {{ euroKurz(JAHRESERGEBNIS[selectedYear]) }}.
+      Das Diagramm zeigt alle Erträge und Aufwendungen {{ selectedYear }} aus dem Ergebnisplan. Der
+      laufende Betrieb ergibt ein
+      <GlossarBegriff id="ordentliches-ergebnis">ordentliches Ergebnis</GlossarBegriff> von
+      {{ euroKurz(ordentlichesErgebnis) }}. Dazu kommen Finanzerträge von
+      {{ euroKurz(finanzen.finanzertraege) }} und Zinsen von {{ euroKurz(finanzen.zinsen) }}. Unter
+      dem Strich steht das <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>:
+      {{ euroKurz(finanzen.jahresergebnis) }}. Das Minus deckt die Stadt aus ihren Rücklagen, im
+      Diagramm der Zufluss „Minus, gedeckt aus Rücklagen“.
+      <RouterLink to="/jahresergebnis">Mehr dazu auf der Seite Jahresergebnis</RouterLink>.
     </wa-callout>
 
     <ChartCard
       titel="Erträge und Aufwendungen"
-      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktgruppe. Wählen Sie eine Produktgruppe aus (oder klicken Sie im Diagramm darauf), um ihre Produkte zu sehen. Alle Werte stehen auch in der Tabelle unten."
+      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktgruppe, dazu Finanzerträge, Zinsen und das Minus der ganzen Stadt. Wählen Sie eine Produktgruppe aus (oder klicken Sie im Diagramm darauf), um ihre Produkte zu sehen. Alle Werte stehen auch in der Tabelle unten."
       :quelle="QUELLE"
       :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
     >
@@ -183,6 +208,7 @@ async function clearSelection(): Promise<void> {
         v-else
         :rows="rows"
         :selected-year="selectedYear"
+        :finanzen="finanzen"
         @group-select="onGroupSelect"
       />
     </ChartCard>

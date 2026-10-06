@@ -1,6 +1,7 @@
 """Daten für das Planspiel der Vue-App (vue-project/src/data/planspiel.json).
 
-Liest die Zeilen 01-17 (Erträge und Aufwendungen) der Jahre 2026 und 2027 aus
+Liest die Zeilen 01-26 (Erträge, Aufwendungen, Finanzergebnis, außerordentliches
+Ergebnis bis zum Jahresergebnis) der Jahre 2026 und 2027 aus
 
 - den Teilergebnisplänen aller 68 Produktgruppen (Band 1, PDF-Seiten 15-558),
 - dem Gesamtergebnisplan (Band 1, PDF-Seite 9).
@@ -14,8 +15,7 @@ unter daten/agg_tables/, agg_zuschuesse.py muss vorher gelaufen sein), Grundsteu
 Gewerbesteuer und sonstige kommunale Steuern aus dem Vorbericht (Band 2, PDF-Seite
 20, dort in Mio. € mit einer Nachkommastelle), die Hundesteuer aus den Erläuterungen
 der Allgemeinen Finanzwirtschaft (Band 1, PDF-Seite 545, von Hand übertragen nach
-daten/manuell/, siehe README dort), Zeile 20 des Gesamtergebnisplans
-(Zinsaufwendungen), Zeile 19 des Gesamtfinanzplans (Band 1, PDF-Seite 11,
+daten/manuell/, siehe README dort), Zeile 19 des Gesamtfinanzplans (Band 1, PDF-Seite 11,
 Einzahlungen aus der Veräußerung von Sachanlagen) und die Stellen (VZÄ) einzelner Produktgruppen aus dem
 Stellenplan unter daten/agg_tables/ (agg_stellenplan.py muss vorher gelaufen
 sein) sowie die geplante Ausschüttung der Stadtwerke Münster GmbH an die Stadt
@@ -23,8 +23,14 @@ sein) sowie die geplante Ausschüttung der Stadtwerke Münster GmbH an die Stadt
 Gesamtübersicht.
 
 Prüft, ob die Summe über alle Produktgruppen je Zeile und Jahr dem
-Gesamtergebnisplan entspricht (Toleranz 1 €), und ob die von Hand übertragenen
-Steuerarten zusammen Zeile 01 der Produktgruppe 16 01 ergeben (Rundungstoleranz).
+Gesamtergebnisplan entspricht (Toleranz 1 €), ob Zeile 26 jeder Produktgruppe dem
+Ergebnis des Teilhaushaltes in der Gesamtübersicht entspricht (Toleranz 1 €), und ob
+die von Hand übertragenen Steuerarten zusammen Zeile 01 der Produktgruppe 16 01
+ergeben (Rundungstoleranz).
+
+Zeile 26 heißt in den Teilergebnisplänen "Ergebnis vor Berücksichtigung der internen
+Leistungsbeziehungen", im Gesamtergebnisplan "Jahresergebnis". Die Zeilen 27-29
+(interne Leistungsbeziehungen) gleichen sich stadtweit aus und werden nicht gelesen.
 
 Ausgabe: vue-project/src/data/planspiel.json; Exit-Code 1 bei Abweichungen.
 """
@@ -74,14 +80,23 @@ ZEILEN = [
     "Transferaufwendungen",
     "Sonstige ordentliche Aufwendungen",
     "Ordentliche Aufwendungen",
+    "Ordentliches Ergebnis",
+    "Finanzerträge",
+    "Zinsen und sonstige Finanzaufwendungen",
+    "Finanzergebnis",
+    "Ergebnis der laufenden Verwaltungstätigkeit",
+    "Außerordentliche Erträge",
+    "Außerordentliche Aufwendungen",
+    "Außerordentliches Ergebnis",
+    "Jahresergebnis",
 ]
 
 c = pl.col
 
 
 def lies_plan(pfad: Path) -> dict[str, list[int]]:
-    """Zeilen 01-17 eines (Teil-)Ergebnisplans: Jahr -> 17 Beträge in €."""
-    df = lies(pfad).filter(c("column_1").str.contains(r"^(0[1-9]|1[0-7])$")).sort("column_1")
+    """Zeilen 01-26 eines (Teil-)Ergebnisplans: Jahr -> 26 Beträge in €."""
+    df = lies(pfad).filter(c("column_1").str.contains(r"^(0[1-9]|1[0-9]|2[0-6])$")).sort("column_1")
     if df.height != len(ZEILEN):
         raise typer.BadParameter(f"{pfad.name}: {df.height} statt {len(ZEILEN)} Zeilen")
     werte = df.select(zahl(c(JAHR_SPALTE[j])).fill_null(0.0).alias(j) for j in JAHRE)
@@ -148,8 +163,9 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     Stellenplan und Gesamtübersicht unter daten/agg_tables/.
     Ausgabe: vue-project/src/data/planspiel.json. Exit-Code 1 bei Abweichungen.
     """
-    namen = pl.read_csv(daten / GU_DATEI, schema_overrides={"Code": pl.String})
-    namen = dict(zip(namen["Code"], namen["Bezeichnung"]))
+    gu = pl.read_csv(daten / GU_DATEI, schema_overrides={"Code": pl.String})
+    namen = dict(zip(gu["Code"], gu["Bezeichnung"]))
+    gu_ergebnis = {j: dict(zip(gu["Code"], gu[f"Ergebnis_{j}_EUR"].fill_null(0.0))) for j in JAHRE}
 
     produktgruppen = []
     for pfad in roh_dateien(daten, 1, 15, 558, "*_PG????_*Teilergebnisplan_*"):
@@ -166,6 +182,13 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
             if abs(summe - gesamt[j][i]) > TOLERANZ_EUR:
                 abweichungen += 1
                 typer.echo(f"Abweichung {j} Zeile {i + 1:02d} {zeile}: PG-Summe {summe}, Gesamtplan {gesamt[j][i]}")
+        for pg in produktgruppen:
+            zeile26 = pg["werte"][j][ZEILEN.index("Jahresergebnis")]
+            if abs(zeile26 - gu_ergebnis[j][pg["code"]]) > TOLERANZ_EUR:
+                abweichungen += 1
+                typer.echo(
+                    f"Abweichung {j} PG {pg['code']} Zeile 26: {zeile26}, Gesamtübersicht {gu_ergebnis[j][pg['code']]}"
+                )
 
     arten = steuerarten(daten)
     zeile01 = next(pg for pg in produktgruppen if pg["code"] == "1601")["werte"]
@@ -187,7 +210,6 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         "gewerbesteuer": steuer(daten, "Gewerbesteuer"),
         "sonstigeSteuern": steuer(daten, "Sonstige kommunale Steuern"),
         "hundesteuer": arten["Hundesteuer"],
-        "zinsaufwand": plan_zeile(ergebnisplan, "20"),
         "verkaufSachanlagen": plan_zeile(daten / "raw_table_extraction" / "band1_p011_PG12_Finanzplan_t0.csv", "19"),
         "stellen": stellen(daten),
         "stadtwerkeAusschuettung": stadtwerke_ausschuettung(daten),
