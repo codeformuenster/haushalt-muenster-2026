@@ -26,7 +26,15 @@ type SankeyNodeModel = {
   displayName: string
   code?: string
   direction?: Richtung
-  nodeType: 'group' | 'haushalt'
+  /** 'stadt': Finanzerträge, Zinsen und das Minus; sie gehören zu keiner Produktgruppe. */
+  nodeType: 'group' | 'haushalt' | 'stadt'
+}
+
+/** Finanzerträge, Zinsen und Jahresergebnis der ganzen Stadt (Zeilen 19, 20, 26). */
+type Finanzen = {
+  finanzertraege: number
+  zinsen: number
+  jahresergebnis: number
 }
 
 type SankeyLinkModel = {
@@ -51,10 +59,13 @@ type ChartEventPayload = {
 /* Die hellen Knotenfarben heben sich kaum vom weißen Grund ab (1,3 bzw. 1,7:1).
    Ein dunkler Rand macht die Knoten trotzdem erkennbar (Nicht-Text-Kontrast ≥ 3:1). */
 const KNOTEN_RAND = { borderColor: '#31333d', borderWidth: 1 }
+/* Das Minus ist kein Ertrag: grau statt in der Farbe der Erträge. */
+const MINUS_FARBE = '#d4d5db'
 
 const props = defineProps<{
   rows: SankeyInputRow[]
   selectedYear: 2026 | 2027
+  finanzen: Finanzen
 }>()
 
 const emit = defineEmits<{
@@ -94,7 +105,11 @@ function groupNodeName(code: string, direction: Richtung): string {
   return `group:${code}:${direction}`
 }
 
-function buildSankeyGraph(rows: SankeyInputRow[], selectedYear: 2026 | 2027): SankeyGraphModel {
+function buildSankeyGraph(
+  rows: SankeyInputRow[],
+  selectedYear: 2026 | 2027,
+  finanzen: Finanzen,
+): SankeyGraphModel {
   const groupAggregates = buildGroupAggregates(rows)
   const haushaltNodeName = `haushalt:${selectedYear}`
   const haushaltDisplayName = `Haushalt ${selectedYear}`
@@ -150,6 +165,29 @@ function buildSankeyGraph(rows: SankeyInputRow[], selectedYear: 2026 | 2027): Sa
     }
   })
 
+  /*
+   * Finanzerträge und Zinsen stehen im Ergebnisplan getrennt vom laufenden Betrieb,
+   * das Minus (Jahresergebnis) ist die Lücke zwischen beiden Seiten. Mit diesen drei
+   * Knoten sind beide Seiten des Diagramms gleich groß.
+   */
+  const stadtKnoten = (name: string, displayName: string, direction: Richtung, value: number) => {
+    if (value <= 0) return
+    const nodeName = `stadt:${name}`
+    nodes.push({ name: nodeName, displayName, direction, nodeType: 'stadt' })
+    links.push({
+      source: direction === 'einnahme' ? nodeName : haushaltNodeName,
+      target: direction === 'einnahme' ? haushaltNodeName : nodeName,
+      value,
+      code: '',
+      direction,
+      displayName,
+    })
+  }
+  stadtKnoten('finanzertraege', 'Finanzerträge', 'einnahme', finanzen.finanzertraege)
+  stadtKnoten('minus', 'Minus, gedeckt aus Rücklagen', 'einnahme', -finanzen.jahresergebnis)
+  stadtKnoten('zinsen', 'Zinsen', 'ausgabe', finanzen.zinsen)
+  stadtKnoten('ueberschuss', 'Überschuss', 'ausgabe', finanzen.jahresergebnis)
+
   return { nodes, links }
 }
 
@@ -189,7 +227,8 @@ function onChartMouseover(params: unknown): void {
     return
   }
 
-  hoveredGroupCode.value = getGroupCodeFromChartEvent(params)
+  // Die Kanten von Finanzerträgen, Zinsen und Minus haben keinen Code und heben nichts hervor.
+  hoveredGroupCode.value = getGroupCodeFromChartEvent(params) || null
 }
 
 function onChartMouseout(): void {
@@ -197,7 +236,7 @@ function onChartMouseout(): void {
 }
 
 const sankeyOption = computed<EChartsOption>(() => {
-  const graph = buildSankeyGraph(props.rows, props.selectedYear)
+  const graph = buildSankeyGraph(props.rows, props.selectedYear, props.finanzen)
   const istSchmal = schmal.value
   const hoveredCode = hoveredGroupCode.value
 
@@ -226,15 +265,20 @@ const sankeyOption = computed<EChartsOption>(() => {
       distance: 4,
     }
 
+    const itemStyle =
+      node.name === 'stadt:minus' ? { itemStyle: { color: MINUS_FARBE, ...KNOTEN_RAND } } : {}
+
     if (!istSchmal) {
       return {
         ...node,
+        ...itemStyle,
         label: baseLabel,
       }
     }
 
     return {
       ...node,
+      ...itemStyle,
       label: {
         ...baseLabel,
         width: 96,

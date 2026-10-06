@@ -79,7 +79,7 @@ export interface Karte {
   gruppe: (typeof GRUPPEN)[number]['id']
   titel: string
   text: string
-  /** Veränderung des ordentlichen Ergebnisses in €. Positiv heißt: das Defizit sinkt. */
+  /** Veränderung des Jahresergebnisses in €. Positiv heißt: das Defizit sinkt. */
   wirkung: number
   /** Rechenweg der Wirkung in einer Zeile, beginnt mit "= ". Fehlt bei Karten ohne Wirkung. */
   rechnung?: string
@@ -128,8 +128,15 @@ function anteilVon(faktor: number, betrag: number, name: string) {
 const schulKosten = 45_000_000
 /** Angenommene Nutzungsdauer, Mitte des NRW-Rahmens für Schulgebäude (40 bis 80 Jahre). */
 const schulNutzungsdauer = 60
-/** Angenommener Zinssatz, nur zur Erläuterung. */
-const schulZins = 0.03
+/** Angenommener Zinssatz für neue Kredite der Stadt. */
+const zinssatz = 0.03
+/** Geplantes Minus 2026, das die Karte "Kredit aufnehmen" mit einem Kredit deckt. */
+const minus = -gesamt(ZEILE.jahresergebnis)
+const stadtwerkePlus = anteilVon(
+  0.5,
+  daten.stadtwerkeAusschuettung[JAHR],
+  'Ausschüttung der Stadtwerke',
+)
 /** Umsatz der Verkehrsbetriebe der Stadtwerke Münster 2024 (Beteiligungsbericht 2024). */
 const busUmsatz = 39_800_000
 
@@ -199,9 +206,9 @@ export const KARTEN: Karte[] = [
     gruppe: 'einnehmen',
     titel: 'Stadtwerke sollen mehr abführen',
     text: 'Die Stadtwerke Münster zahlen der Stadt 50 % mehr von ihrem Gewinn aus.',
-    // Ausschüttungen sind Finanzerträge (Zeile 19) und zählen nicht zum ordentlichen Ergebnis.
-    wirkung: 0,
-    wissen: `Die Stadtwerke Münster GmbH gehört der Stadt und schüttet 2026 voraussichtlich ${euroKurz(daten.stadtwerkeAusschuettung[JAHR])} an sie aus. Solche Ausschüttungen bucht die Stadt wie Zinsen als Finanzerträge, getrennt vom laufenden Betrieb. Auf das ordentliche Ergebnis haben sie deshalb keine Wirkung. Das Jahresergebnis würde über das Finanzergebnis steigen. Mit Gewinnen aus dem Energiegeschäft gleichen die Stadtwerke außerdem Verluste im Busverkehr aus (Querverbund).`,
+    // Ausschüttungen sind Finanzerträge (Zeile 19): Sie verbessern das Finanzergebnis.
+    ...stadtwerkePlus,
+    wissen: `Die Stadtwerke Münster GmbH gehört der Stadt und schüttet 2026 voraussichtlich ${euroKurz(daten.stadtwerkeAusschuettung[JAHR])} an sie aus. Solche Ausschüttungen bucht die Stadt als Finanzerträge, getrennt vom laufenden Betrieb. Sie verbessern das Finanzergebnis und damit das Jahresergebnis. Mit Gewinnen aus dem Energiegeschäft gleichen die Stadtwerke außerdem Verluste im Busverkehr aus (Querverbund).`,
     vergleich: [
       {
         name: 'Ausschüttung der Stadtwerke',
@@ -209,7 +216,8 @@ export const KARTEN: Karte[] = [
         quelle: 'stadtwerke',
       },
     ],
-    annahme: `Auch 50 % mehr Ausschüttung (rund ${euroKurz(0.5 * daten.stadtwerkeAusschuettung[JAHR])}) landen im Finanzergebnis. Das Jahresergebnis würde sich dadurch verbessern, das ordentliche Ergebnis bleibt gleich. Das Planspiel zählt nur das ordentliche Ergebnis.`,
+    annahme:
+      'Die Stadtwerke schütten 2026 die Hälfte mehr aus als geplant. Ob ihnen das Geld dann für Investitionen, etwa in die Energiewende, oder für den Busverkehr fehlt, ist nicht berücksichtigt.',
     quelle:
       'Haushaltsplan Band 2, S. 143 (PDF), Übersicht zur Wirtschaftslage der Unternehmen; Band 1, S. 516 (PDF), Zeile 19; Querverbund: ms-aktuell.de, 2026 (https://ms-aktuell.de/muenster/oepnv-mit-millionenpublikum-muenster-plant/)',
   },
@@ -473,25 +481,25 @@ export const KARTEN: Karte[] = [
     gruppe: 'investieren',
     titel: 'Kredit aufnehmen',
     text: 'Die Stadt leiht sich Geld, um das Minus zu stopfen.',
-    wirkung: 0,
+    wirkung: -zinssatz * minus,
+    rechnung: `= ${zahl(zinssatz * 100)} % Zinsen auf ${euroKurz(minus)} Kredit`,
     wissen:
-      'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im ordentlichen Ergebnis bleibt. Die Zinsen verschlechtern über das Finanzergebnis das Jahresergebnis, auch in den folgenden Jahren. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
+      'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im Ergebnisplan bleibt, und die Zinsen machen es über das Finanzergebnis größer, auch in den folgenden Jahren. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
     vergleich: [
       { name: 'Zinsen und Finanzaufwand', betrag: gesamt(ZEILE.zinsen), quelle: 'gesamt-20' },
     ],
-    annahme:
-      'Ein Kredit selbst hat keine Wirkung auf das ordentliche Ergebnis, er steht nur im Finanzplan. Seine Zinsen verschlechtern über das Finanzergebnis das Jahresergebnis.',
+    annahme: `Die Stadt leiht sich das ganze geplante Minus 2026 von ${euroKurz(minus)} zu ${zahl(zinssatz * 100)} % Zinsen. Gezählt werden die Zinsen eines vollen Jahres. Der Kredit selbst und seine Tilgung stehen nur im Finanzplan und verändern das Jahresergebnis nicht.`,
     quelle:
-      'Gemeindeordnung NRW, §§ 86 und 89, 2026 (https://recht.nrw.de/lrgv/gesetz/01012026-gemeindeordnung-fuer-das-land-nordrhein-westfalen-bekanntmachung-der/)',
+      'Zinssatz: Annahme; Gemeindeordnung NRW, §§ 86 und 89, 2026 (https://recht.nrw.de/lrgv/gesetz/01012026-gemeindeordnung-fuer-das-land-nordrhein-westfalen-bekanntmachung-der/)',
   },
   {
     id: 'schule',
     gruppe: 'investieren',
     titel: 'Neue Grundschule bauen',
     text: `Die Stadt baut eine neue Grundschule mit Sporthalle für ${euroKurz(schulKosten)}.`,
-    wirkung: -schulKosten / schulNutzungsdauer,
-    rechnung: `= ${euroKurz(schulKosten)} Baukosten ÷ ${schulNutzungsdauer} Jahre Nutzungsdauer`,
-    wissen: `Eine Investition belastet das Ergebnis nicht auf einmal. Der Wert des Gebäudes wird über seine Nutzungsdauer verteilt abgeschrieben, hier ${euroKurz(schulKosten / schulNutzungsdauer)} im Jahr. Deshalb wirken große Bauprojekte im ordentlichen Ergebnis klein. Zinsen für Kredite kommen im Finanzergebnis hinzu und verschlechtern das Jahresergebnis.`,
+    wirkung: -schulKosten / schulNutzungsdauer - zinssatz * schulKosten,
+    rechnung: `= ${euroKurz(schulKosten)} ÷ ${schulNutzungsdauer} Jahre Abschreibung + ${zahl(zinssatz * 100)} % Zinsen auf ${euroKurz(schulKosten)}`,
+    wissen: `Eine Investition belastet das Ergebnis nicht auf einmal. Der Wert des Gebäudes wird über seine Nutzungsdauer verteilt abgeschrieben, hier ${euroKurz(schulKosten / schulNutzungsdauer)} im Jahr. Deshalb wirken große Bauprojekte im Ergebnisplan klein. Bezahlt die Stadt den Bau mit einem Kredit, kommen die Zinsen im Finanzergebnis hinzu, im ersten Jahr rund ${euroKurz(zinssatz * schulKosten)}.`,
     vergleich: [
       {
         name: 'Alle Abschreibungen der Stadt',
@@ -499,7 +507,7 @@ export const KARTEN: Karte[] = [
         quelle: 'gesamt-14',
       },
     ],
-    annahme: `Die Schule kostet so viel wie die neue vierzügige Grundschule im York-Quartier und ist 2026 ein volles Jahr in Betrieb. Die Stadt schreibt sie gleichmäßig über ${schulNutzungsdauer} Jahre ab (in NRW sind für Schulgebäude 40 bis 80 Jahre erlaubt). Fördermittel und Betriebskosten sind nicht eingerechnet. Zinsen zählen im Planspiel nicht mit, weil sie außerhalb des ordentlichen Ergebnisses stehen. Das Jahresergebnis würden sie über das Finanzergebnis verschlechtern. Bei einem Kredit zu ${zahl(schulZins * 100)} % wären es im ersten Jahr rund ${euroKurz(schulZins * schulKosten)}.`,
+    annahme: `Die Schule kostet so viel wie die neue vierzügige Grundschule im York-Quartier und ist 2026 ein volles Jahr in Betrieb. Die Stadt schreibt sie gleichmäßig über ${schulNutzungsdauer} Jahre ab (in NRW sind für Schulgebäude 40 bis 80 Jahre erlaubt). Die Stadt bezahlt den Bau ganz mit einem Kredit zu ${zahl(zinssatz * 100)} %, gezählt werden die Zinsen des ersten Jahres. Fördermittel und Betriebskosten sind nicht eingerechnet.`,
     quelle:
       'Stadt Münster, Neue Grundschule York, 2024 (https://www.presse-service.de/data.aspx/static/1170051.html); NKF-Rahmentabelle der Gesamtnutzungsdauer, 2025 (https://recht.nrw.de/system/files/BA/54831-53146-smbl_6300_20250312_a_anlage18.pdf)',
   },

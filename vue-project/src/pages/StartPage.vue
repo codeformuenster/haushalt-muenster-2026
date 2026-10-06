@@ -9,6 +9,7 @@ import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import SpamProtectedEmail from '@/components/ui/SpamProtectedEmail.vue'
 import rawGesamtuebersicht from '../../../daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv?raw'
 import { euroKurz } from '@/charts/format'
+import ergebnisplan from '@/data/planspiel.json'
 
 const router = useRouter()
 
@@ -29,6 +30,12 @@ const einstiege = [
     titel: 'Ein- & Ausgaben',
     icon: 'scale-balanced',
     text: 'Woher kommt das Geld, und wofür wird es ausgegeben? Erträge und Aufwendungen gegenübergestellt.',
+  },
+  {
+    ziel: '/jahresergebnis',
+    titel: 'Jahresergebnis',
+    icon: 'scale-unbalanced',
+    text: 'Warum plant Münster mit einem Minus, womit wird es gedeckt, und wie nah ist die Stadt an der Grenze zur Haushaltssicherung?',
   },
   {
     ziel: '/stellenplan',
@@ -116,14 +123,8 @@ function asNumber(value: string | undefined): number {
 type GesamtuebersichtRow = {
   Code: string
   Bezeichnung: string
-  Ertraege_2026_EUR?: string
-  Ertraege_2027_EUR?: string
-  Aufwendungen_2026_EUR?: string
-  Aufwendungen_2027_EUR?: string
   SaldoLfdVerw_2026_EUR?: string
   SaldoLfdVerw_2027_EUR?: string
-  OrdentlErgebnis_2026_EUR?: string
-  OrdentlErgebnis_2027_EUR?: string
   SaldoInvestitionstaetigkeit_2026_EUR?: string
   SaldoInvestitionstaetigkeit_2027_EUR?: string
   Finanzmittelueberschuss_fehlbetrag_2026_EUR?: string
@@ -142,27 +143,40 @@ const gesamtZeile =
     (row) => row.Code.trim() === '' || row.Bezeichnung.trim() === 'Gesamtsumme Stadt Münster',
   ) ?? null
 
-/** Kennzahl aus der Gesamtsummenzeile; `faktor` -1 dreht das Vorzeichen um. */
+/** Kennzahl aus der Gesamtsummenzeile des Finanzplans; `faktor` -1 dreht das Vorzeichen um. */
 function karte(
   titel: string,
-  spalte:
-    | 'Ertraege'
-    | 'Aufwendungen'
-    | 'OrdentlErgebnis'
-    | 'SaldoInvestitionstaetigkeit'
-    | 'Finanzmittelueberschuss_fehlbetrag',
+  spalte: 'SaldoInvestitionstaetigkeit' | 'Finanzmittelueberschuss_fehlbetrag',
   faktor = 1,
-  breit = false,
 ) {
   const wert2026 = faktor * asNumber(gesamtZeile?.[`${spalte}_2026_EUR`])
   const wert2027 = faktor * asNumber(gesamtZeile?.[`${spalte}_2027_EUR`])
-  return { titel, wert: euroKurz(wert2026), trend: trend(wert2026, wert2027), breit }
+  return {
+    titel,
+    wert: euroKurz(wert2026),
+    trend: trend(wert2026, wert2027),
+    breit: false,
+    ziel: undefined,
+  }
 }
 
+/** Summe von Zeilen des Gesamtergebnisplans (Index 0 = Zeile 01) je Jahr. */
+function ergebnisZeilen(jahr: '2026' | '2027', zeilen: number[]): number {
+  return zeilen.reduce((summe, zeile) => summe + (ergebnisplan.gesamt[jahr][zeile] ?? 0), 0)
+}
+
+/** Kennzahl aus dem Gesamtergebnisplan; mehrere Zeilen werden addiert. */
+function ergebnisKarte(titel: string, zeilen: number[], ziel?: string) {
+  const wert2026 = ergebnisZeilen('2026', zeilen)
+  const wert2027 = ergebnisZeilen('2027', zeilen)
+  return { titel, wert: euroKurz(wert2026), trend: trend(wert2026, wert2027), breit: !!ziel, ziel }
+}
+
+// Zeilen 10 + 19, 17 + 20 und 26: So ergeben Erträge minus Aufwendungen genau das Jahresergebnis.
 const dashboardKarten = [
-  karte('Ordentliche Erträge', 'Ertraege'),
-  karte('Ordentliche Aufwendungen', 'Aufwendungen'),
-  karte('Ordentliches Ergebnis', 'OrdentlErgebnis', 1, true),
+  ergebnisKarte('Erträge (mit Finanzerträgen)', [9, 18]),
+  ergebnisKarte('Aufwendungen (mit Zinsen)', [16, 19]),
+  ergebnisKarte('Jahresergebnis', [25], '/jahresergebnis'),
   karte('Investitionssaldo', 'SaldoInvestitionstaetigkeit'),
   // Fehlbetrag als positiver Bedarf, damit Titel und Vorzeichen zusammenpassen.
   karte('Finanzierungsbedarf (vor Krediten)', 'Finanzmittelueberschuss_fehlbetrag', -1),
@@ -218,6 +232,11 @@ const dashboardKarten = [
           </div>
           <p class="mm-dashboard-card__wert">{{ karte.wert }}</p>
           <p class="mm-dashboard-card__trend">{{ karte.trend }}</p>
+          <p v-if="karte.ziel" class="mm-dashboard-card__link">
+            <RouterLink :to="karte.ziel"
+              >Wie das Minus entsteht und womit es gedeckt wird</RouterLink
+            >
+          </p>
         </wa-card>
       </div>
       <div class="mm-dashboard__fuss">
@@ -425,6 +444,10 @@ const dashboardKarten = [
   font-weight: var(--wa-font-weight-semibold);
   line-height: 1.15;
   color: var(--wa-color-text-normal);
+}
+
+.mm-dashboard-card .mm-dashboard-card__link {
+  margin-top: var(--wa-space-2xs);
 }
 
 .mm-dashboard-card .mm-dashboard-card__trend {

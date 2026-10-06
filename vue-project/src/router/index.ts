@@ -43,6 +43,12 @@ const router = createRouter({
       meta: { nav: 'Ein- & Ausgaben', titel: 'Einnahmen und Ausgaben' },
     },
     {
+      path: '/jahresergebnis',
+      name: 'jahresergebnis',
+      component: () => import('@/pages/JahresergebnisPage.vue'),
+      meta: { nav: 'Jahresergebnis', titel: 'Jahresergebnis und Rücklagen' },
+    },
+    {
       path: '/stellenplan',
       name: 'stellenplan',
       component: () => import('@/pages/StellenplanPage.vue'),

@@ -42,7 +42,7 @@ function onYearSelect(event: Event): void {
   selectedYear.value = (event.target as HTMLInputElement).value === '2027' ? 2027 : 2026
 }
 
-/** Alle Produkte mit Zuschussbedarf (Aufwendungen > Erträge) im gewählten Jahr. */
+/** Alle Produkte mit Zuschussbedarf (negatives Ergebnis, Zeile 26) im gewählten Jahr. */
 const defizitProdukte = computed<Position[]>(() => {
   const jahr = selectedYear.value
   return produkte
@@ -50,7 +50,7 @@ const defizitProdukte = computed<Position[]>(() => {
       code: row.Code,
       bezeichnung: row.Bezeichnung,
       bereich: gruppenNamen.get(row.Gruppe) ?? row.Gruppe,
-      bedarf: asNumber(row[`Aufwendungen_${jahr}`]) - asNumber(row[`Ertraege_${jahr}`]),
+      bedarf: -asNumber(row[`Ergebnis_${jahr}`]),
     }))
     .filter((p) => p.bedarf > 0)
     .sort((a, b) => b.bedarf - a.bedarf)

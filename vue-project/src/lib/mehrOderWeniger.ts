@@ -1,7 +1,8 @@
 /**
  * Spiellogik für „Mehr oder weniger?“: Zwei Produktgruppen, welche kostet die
- * Stadt 2026 mehr? Verglichen wird der Zuschussbedarf (Aufwendungen − Erträge),
- * also das, was aus allgemeinen Mitteln wie Steuern bezahlt werden muss.
+ * Stadt 2026 mehr? Verglichen wird der Zuschussbedarf, das negative Ergebnis der
+ * Produktgruppe (Zeile 26: Aufwendungen − Erträge, einschließlich Zinsen und
+ * Finanzerträgen), also das, was aus allgemeinen Mitteln wie Steuern bezahlt werden muss.
  */
 import { euro, zahl } from '@/charts/format'
 import { asNumber, gruppenNamen, produkte } from '@/data/einAusgaben'
@@ -29,8 +30,8 @@ export function posten2026(): Posten[] {
       code: row.Code,
       bezeichnung: row.Bezeichnung,
       bereich: gruppenNamen.get(row.Gruppe) ?? row.Gruppe,
-      bedarf: asNumber(row.Aufwendungen_2026) - asNumber(row.Ertraege_2026),
-      bedarf2027: asNumber(row.Aufwendungen_2027) - asNumber(row.Ertraege_2027),
+      bedarf: -asNumber(row.Ergebnis_2026),
+      bedarf2027: -asNumber(row.Ergebnis_2027),
     }))
     .filter((p) => p.bedarf > 0)
 }

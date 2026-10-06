@@ -17,6 +17,7 @@ const navIcons: Record<string, string> = {
   '/': 'house',
   '/ueberblick': 'chart-pie',
   '/ein-ausgaben': 'scale-balanced',
+  '/jahresergebnis': 'scale-unbalanced',
   '/stellenplan': 'users',
   '/zuschuesse': 'hand-holding-heart',
   '/bezirke': 'map-location-dot',
@@ -34,7 +35,13 @@ type NavLink = {
   icon: string
 }
 
-const NAV_ENTDECKEN = ['/ein-ausgaben', '/stellenplan', '/zuschuesse', '/bezirke'] as const
+const NAV_ENTDECKEN = [
+  '/ein-ausgaben',
+  '/jahresergebnis',
+  '/stellenplan',
+  '/zuschuesse',
+  '/bezirke',
+] as const
 const NAV_AUSPROBIEREN = ['/planspiel', '/eine-million', '/mehr-oder-weniger'] as const
 
 const links = computed<NavLink[]>(() =>

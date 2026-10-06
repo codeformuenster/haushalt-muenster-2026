@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Planspiel: Wer das Minus im ordentlichen Ergebnis 2026 schließen will, dreht an
+ * Planspiel: Wer das Minus im Jahresergebnis 2026 schließen will, dreht an
  * Einnahmen und Ausgaben und sieht sofort, wie sich das Ergebnis verändert.
  */
 import { computed, onBeforeUnmount, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
@@ -23,6 +23,7 @@ import {
   type Vergleich,
   ZEILE,
 } from '@/components/planspiel/karten'
+import ruecklagen from '@/data/ruecklagen.json'
 
 const ertraege = ERTRAGSARTEN.map((name, i) => ({ name, betrag: gesamt(i) }))
 const bereiche = PRODUKTBEREICHE.map((pb) => ({
@@ -45,10 +46,13 @@ const ERTRAG_HILFE = [
 const ERTRAG_REGLER = ertraege.map((_, i) => i).filter((i) => i !== 7)
 const BEREICH_REGLER = bereiche.map((_, i) => i).filter((i) => bereiche[i]?.code !== '17')
 
-const START = gesamt(ZEILE.ertraege) - gesamt(ZEILE.aufwendungen)
-// Jahresergebnis 2026 laut Plan (ordentliches Ergebnis plus Finanzergebnis). Steht nicht in
-// planspiel.json. Quelle: Haushaltsplan Band 1, S. 9 (PDF), Zeile 26.
-const JAHRESERGEBNIS = -46_765_030
+// Jahresergebnis 2026 laut Plan: ordentliches Ergebnis plus Finanzergebnis (Band 1, S. 9, Zeile 26).
+const START = gesamt(ZEILE.jahresergebnis)
+/** Ausgleichsrücklage am 1. Januar 2026 (Band 2, S. 18), im Plan in Mio. €. */
+const AUSGLEICHSRUECKLAGE =
+  (ruecklagen.ausgleichsruecklageAnfang[ruecklagen.jahre.indexOf(2026)] ?? 0) * 1_000_000
+// Ab hier deckt die Ausgleichsrücklage das Minus allein: Stelle auf dem Fortschrittsbalken.
+const MARKE = Math.min(1, Math.max(0, 1 - AUSGLEICHSRUECKLAGE / -START))
 const GRENZE = 20
 
 const ertragProzent = reactive<number[]>(ertraege.map(() => 0))
@@ -66,6 +70,9 @@ const veraenderung = computed(
 )
 const ergebnis = computed(() => START + veraenderung.value)
 const geschafft = computed(() => ergebnis.value >= 0)
+const fiktivAusgeglichen = computed(
+  () => !geschafft.value && ergebnis.value >= -AUSGLEICHSRUECKLAGE,
+)
 // Anteil des Wegs vom Planwert bis zur Null, für den Fortschrittsbalken.
 const fortschritt = computed(() => Math.min(1, Math.max(0, veraenderung.value / -START)))
 
@@ -104,11 +111,11 @@ onBeforeUnmount(() => {
 })
 
 /** Nur in der großen Box, in der klebenden Kompaktbox wäre er zu lang. */
-const jahresergebnisHinweis = `Für den gesetzlich maßgeblichen Haushaltsausgleich zählen auch Zinsen und Finanzerträge: Das Jahresergebnis liegt im Plan bei ${euroKurz(JAHRESERGEBNIS)}.`
+const fiktivHinweis = `Dieses Minus könnte die Stadt allein aus ihrer Ausgleichsrücklage (${euroKurz(AUSGLEICHSRUECKLAGE)}) decken. Dann gilt der Haushalt rechtlich als ausgeglichen, obwohl sie mehr ausgibt, als sie einnimmt.`
 
 const bilanzText = computed(() =>
   geschafft.value
-    ? 'Geschafft: Das ordentliche Ergebnis 2026 ist ausgeglichen.'
+    ? 'Geschafft: Der Haushalt 2026 ist ausgeglichen.'
     : `Noch ${euroKurz(-ergebnis.value)} bis zur Null.`,
 )
 
@@ -121,7 +128,7 @@ const bilanzAnsage = ref('')
 let ansageTimer: ReturnType<typeof setTimeout> | undefined
 watch(bilanzText, (text) => {
   clearTimeout(ansageTimer)
-  const ansage = geschafft.value ? `${text} ${jahresergebnisHinweis}` : text
+  const ansage = fiktivAusgeglichen.value ? `${text} ${fiktivHinweis}` : text
   ansageTimer = setTimeout(() => (bilanzAnsage.value = ansage), 400)
 })
 onBeforeUnmount(() => clearTimeout(ansageTimer))
@@ -286,7 +293,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
   <div class="mm-seite">
     <PageIntro
       titel="Planspiel: Bring das Minus auf null!"
-      beschreibung="Im Jahr 2026 plant Münster mehr auszugeben, als es einnimmt. Schaffst du es, das Minus im ordentlichen Ergebnis auf null zu bringen? Triff Entscheidungen und sieh sofort, was sich ändert."
+      beschreibung="Im Jahr 2026 plant Münster mehr auszugeben, als es einnimmt. Schaffst du es, das Minus im Jahresergebnis auf null zu bringen? Triff Entscheidungen und sieh sofort, was sich ändert."
     />
 
     <!-- PLATZHALTER: Text vom Team noch abzustimmen. -->
@@ -297,11 +304,12 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       <GlossarBegriff id="pflichtaufgabe">gesetzlich vorgeschrieben</GlossarBegriff>, und
       Folgewirkungen fehlen ganz. Es geht darum, ein Gefühl dafür zu bekommen, was die Stadt tut und
       wie groß die einzelnen Posten sind. Regler und Karten werden einfach addiert, jeweils bezogen
-      auf den Plan. Das Spiel betrachtet das ordentliche Ergebnis, also die laufenden Erträge und
-      Aufwendungen. Zinsen und Finanzerträge sind nicht enthalten. Maßgeblich für den
-      Haushaltsausgleich ist das
-      <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>:
-      {{ euroKurz(JAHRESERGEBNIS) }} im Plan 2026 (Band 1, S. 9).
+      auf den Plan. Das Spiel rechnet mit dem
+      <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>, das für den
+      Haushaltsausgleich zählt: {{ euroKurz(START) }} im Plan 2026 (Band 1, S. 9). Es enthält neben
+      dem laufenden Betrieb auch Finanzerträge und Zinsen. Die Regler verändern nur den laufenden
+      Betrieb, Finanzerträge und Zinsen ändern sich nur über die Karten.
+      <RouterLink to="/jahresergebnis">Wie das Jahresergebnis entsteht</RouterLink>
     </wa-callout>
 
     <div ref="diagramme" class="mm-raster">
@@ -369,11 +377,11 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       ref="bilanz"
       class="pl-bilanz"
       :class="{ 'pl-bilanz--geschafft': geschafft, 'pl-bilanz--kompakt': kompakt }"
-      aria-label="Ordentliches Ergebnis 2026"
+      aria-label="Jahresergebnis 2026"
     >
       <div class="pl-bilanz__kopf">
         <div>
-          <div class="pl-bilanz__label">Dein ordentliches Ergebnis 2026</div>
+          <div class="pl-bilanz__label">Dein Jahresergebnis 2026</div>
           <div class="pl-bilanz__zahl">{{ mitVorzeichen(ergebnis) }}</div>
         </div>
         <div class="pl-bilanz__info">
@@ -383,9 +391,14 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
       </div>
       <div class="pl-bilanz__balken" role="presentation">
         <div class="pl-bilanz__fuellung" :style="{ width: `${fortschritt * 100}%` }" />
+        <div class="pl-bilanz__marke" :style="{ left: `${MARKE * 100}%` }" />
       </div>
+      <p v-if="!kompakt" class="pl-bilanz__legende">
+        Strich: Ab hier reicht die
+        <GlossarBegriff id="ausgleichsruecklage">Ausgleichsrücklage</GlossarBegriff>.
+      </p>
       <p class="pl-bilanz__text">{{ bilanzText }}</p>
-      <p v-if="geschafft && !kompakt" class="pl-bilanz__hinweis">{{ jahresergebnisHinweis }}</p>
+      <p v-if="fiktivAusgeglichen && !kompakt" class="pl-bilanz__hinweis">{{ fiktivHinweis }}</p>
       <!-- Entprellte Ansage; bleibt immer im DOM. -->
       <p class="mm-visually-hidden" aria-live="polite">{{ bilanzAnsage }}</p>
     </section>
@@ -427,7 +440,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
                 :class="{ gut: karte.wirkung > 0, schlecht: karte.wirkung < 0 }"
               >
                 <template v-if="karte.wirkung === 0">
-                  0 € <small>keine Wirkung auf das ordentliche Ergebnis</small>
+                  0 € <small>keine Wirkung auf das Jahresergebnis</small>
                 </template>
                 <template v-else>{{ mitVorzeichen(karte.wirkung) }}</template>
               </span>
@@ -639,6 +652,7 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
 }
 
 .pl-bilanz__balken {
+  position: relative;
   height: 0.75rem;
   margin-top: var(--wa-space-s);
   border-radius: 999px;
@@ -664,6 +678,22 @@ async function zeigeQuelle(v: Vergleich): Promise<void> {
   transition:
     margin-top 0.3s,
     font-size 0.3s;
+}
+
+/* Senkrechter Strich im Balken: Ab hier deckt die Ausgleichsrücklage das Minus. */
+.pl-bilanz__marke {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1px;
+  background-color: var(--wa-color-text-normal);
+}
+
+.pl-bilanz__legende {
+  margin: var(--wa-space-3xs) 0 0;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-xs);
 }
 
 .pl-bilanz__hinweis {
