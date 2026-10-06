@@ -46,7 +46,7 @@ const ERTRAG_HILFE = [
 const ERTRAG_REGLER = ertraege.map((_, i) => i).filter((i) => i !== 7)
 const BEREICH_REGLER = bereiche.map((_, i) => i).filter((i) => bereiche[i]?.code !== '17')
 
-// Jahresergebnis 2026 laut Plan: ordentliches Ergebnis plus Finanzergebnis (Band 1, S. 9, Zeile 26).
+// Jahresergebnis 2026 laut Plan: ordentliches, Finanz- und außerordentliches Ergebnis (Band 1, S. 9, Zeile 26).
 const START = gesamt(ZEILE.jahresergebnis)
 /** Ausgleichsrücklage am 1. Januar 2026 (Band 2, S. 18), im Plan in Mio. €. */
 const AUSGLEICHSRUECKLAGE =

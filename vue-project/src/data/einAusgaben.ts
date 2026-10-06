@@ -10,7 +10,7 @@ export type DataRow = {
   Bezeichnung: string
   Ertraege_2026: string
   Aufwendungen_2026: string
-  /** Ergebnis des Teilhaushaltes (Zeile 26): ordentliches Ergebnis plus Finanzergebnis. */
+  /** Ergebnis des Teilhaushaltes (Zeile 26): ordentliches Ergebnis plus Finanzergebnis und außerordentliches Ergebnis. */
   Ergebnis_2026: string
   Ertraege_2027: string
   Aufwendungen_2027: string

@@ -7,7 +7,7 @@ type TableRow = {
   Bezeichnung: string
   ErtraegeNum: number
   AufwendungenNum: number
-  /** Zeile 26: ordentliches Ergebnis plus Finanzergebnis. */
+  /** Zeile 26: ordentliches Ergebnis plus Finanzergebnis und außerordentliches Ergebnis. */
   ErgebnisNum: number
 }
 

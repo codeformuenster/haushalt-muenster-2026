@@ -98,12 +98,20 @@ const wasserfall = computed<EChartsOption>(() => {
   const farbe = (s: Schritt) =>
     s.summe ? KATEGORIE_FARBEN[0] : s.bis > s.von ? POL_FARBEN.positiv : POL_FARBEN.negativ
   const beschriftung = (s: Schritt) => (s.summe ? euroKurz(s.bis) : vorzeichen(s.bis - s.von))
-  // Beschriftet wird nur der Teil, der vom Nullpunkt am weitesten weg ist.
+  /*
+   * Beschriftet wird nur ein Teil: der nicht leere, und wenn beide Teile Fläche haben,
+   * der in Richtung der Änderung. Die Beschriftung steht dort, wohin der Schritt führt.
+   */
   const sichtbar = (teil: 'minus' | 'plus', i: number) => {
     const t = teile[i]!
-    return teil === 'minus'
-      ? Math.abs(t.minus) >= Math.abs(t.plus)
-      : Math.abs(t.plus) > Math.abs(t.minus)
+    const s = schritte.value[i]!
+    const nachUnten = s.bis < s.von
+    if (t.minus === 0 || t.plus === 0) return t[teil] !== 0
+    return teil === 'minus' ? nachUnten : !nachUnten
+  }
+  const lage = (teil: 'minus' | 'plus', s: Schritt) => {
+    if (s.summe) return teil === 'minus' ? ('bottom' as const) : ('top' as const)
+    return s.bis < s.von ? ('bottom' as const) : ('top' as const)
   }
   const teilSerie = (teil: 'minus' | 'plus') => ({
     type: 'bar' as const,
@@ -115,7 +123,7 @@ const wasserfall = computed<EChartsOption>(() => {
       itemStyle: { color: farbe(s) },
       label: {
         show: sichtbar(teil, i),
-        position: teil === 'minus' ? ('bottom' as const) : ('top' as const),
+        position: lage(teil, s),
         formatter: () => beschriftung(s),
       },
     })),
@@ -162,7 +170,15 @@ const verlauf: EChartsOption = {
   tooltip: {
     trigger: 'axis',
     axisPointer: { type: 'shadow' },
-    valueFormatter: (wert) => euroKurz(Math.abs(Number(wert))),
+    // Der Minderaufwand ist nur zum Stapeln negativ, im Tooltip steht er als Betrag.
+    formatter: (info: unknown) =>
+      (info as { axisValueLabel: string; seriesName: string; value: number; marker: string }[])
+        .map((p, i) => {
+          const kopf = i === 0 ? `<strong>${p.axisValueLabel.replace('\n', ' ')}</strong><br>` : ''
+          const betrag = i === 0 ? p.value : Math.abs(p.value)
+          return `${kopf}${p.marker}${p.seriesName}: ${euroKurz(betrag)}`
+        })
+        .join('<br>'),
   },
   xAxis: { type: 'category', data: jahrLabels },
   yAxis: { type: 'value', axisLabel: { formatter: (wert: number) => euroKurz(wert) } },
@@ -278,6 +294,24 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
       :beschreibung="`Münster plant für 2026 mit einem Minus von ${euroKurz(-jahresergebnis2026)}. Diese Seite zeigt, wie das Minus entsteht, womit die Stadt es deckt und wie nah sie dabei an eine gesetzliche Grenze kommt.`"
     />
 
+    <!-- Stand September 2026, wie auf der Startseite; entfernen, sobald ein Nachtragshaushalt vorliegt. -->
+    <wa-callout variant="brand" appearance="filled">
+      <wa-icon slot="icon" name="triangle-exclamation" aria-hidden="true"></wa-icon>
+      <strong>Die Zahlen ab 2027 sind überholt.</strong> Nach der Berechnung des Landes NRW erhält
+      Münster 2027 rund 92 Mio. € weniger
+      <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff> als
+      eingeplant. Diese Seite zeigt den Plan vom Mai 2026, vor dieser Kürzung. Mit ihr fiele das
+      Minus 2027 deutlich größer aus.
+      <a
+        href="https://www.stadt-muenster.de/aktuelles/newsdetail/kaemmerin-zeller-informiert-finanzausschuss"
+        target="_blank"
+        rel="noopener"
+        >Meldung der Stadt vom 9. September 2026<span class="mm-visually-hidden">
+          (öffnet in neuem Tab)</span
+        ></a
+      >
+    </wa-callout>
+
     <ChartCard
       titel="Wie das Jahresergebnis entsteht"
       beschreibung="Vom ordentlichen Ergebnis des laufenden Betriebs zum Jahresergebnis: Finanzerträge kommen hinzu, Zinsen gehen ab. Alle Werte stehen unter dem Diagramm auch als Tabelle."
@@ -367,13 +401,13 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
 
     <ChartCard
       titel="Das Jahresergebnis 2024 bis 2030"
-      beschreibung="Blau: das geplante Jahresergebnis. Grau: der globale Minderaufwand, also Einsparungen, die die Stadt ab 2028 pauschal einplant, ohne schon festzulegen, wo. Gelingen sie nicht, wird das Minus um diesen Teil größer. Beträge in Mio. €."
+      beschreibung="Blau: das geplante Jahresergebnis. Grau: der globale Minderaufwand, also Einsparungen, die die Stadt vor allem ab 2028 pauschal einplant, ohne schon festzulegen, wo. Gelingen sie nicht, wird das Minus um diesen Teil größer. Beträge in Mio. €."
       :quelle="QUELLE_VORBERICHT"
       :pdf="{ band: 2, seite: 18 }"
     >
       <div class="mm-text">
         <p>
-          Die Stadt plant in jedem Jahr mit einem Minus. Ab 2028 rechnet sie mit einem
+          Die Stadt plant in jedem Jahr mit einem Minus. Für 2028 bis 2030 rechnet sie mit einem
           <GlossarBegriff id="globaler-minderaufwand">globalen Minderaufwand</GlossarBegriff>. 2024
           ist das tatsächliche Ergebnis (Ist), 2025 der ursprüngliche Plan, ab 2026 der aktuelle
           Plan.
@@ -488,7 +522,9 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
           <template v-else>
             Zwei Jahre nacheinander sind es nicht. Laut Vorbericht hält die Stadt die Verringerung
             so im zulässigen Rahmen und vermeidet ein Haushaltssicherungskonzept, auch mit Hilfe des
-            globalen Minderaufwands ab 2028.
+            globalen Minderaufwands ab 2028. Das gilt für den Plan vom Mai 2026: Mit den fehlenden
+            Schlüsselzuweisungen (Hinweis oben) läge 2027 deutlich über der Grenze, und die Rechnung
+            für die Folgejahre ist offen.
           </template>
         </p>
       </div>
@@ -516,23 +552,6 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
         </DatenTabelle>
       </wa-details>
     </ChartCard>
-
-    <!-- Stand September 2026, wie auf der Startseite; entfernen, sobald ein Nachtragshaushalt vorliegt. -->
-    <wa-callout variant="brand" appearance="filled">
-      <wa-icon slot="icon" name="triangle-exclamation" aria-hidden="true"></wa-icon>
-      <strong>Die Zahlen ab 2027 sind überholt.</strong> Nach der Berechnung des Landes NRW erhält
-      Münster 2027 rund 92 Mio. € weniger
-      <GlossarBegriff id="schluesselzuweisungen">Schlüsselzuweisungen</GlossarBegriff> als
-      eingeplant. Diese Seite zeigt den Plan vom Mai 2026, vor dieser Kürzung.
-      <a
-        href="https://www.stadt-muenster.de/aktuelles/newsdetail/kaemmerin-zeller-informiert-finanzausschuss"
-        target="_blank"
-        rel="noopener"
-        >Meldung der Stadt vom 9. September 2026<span class="mm-visually-hidden">
-          (öffnet in neuem Tab)</span
-        ></a
-      >
-    </wa-callout>
   </div>
 </template>
 

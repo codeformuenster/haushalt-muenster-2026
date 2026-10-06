@@ -32,7 +32,8 @@ const selectedYear = ref<2026 | 2027>(2026)
 const ZEILE = { finanzertraege: 18, zinsen: 19, jahresergebnis: 25 } as const
 // Erste PDF-Seite des Haushaltsquerschnitts Teil 1 (Ergebnisplanung) je Jahr in Band 2.
 const QUERSCHNITT_SEITE = { 2026: 71, 2027: 74 } as const
-const QUELLE = 'Haushaltsplan Band 2, S. 71–76 (PDF), Haushaltsquerschnitt Teil 1: Ergebnisplanung'
+const QUELLE =
+  'Haushaltsplan Band 2, S. 71–76 (PDF), Haushaltsquerschnitt Teil 1: Ergebnisplanung; Finanzerträge, Zinsen und Jahresergebnis: Band 1, S. 9 (PDF), Gesamtergebnisplan'
 
 const rows = computed<ViewRow[]>(() => {
   const ertraegeField: 'Ertraege_2026' | 'Ertraege_2027' =
