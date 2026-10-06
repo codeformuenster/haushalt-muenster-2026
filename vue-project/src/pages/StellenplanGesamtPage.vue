@@ -217,7 +217,7 @@ function zuruecksetzen() {
     </RouterLink>
     <PageIntro
       titel="Gesamtübersicht Stellenplan"
-      beschreibung="Das Icicle-Diagramm zeigt die vollständige Hierarchie von der Stadt über die Themenbereiche bis zu den Produktgruppen. Die Breite entspricht dem Stellenumfang."
+      beschreibung="Das Diagramm zeigt den ganzen Stellenplan, von der Stadt über die Themenbereiche bis zu den Produktgruppen. Die Breite entspricht dem Stellenumfang."
     />
 
     <div class="icicle-filter">
@@ -313,7 +313,7 @@ function zuruecksetzen() {
         class="icicle-scroll"
         role="region"
         tabindex="0"
-        aria-label="Icicle-Diagramm, horizontal scrollbar"
+        aria-label="Stellenplan-Diagramm, horizontal scrollbar"
       >
         <svg
           class="icicle-diagramm"

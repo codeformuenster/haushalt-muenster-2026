@@ -52,7 +52,7 @@ const router = createRouter({
       path: '/stellenplan/gesamtuebersicht',
       name: 'stellenplan-gesamt',
       component: () => import('@/pages/StellenplanGesamtPage.vue'),
-      meta: { titel: 'Stellenplan – Gesamtübersicht' },
+      meta: { titel: 'Stellenplan: Gesamtübersicht' },
     },
     {
       path: '/zuschuesse',
@@ -82,7 +82,7 @@ const router = createRouter({
       path: '/mehr-oder-weniger',
       name: 'mehr-oder-weniger',
       component: () => import('@/pages/MehrOderWenigerPage.vue'),
-      meta: { nav: 'Schätzduell', titel: 'Mehr oder weniger? – Schätzduell' },
+      meta: { nav: 'Schätzduell', titel: 'Schätzduell: Mehr oder weniger?' },
     },
     {
       path: '/glossar',
@@ -119,8 +119,8 @@ router.afterEach((to, from) => {
   // Startseite: der ausführliche Titel aus index.html.
   const titel = to.name === 'start' ? undefined : (to.meta.titel ?? to.meta.nav)
   document.title = titel
-    ? `${titel} — Münster Money`
-    : 'Münster Money — Haushalt der Stadt Münster 2026/2027'
+    ? `${titel} | Münster Money`
+    : 'Münster Money: Haushalt der Stadt Münster 2026/2027'
 
   if (from.matched.length === 0 || to.path === from.path) {
     if (to.hash && to.hash !== from.hash) fokussiere(to.hash.slice(1))
