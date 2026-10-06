@@ -84,7 +84,7 @@ Inhalte
 
 | Kapitel | Tabelle | PDF-Seiten | Seitenzahlen | Daten |
 |------------|------------|------------|------------|------------|
-| Vorbericht | | 5-34 | 1-30 | |
+| Vorbericht | | 5-34 | 1-30 | [Ruecklagen_2024_2030.csv](daten/agg_tables/Ruecklagen_2024_2030.csv) (Entwicklung der Rücklagen, PDF-Seite 18) |
 | Stellenplan | | 35-68 | 31-64 | |
 | | Beamte & Beamtinnen | 37-38 | 33-34 |  |
 | | Tariflich Beschäftigte | 39-40 | 35-36 | |
@@ -158,6 +158,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Start | `/` | `src/pages/StartPage.vue` |
 | Überblick (das große Ganze) | `/ueberblick` | `src/pages/UeberblickPage.vue` |
 | Ein- & Ausgaben | `/ein-ausgaben` | `src/pages/EinAusgabenPage.vue` |
+| Jahresergebnis und Rücklagen | `/jahresergebnis` | `src/pages/JahresergebnisPage.vue` |
 | Stellenplan | `/stellenplan` | `src/pages/StellenplanPage.vue` |
 | Zuschüsse an Vereine und Verbände | `/zuschuesse` | `src/pages/ZuschuessePage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
@@ -169,7 +170,11 @@ eigenen Ordner `src/components/<seite>/`.
 
 Das Planspiel liest `src/data/planspiel.json`, erzeugt von
 `scripts/pipeline/planspiel_daten.py`; die Entscheidungskarten stehen in
-`src/components/planspiel/karten.ts`.
+`src/components/planspiel/karten.ts`. Die Datei enthält die Zeilen 01-26 des
+Gesamtergebnisplans und aller Teilergebnispläne und wird auch von Start-,
+Überblick-, Ein-&-Ausgaben- und Jahresergebnis-Seite gelesen. Die Rücklagen
+2024-2030 für die Jahresergebnis-Seite und das Planspiel stehen in
+`src/data/ruecklagen.json`, erzeugt von `scripts/pipeline/agg_ruecklagen.py`.
 
 ### Bitte nicht allein ändern
 
@@ -226,6 +231,13 @@ Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
 
 **Ein- & Ausgaben** und **Stellenplan** lesen ihre Zahlen direkt aus CSV bzw.
 JSON unter `vue-project/src/`, ohne Skript in `preprocessing/`.
+
+Die Hauptkennzahl der App ist das **Jahresergebnis** (Zeile 26 des Ergebnisplans):
+ordentliches Ergebnis plus Finanzergebnis (Finanzerträge minus Zinsen). Danach
+richtet sich der Haushaltsausgleich. Je Produktgruppe nutzen wir ebenfalls Zeile 26,
+also das Ergebnis ohne interne Leistungsbeziehungen (Zeilen 27-29), wie im
+Haushaltsquerschnitt. Der Zuschussbedarf auf den Seiten „1 Mio. €“ und
+„Schätzduell“ ist dieses Ergebnis mit umgekehrtem Vorzeichen.
 
 Quellenangaben unter Diagrammen verlinken, wo möglich, direkt auf die PDF-Seite im
 Original-PDF (`pdf`-Prop von `ChartCard`, Links in `src/data/haushaltsplan.ts`). Im
