@@ -4,9 +4,9 @@ Erzeugt mit `scripts/check_konsistenz.py`. Toleranz: 1 € bei Beträgen, 0.01 b
 
 | Prüfung | Datei | Geprüfte Werte | Abweichungen |
 |---|---|---|---|
-| Produktgruppen = Produktbereich | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | 680 | 0 |
-| Produktbereiche = Gesamtsumme | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | 40 | 2 |
-| Zeilenformeln | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | 1376 | 0 |
+| Produktgruppen = Produktbereich | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | 952 | 0 |
+| Produktbereiche = Gesamtsumme | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | 56 | 2 |
+| Zeilenformeln | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | 2064 | 0 |
 | Beamte + Tarif = Gesamt | `agg_tables/Stellenplan_2026_2027.csv` | 158 | 0 |
 | Produktgruppen = Produktbereich | `agg_tables/Stellenplan_2026_2027.csv` | 90 | 0 |
 | Produktbereiche = Gesamtsumme | `agg_tables/Stellenplan_2026_2027.csv` | 6 | 0 |

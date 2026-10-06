@@ -1,7 +1,8 @@
 """Erzeugt alle Tabellen unter daten/agg_tables/ neu aus daten/raw_table_extraction/.
 
 Reihenfolge: Gesamtübersicht (liefert die PG-Bezeichnungen für die Zuschüsse),
-Stellenplan, Zuschüsse, Investitionsmaßnahmen der Bezirksvertretungen, danach die
+Stellenplan, Zuschüsse, Investitionsmaßnahmen der Bezirksvertretungen, Rücklagen
+(agg_ruecklagen.py, schreibt auch vue-project/src/data/ruecklagen.json), danach die
 Planspiel-Daten der Vue-App (planspiel_daten.py). Zuletzt läuft
 die Konsistenzprüfung (scripts/check_konsistenz.py) und schreibt ihren Bericht nach
 daten/pruefberichte/konsistenz.md.
@@ -20,6 +21,7 @@ import typer
 
 import agg_bezirksvertretungen
 import agg_gesamtuebersicht
+import agg_ruecklagen
 import agg_stellenplan
 import agg_zuschuesse
 import planspiel_daten
@@ -31,12 +33,19 @@ KONSISTENZ = Path(__file__).resolve().parents[1] / "check_konsistenz.py"
 def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> None:
     """Erzeugt alle Tabellen unter daten/agg_tables/ neu und prüft sie auf Konsistenz.
 
-    Ausgaben: die sechs CSVs unter daten/agg_tables/, vue-project/src/data/planspiel.json
-    und daten/pruefberichte/konsistenz.md.
+    Ausgaben: die sieben CSVs unter daten/agg_tables/, vue-project/src/data/planspiel.json,
+    vue-project/src/data/ruecklagen.json und daten/pruefberichte/konsistenz.md.
     Exit-Code 1 nur, wenn ein Erzeugungsschritt fehlschlägt.
     Abweichungen der Konsistenzprüfung werden gemeldet, aber nicht als Fehler gewertet.
     """
-    skripte = (agg_gesamtuebersicht, agg_stellenplan, agg_zuschuesse, agg_bezirksvertretungen, planspiel_daten)
+    skripte = (
+        agg_gesamtuebersicht,
+        agg_stellenplan,
+        agg_zuschuesse,
+        agg_bezirksvertretungen,
+        agg_ruecklagen,
+        planspiel_daten,
+    )
     for skript in skripte:
         skript.main(daten=daten)
 

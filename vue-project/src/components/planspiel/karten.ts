@@ -25,6 +25,9 @@ export const ZEILE = {
   sachleistungen: 12,
   abschreibungen: 13,
   aufwendungen: 16,
+  finanzertraege: 18,
+  zinsen: 19,
+  jahresergebnis: 25,
 } as const
 
 /** Zeilen 01 bis 08 des Ergebnisplans: die Ertragsarten. Zeile 09 ist überall 0. */
@@ -474,7 +477,7 @@ export const KARTEN: Karte[] = [
     wissen:
       'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im ordentlichen Ergebnis bleibt. Die Zinsen verschlechtern über das Finanzergebnis das Jahresergebnis, auch in den folgenden Jahren. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
     vergleich: [
-      { name: 'Zinsen und Finanzaufwand', betrag: daten.zinsaufwand[JAHR], quelle: 'gesamt-20' },
+      { name: 'Zinsen und Finanzaufwand', betrag: gesamt(ZEILE.zinsen), quelle: 'gesamt-20' },
     ],
     annahme:
       'Ein Kredit selbst hat keine Wirkung auf das ordentliche Ergebnis, er steht nur im Finanzplan. Seine Zinsen verschlechtern über das Finanzergebnis das Jahresergebnis.',

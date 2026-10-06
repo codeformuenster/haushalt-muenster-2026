@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""Produktgruppen aus der Gesamtübersicht für die Vue-App.
+
+Ertraege/Aufwendungen sind die ordentlichen Erträge und Aufwendungen (Zeilen 10 und 17),
+Ergebnis ist das Ergebnis des Teilhaushaltes (Zeile 26, ohne interne Leistungsbeziehungen):
+ordentliches Ergebnis plus Finanzergebnis plus außerordentliches Ergebnis.
+"""
 import csv
 from pathlib import Path
 
@@ -14,8 +20,10 @@ SOURCE_COLUMNS = [
     "Bezeichnung",
     "Ertraege_2026_EUR",
     "Aufwendungen_2026_EUR",
+    "Ergebnis_2026_EUR",
     "Ertraege_2027_EUR",
     "Aufwendungen_2027_EUR",
+    "Ergebnis_2027_EUR",
 ]
 
 TARGET_COLUMNS = [
@@ -23,8 +31,10 @@ TARGET_COLUMNS = [
     "Bezeichnung",
     "Ertraege_2026",
     "Aufwendungen_2026",
+    "Ergebnis_2026",
     "Ertraege_2027",
     "Aufwendungen_2027",
+    "Ergebnis_2027",
     "Gruppe",
 ]
 
@@ -41,8 +51,8 @@ def main() -> None:
         for row in reader:
             code = (row.get("Code") or "").strip()
 
-            # Remove group rows (their code has exactly two characters, e.g. "01")
-            if len(code) == 2:
+            # Only product groups (four-digit code); drops area rows ("01") and the city total (no code)
+            if len(code) != 4:
                 continue
 
             rows_out.append(
@@ -51,8 +61,10 @@ def main() -> None:
                     "Bezeichnung": (row.get("Bezeichnung") or "").strip(),
                     "Ertraege_2026": row.get("Ertraege_2026_EUR", ""),
                     "Aufwendungen_2026": row.get("Aufwendungen_2026_EUR", ""),
+                    "Ergebnis_2026": row.get("Ergebnis_2026_EUR", ""),
                     "Ertraege_2027": row.get("Ertraege_2027_EUR", ""),
                     "Aufwendungen_2027": row.get("Aufwendungen_2027_EUR", ""),
+                    "Ergebnis_2027": row.get("Ergebnis_2027_EUR", ""),
                     "Gruppe": code[:2],
                 }
             )

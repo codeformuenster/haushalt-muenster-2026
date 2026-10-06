@@ -5,7 +5,8 @@ zusammenfügen:
 
 - agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv: Produktgruppen
   summieren sich zum Produktbereich, Produktbereiche zur Gesamtsumme, und die
-  Zeilenformeln (z.B. Erträge - Aufwendungen = ordentliches Ergebnis) stimmen.
+  Zeilenformeln (z.B. Erträge - Aufwendungen = ordentliches Ergebnis, ordentliches
+  Ergebnis + Finanzergebnis + außerordentliches Ergebnis = Ergebnis) stimmen.
 - agg_tables/Stellenplan_2026_2027.csv: Beamte + Tarif = Gesamt, Produktgruppen
   summieren sich zum Produktbereich, Produktbereiche zur Gesamtsumme.
 - agg_tables/Stellenplan_2026_2027_nach_Besoldungsgruppen.csv: Besoldungsgruppen
@@ -37,6 +38,8 @@ GU_KEYS = ["kind", "year", "code"]
 c = pl.col
 GU_FORMELN = {
     "ordentliches_ergebnis": c("ordentliche_ertraege") - c("ordentliche_aufwendungen"),
+    "ergebnis_lfd_verw": c("ordentliches_ergebnis") + c("finanzergebnis"),
+    "ergebnis": c("ergebnis_lfd_verw") + c("ausserordentliches_ergebnis"),
     "saldo_laufend": c("einzahlungen_laufend") - c("auszahlungen_laufend"),
     "saldo_investitionen": c("einzahlungen_investitionen") - c("auszahlungen_investitionen"),
     "finanzmittelueberschuss_fehlbetrag": c("saldo_laufend") + c("saldo_investitionen"),
@@ -47,6 +50,10 @@ GU_SPALTEN = {
     "Ertraege": ("ergebnisplanung", "ordentliche_ertraege"),
     "Aufwendungen": ("ergebnisplanung", "ordentliche_aufwendungen"),
     "OrdentlErgebnis": ("ergebnisplanung", "ordentliches_ergebnis"),
+    "Finanzergebnis": ("ergebnisplanung", "finanzergebnis"),
+    "ErgebnisLfdVerw": ("ergebnisplanung", "ergebnis_lfd_verw"),
+    "AoErgebnis": ("ergebnisplanung", "ausserordentliches_ergebnis"),
+    "Ergebnis": ("ergebnisplanung", "ergebnis"),
     "Einzahlungen_lfdVerw": ("finanzplanung", "einzahlungen_laufend"),
     "Auszahlungen_lfdVerw": ("finanzplanung", "auszahlungen_laufend"),
     "SaldoLfdVerw": ("finanzplanung", "saldo_laufend"),
