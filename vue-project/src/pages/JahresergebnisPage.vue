@@ -15,6 +15,7 @@ import BaseChart from '@/components/ui/BaseChart.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
+import { useSchmalerBildschirm } from '@/lib/bildschirm'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
 import plan from '@/data/planspiel.json'
 import ruecklagen from '@/data/ruecklagen.json'
@@ -41,6 +42,11 @@ const EINE_STELLE = new Intl.NumberFormat('de-DE', {
   maximumFractionDigits: 1,
 })
 
+/** Beträge am Wasserfall immer mit einer Nachkommastelle, damit "45,0" neben "23,8" steht. */
+function mioEineStelle(wert: number): string {
+  return `${EINE_STELLE.format(wert / MIO)} Mio. €`
+}
+
 const selectedYear = ref<2026 | 2027>(2026)
 
 /** Haushaltsjahr aus einem <wa-select> übernehmen. */
@@ -57,7 +63,8 @@ const jahresergebnis2026 = plan.gesamt['2026'][ZEILE.jahresergebnis] ?? 0
 
 // ------------------------------------------------------------ Wasserfall
 
-type Schritt = { name: string; von: number; bis: number; summe: boolean }
+/** `kurz` steht auf schmalen Bildschirmen an der Achse, zweizeilig, damit alle vier Namen passen. */
+type Schritt = { name: string; kurz: string; von: number; bis: number; summe: boolean }
 
 /** Die Treppe vom ordentlichen Ergebnis zum Jahresergebnis. */
 const schritte = computed<Schritt[]>(() => {
@@ -65,21 +72,51 @@ const schritte = computed<Schritt[]>(() => {
   const ordentlich = w(ZEILE.ordentlichesErgebnis)
   const nachFinanzertraegen = ordentlich + w(ZEILE.finanzertraege)
   return [
-    { name: 'Ordentliches Ergebnis', von: 0, bis: ordentlich, summe: true },
-    { name: '+ Finanzerträge', von: ordentlich, bis: nachFinanzertraegen, summe: false },
+    {
+      name: 'Ordentliches Ergebnis',
+      kurz: 'Ordentl.\nErgebnis',
+      von: 0,
+      bis: ordentlich,
+      summe: true,
+    },
+    {
+      name: '+ Finanzerträge',
+      kurz: '+ Finanz-\nerträge',
+      von: ordentlich,
+      bis: nachFinanzertraegen,
+      summe: false,
+    },
     {
       name: '− Zinsen',
+      kurz: '− Zinsen',
       von: nachFinanzertraegen,
       bis: nachFinanzertraegen - w(ZEILE.zinsen),
       summe: false,
     },
-    { name: 'Jahresergebnis', von: 0, bis: w(ZEILE.jahresergebnis), summe: true },
+    {
+      name: '= Jahresergebnis',
+      kurz: '= Jahres-\nergebnis',
+      von: 0,
+      bis: w(ZEILE.jahresergebnis),
+      summe: true,
+    },
   ]
 })
 
-function vorzeichen(betrag: number): string {
-  return `${betrag > 0 ? '+' : ''}${euroKurz(betrag)}`
-}
+/** Dieselbe Treppe als Rechnung in einer Zeile, damit man sie nicht aus der Grafik ablesen muss. */
+const rechnung = computed(() => {
+  const w = werte.value
+  const ausserordentlich = w(ZEILE.ausserordentlichesErgebnis)
+  return [
+    { zeichen: '', name: 'Ordentliches Ergebnis', betrag: w(ZEILE.ordentlichesErgebnis) },
+    { zeichen: '+', name: 'Finanzerträge', betrag: w(ZEILE.finanzertraege) },
+    { zeichen: '−', name: 'Zinsen', betrag: w(ZEILE.zinsen) },
+    ...(ausserordentlich === 0
+      ? []
+      : [{ zeichen: '+', name: 'Außerordentliches Ergebnis', betrag: ausserordentlich }]),
+    { zeichen: '=', name: 'Jahresergebnis', betrag: w(ZEILE.jahresergebnis) },
+  ]
+})
 
 /*
  * ECharts kennt keine schwebenden Balken. Jeder Schritt wird deshalb aus einem
@@ -87,7 +124,16 @@ function vorzeichen(betrag: number): string {
  * ECharts getrennt nach unten; ein Schritt, der die Null kreuzt, bekommt keinen
  * Sockel, sondern einen sichtbaren Teil unter und einen über der Null.
  */
+const schmal = useSchmalerBildschirm()
+
 const wasserfall = computed<EChartsOption>(() => {
+  /*
+   * Auf dem Handy ist eine Spalte nur gut 60 Pixel breit. Die Beträge am Balken
+   * stehen dort ohne "Mio. €" (die Einheit nennt die Achse), sonst stoßen
+   * benachbarte Beschriftungen aneinander.
+   */
+  const eng = schmal.value
+  const betrag = (wert: number) => (eng ? EINE_STELLE.format(wert / MIO) : mioEineStelle(wert))
   const teile = schritte.value.map((s) => {
     const unten = Math.min(s.von, s.bis)
     const oben = Math.max(s.von, s.bis)
@@ -97,7 +143,11 @@ const wasserfall = computed<EChartsOption>(() => {
   })
   const farbe = (s: Schritt) =>
     s.summe ? KATEGORIE_FARBEN[0] : s.bis > s.von ? POL_FARBEN.positiv : POL_FARBEN.negativ
-  const beschriftung = (s: Schritt) => (s.summe ? euroKurz(s.bis) : vorzeichen(s.bis - s.von))
+  const beschriftung = (s: Schritt) => {
+    if (s.summe) return betrag(s.bis)
+    const aenderung = s.bis - s.von
+    return `${aenderung > 0 ? '+' : ''}${betrag(aenderung)}`
+  }
   /*
    * Beschriftet wird nur ein Teil: der nicht leere, und wenn beide Teile Fläche haben,
    * der in Richtung der Änderung. Die Beschriftung steht dort, wohin der Schritt führt.
@@ -113,35 +163,62 @@ const wasserfall = computed<EChartsOption>(() => {
     if (s.summe) return teil === 'minus' ? ('bottom' as const) : ('top' as const)
     return s.bis < s.von ? ('bottom' as const) : ('top' as const)
   }
+  /*
+   * Abgerundet werden nur die beiden Enden des ganzen Balkens. Ohne das bekäme ein
+   * Balken, der die Null kreuzt, an der Nahtstelle seiner zwei Teile eine Kerbe.
+   */
+  const ecken = (teil: 'minus' | 'plus', i: number) => {
+    const t = teile[i]!
+    const oben = teil === 'plus' || t.plus === 0 ? 4 : 0
+    const unten = teil === 'minus' || t.minus === 0 ? 4 : 0
+    return [oben, oben, unten, unten]
+  }
   const teilSerie = (teil: 'minus' | 'plus') => ({
     type: 'bar' as const,
     name: teil,
     stack: 'treppe',
-    barWidth: '55%',
+    barWidth: eng ? '65%' : '55%',
     data: schritte.value.map((s, i) => ({
       value: teile[i]![teil],
-      itemStyle: { color: farbe(s) },
+      itemStyle: { color: farbe(s), borderRadius: ecken(teil, i) },
       label: {
         show: sichtbar(teil, i),
         position: lage(teil, s),
+        fontSize: eng ? 11 : 12,
         formatter: () => beschriftung(s),
       },
     })),
   })
 
   return {
-    grid: { left: 8, right: 8, top: 32, bottom: 32, containLabel: true },
+    grid: { left: 8, right: 8, top: 32, bottom: eng ? 8 : 32, containLabel: true },
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' },
+      // Ohne Animation springt der Schatten sofort auf die Spalte unter der Maus.
+      axisPointer: { type: 'shadow', animation: false },
       formatter: (info: unknown) => {
         const [erster] = info as { dataIndex: number }[]
         const s = schritte.value[erster?.dataIndex ?? 0]!
-        return `<strong>${s.name}</strong><br>${s.summe ? euro(s.bis) : euro(s.bis - s.von)}`
+        if (s.summe) return `<strong>${s.name}</strong><br>${euro(s.bis)}`
+        return `<strong>${s.name}</strong><br>${euro(s.bis - s.von)}<br>Stand danach: ${euro(s.bis)}`
       },
     },
-    xAxis: { type: 'category', data: schritte.value.map((s) => s.name) },
-    yAxis: { type: 'value', axisLabel: { formatter: (wert: number) => euroKurz(wert) } },
+    xAxis: {
+      type: 'category',
+      data: schritte.value.map((s) => (eng ? s.kurz : s.name)),
+      axisLabel: { interval: 0, margin: 12 },
+    },
+    yAxis: {
+      type: 'value',
+      // Luft über und unter den Balken: Die Beträge an den Balkenenden sollen nicht
+      // an den Spaltennamen kleben.
+      boundaryGap: ['12%', '12%'],
+      name: eng ? 'Mio. €' : undefined,
+      nameTextStyle: { align: 'left' },
+      axisLabel: {
+        formatter: (wert: number) => (eng ? zahl(wert / MIO) : euroKurz(wert)),
+      },
+    },
     series: [
       {
         type: 'bar',
@@ -150,6 +227,16 @@ const wasserfall = computed<EChartsOption>(() => {
         itemStyle: { color: 'transparent' },
         emphasis: { disabled: true },
         data: teile.map((t) => t.sockel),
+        // Gestrichelte Linien führen vom Ende eines Schritts zum Anfang des nächsten.
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          label: { show: false },
+          lineStyle: { type: 'dashed', color: POL_FARBEN.neutral, width: 1 },
+          data: schritte.value
+            .slice(0, -1)
+            .map((s, i) => [{ coord: [i, s.bis] }, { coord: [i + 1, s.bis] }]),
+        },
       },
       teilSerie('minus'),
       teilSerie('plus'),
@@ -346,6 +433,16 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
         <wa-option value="2026">2026</wa-option>
         <wa-option value="2027">2027</wa-option>
       </wa-select>
+
+      <p class="mm-rechnung">
+        <span v-for="teil in rechnung" :key="teil.name" class="mm-rechnung__teil">
+          <span v-if="teil.zeichen" class="mm-rechnung__zeichen">{{ teil.zeichen }}</span>
+          <span>
+            <strong>{{ mioEineStelle(teil.betrag) }}</strong>
+            <small>{{ teil.name }}</small>
+          </span>
+        </span>
+      </p>
 
       <BaseChart :option="wasserfall" hoehe="360px" />
 
@@ -569,6 +666,36 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
 .mm-jahr-auswahl {
   width: 9rem;
   margin-bottom: var(--wa-space-m);
+}
+
+/* Die Rechnung zum Wasserfall: Betrag oben, Zeilenname klein darunter. */
+.mm-rechnung {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--wa-space-xs) var(--wa-space-m);
+  margin: 0 0 var(--wa-space-m);
+  font-variant-numeric: tabular-nums;
+}
+
+.mm-rechnung__teil {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--wa-space-m);
+}
+
+.mm-rechnung__teil > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.mm-rechnung__zeichen {
+  font-weight: var(--wa-font-weight-bold);
+  color: var(--wa-color-text-quiet);
+}
+
+.mm-rechnung small {
+  color: var(--wa-color-text-quiet);
 }
 
 .mm-tabelle-details {
