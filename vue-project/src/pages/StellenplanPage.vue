@@ -189,13 +189,18 @@ const titel = computed(() =>
 const beschreibung = computed(() =>
   ansicht.value === 'change'
     ? '2027 minus 2026 · Änderungen nach Größe sortiert · Balken auswählen'
-    : bereich.value === 'all'
-      ? `Fläche = ${kennzahl.value === 'vzae' ? 'Stellenumfang' : 'geschätztes Tabellenentgelt'} · Themenbereich auswählen`
-      : `Fläche = ${kennzahl.value === 'vzae' ? 'Stellenumfang' : 'geschätztes Tabellenentgelt'} · Produktgruppe auswählen`,
+    : [
+        kennzahl.value === 'vzae'
+          ? 'Fläche = Stellenumfang · Zahl und Balken: Beamtenanteil'
+          : 'Fläche = geschätztes Tabellenentgelt · Zahl und Balken: Beamtenanteil an den Stellen (VZÄ), nicht an den Kosten',
+        bereich.value === 'all' ? 'Themenbereich auswählen' : 'Produktgruppe auswählen',
+      ].join(' · '),
 )
 const ohneVeraenderung = computed(() => ansicht.value === 'change' && !balken.value.length)
 const hauptHoehe = computed(() =>
-  ansicht.value === 'map' ? '520px' : `${Math.max(240, balken.value.length * 40 + 75)}px`,
+  ansicht.value === 'map'
+    ? `${treemapHoehe.value}px`
+    : `${Math.max(240, balken.value.length * 40 + 75)}px`,
 )
 const detailZeilen = computed(() =>
   [...gruppen.value]
@@ -217,28 +222,65 @@ const tooltip = { renderMode: 'richText' as const, confine: true }
  */
 const KACHEL = {
   flaeche: '#eeeef0',
+  hover: '#e4e5e9',
   text: '#31333d',
   leise: '#545868',
   auswahl: '#31333d',
 } as const
+/** Breite des Treemap-Rahmens in Pixeln, gemessen per ResizeObserver (auf 10 px gerundet). */
+const chartRahmen = ref<HTMLElement | null>(null)
+const chartBreite = ref(800)
+let rahmenBeobachter: ResizeObserver | undefined
+watch(chartRahmen, (element) => {
+  rahmenBeobachter?.disconnect()
+  if (!element) return
+  rahmenBeobachter = new ResizeObserver(([eintrag]) => {
+    const breite = Math.round((eintrag?.contentRect.width ?? 0) / 10) * 10
+    if (breite > 0) chartBreite.value = breite
+  })
+  rahmenBeobachter.observe(element)
+})
+onBeforeUnmount(() => rahmenBeobachter?.disconnect())
+/** Bei voller Breite reicht weniger Höhe; schmal braucht die Treemap mehr. */
+const treemapHoehe = computed(() => (chartBreite.value >= 900 ? 460 : 520))
 /**
- * Schriftstufen nach Flächenanteil der Kachel: Große Kacheln tragen große
- * Zahlen, sehr kleine (unter 1 %) gar keinen Text – dort reicht der Tooltip.
- * Die Kachelmaße selbst kennt die Seite nicht, der Flächenanteil ist die Näherung.
+ * Schriftstufen nach der geschätzten Kachelseite in Pixeln (Wurzel aus
+ * Flächenanteil × Diagrammfläche). Kleinere Kacheln bleiben ohne Text, dort
+ * reichen Tooltip und Tabelle. In der kleinsten Stufe (und in engen Kacheln,
+ * siehe kachel()) ist „18 % Beamte“ ein einziges Textstück: Es passt ganz oder
+ * fällt ganz weg, nie bleibt „18 %“ allein stehen.
  */
 const SCHRIFTSTUFEN = [
-  { ab: 0.1, name: 16, anteil: 26, klein: 13, balken: 112, balkenHoehe: 8, rand: [11, 12] },
-  { ab: 0.035, name: 14, anteil: 18, klein: 12, balken: 72, balkenHoehe: 6, rand: [9, 10] },
-  { ab: 0.01, name: 12, anteil: 13, klein: 11, balken: 48, balkenHoehe: 5, rand: [7, 8] },
+  { ab: 260, name: 18, anteil: 22, klein: 14, balkenHoehe: 10, rand: [14, 16] },
+  { ab: 170, name: 16, anteil: 20, klein: 13, balkenHoehe: 8, rand: [12, 14] },
+  { ab: 110, name: 14, anteil: 16, klein: 12, balkenHoehe: 6, rand: [9, 10] },
+  { ab: 72, name: 12, anteil: 12, klein: 11, balkenHoehe: 5, rand: [7, 8] },
 ]
+const BALKEN_MAX = 240
+const SCHRIFT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+let messKontext: CanvasRenderingContext2D | null | undefined
+/**
+ * Textbreite in Pixeln mit der Diagrammschrift. Zahlen und „Beamte“ bekommen
+ * diese feste Breite: Passt sie nicht in die Kachel, lässt ECharts sie ganz weg,
+ * statt sie zu kürzen – aus „100 %“ darf nie „10…“ werden.
+ */
+const textBreite = (text: string, groesse: number, gewicht = 400) => {
+  if (messKontext === undefined) messKontext = document.createElement('canvas').getContext('2d')
+  if (!messKontext) return Math.ceil(text.length * groesse * 0.6)
+  messKontext.font = `${gewicht} ${groesse}px ${SCHRIFT}`
+  return Math.ceil(messKontext.measureText(text).width) + 1
+}
 /**
  * Mini-Balken als ein SVG-Bild: links Beamte, rechts Tarif. Ein einziges Bild
  * mit fester Breite lässt ECharts in zu schmalen Kacheln ganz weg, statt es
  * abzuschneiden – ein halber Balken würde einen falschen Anteil zeigen.
  */
 const balkenBild = (beamtenAnteil: number, breite: number, hoehe: number) => {
-  const b = Math.round(Math.max(0, Math.min(1, beamtenAnteil)) * breite * 10) / 10
-  const fuge = b > 0 && b < breite ? `<rect x="${b}" width="1" height="${hoehe}" fill="#fff"/>` : ''
+  const anteil = Math.max(0, Math.min(1, beamtenAnteil))
+  // Ein kleiner Beamtenanteil bleibt sichtbar, statt im Rundungsrest zu verschwinden.
+  const b = anteil === 0 ? 0 : Math.max(2, Math.round(anteil * breite * 10) / 10)
+  const fuge =
+    b >= 3 && breite - b >= 3 ? `<rect x="${b}" width="1" height="${hoehe}" fill="#fff"/>` : ''
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="${breite}" height="${hoehe}">` +
     `<clipPath id="r"><rect width="${breite}" height="${hoehe}" rx="${hoehe / 2}"/></clipPath>` +
@@ -253,72 +295,84 @@ const ganzProzent = (anteil: number) => {
   return `${Math.round(anteil * 100)} %`
 }
 /**
- * Ungefähre Breite eines Texts in Pixeln (großzügig geschätzt). Zahlen und
- * „Beamte“ bekommen diese feste Breite: Passt sie nicht in die Kachel, lässt
- * ECharts sie ganz weg, statt sie zu kürzen – aus „100 %“ darf nie „10…“ werden.
+ * Kachelstil und Beschriftung. `seite` ist die geschätzte Kachelseite in Pixeln;
+ * sie wählt die Schriftstufe; der Balken füllt, was neben Zahl und „Beamte“
+ * sicher frei bleibt (höchstens BALKEN_MAX).
  */
-const textBreite = (text: string, schrift: number) => Math.ceil(text.length * schrift * 0.6)
-/** Kachelstil und Beschriftung nach Schriftstufe, Rahmen für die gewählte Produktgruppe. */
-const kachel = (beamtenAnteil: number, wert: number, flaechenAnteil: number, gewaehlt: boolean) => {
-  const stufe = SCHRIFTSTUFEN.find((s) => flaechenAnteil >= s.ab)
+const kachel = (beamtenAnteil: number, betrag: number, seite: number, gewaehlt: boolean) => {
+  const stufe = SCHRIFTSTUFEN.find((s) => seite >= s.ab)
+  const itemStyle = gewaehlt
+    ? { color: KACHEL.flaeche, borderColor: KACHEL.auswahl, borderWidth: 2 }
+    : { color: KACHEL.flaeche }
+  if (!stufe) return { itemStyle, kompakt: true, balkenBreite: 0, label: { show: false } }
+  // Vorsichtige Innenbreite: Kacheln sind selten quadratisch.
+  const innen = seite * 0.7 - 2 * (stufe.rand[1] ?? 0)
+  const abstand = Math.round(stufe.klein * 0.5)
+  const prozent = ganzProzent(beamtenAnteil)
+  const zusatzBreite = textBreite('Beamte', stufe.klein)
+  // Kacheln sind selten quadratisch. Reicht schon die vorsichtig geschätzte
+  // Breite (55 % der Seite) nicht für Zahl und „Beamte“, kommt beides als ein
+  // Textstück in kleinerer Schrift – so bleibt nie eine Zahl ohne „Beamte“ stehen.
+  const kompakt =
+    stufe === SCHRIFTSTUFEN[SCHRIFTSTUFEN.length - 1] ||
+    seite * 0.55 - 2 * (stufe.rand[1] ?? 0) <
+      textBreite(prozent, stufe.anteil, 700) + abstand + zusatzBreite
+  const anteilSchrift = kompakt ? stufe.klein + 1 : stufe.anteil
+  const anteilBreite = textBreite(kompakt ? `${prozent} Beamte` : prozent, anteilSchrift, 700)
+  // Der Balken nimmt nur Platz, der neben dem Text sicher frei ist; sonst stünde er
+  // in schmalen Kacheln allein da, wenn ECharts den Text weglässt.
+  const frei = innen - anteilBreite - (kompakt ? 0 : zusatzBreite + abstand) - abstand
+  const balkenBreite = Math.min(BALKEN_MAX, Math.floor(frei))
   return {
-    itemStyle: gewaehlt
-      ? { color: KACHEL.flaeche, borderColor: KACHEL.auswahl, borderWidth: 2 }
-      : { color: KACHEL.flaeche },
-    label: stufe
-      ? {
-          show: true,
-          padding: stufe.rand,
-          rich: {
-            name: {
-              color: KACHEL.text,
-              fontSize: stufe.name,
-              fontWeight: 600,
-              lineHeight: Math.round(stufe.name * 1.4),
-            },
-            anteil: {
-              color: KACHEL.text,
-              fontSize: stufe.anteil,
-              fontWeight: 700,
-              lineHeight: Math.round(stufe.anteil * 1.3),
-              width: textBreite(ganzProzent(beamtenAnteil), stufe.anteil),
-            },
-            zusatz: {
-              color: KACHEL.leise,
-              fontSize: stufe.klein,
-              width: textBreite('Beamte', stufe.klein),
-              padding: [0, 0, 0, Math.round(stufe.klein * 0.4)],
-            },
-            wert: {
-              color: KACHEL.leise,
-              fontSize: stufe.klein,
-              lineHeight: Math.round(stufe.klein * 1.5),
-              width: textBreite(wertFormat(wert), stufe.klein),
-            },
-            balken: {
-              width: stufe.balken,
-              height: stufe.balkenHoehe,
-              lineHeight: stufe.balkenHoehe + 8,
-              backgroundColor: {
-                image: balkenBild(beamtenAnteil, stufe.balken, stufe.balkenHoehe),
-              },
-            },
+    itemStyle,
+    kompakt,
+    balkenBreite: balkenBreite >= 24 ? balkenBreite : 0,
+    label: {
+      show: true,
+      padding: stufe.rand,
+      rich: {
+        name: {
+          fontSize: stufe.name,
+          fontWeight: 600,
+          lineHeight: Math.round(stufe.name * 1.4),
+        },
+        anteil: {
+          fontSize: anteilSchrift,
+          fontWeight: 700,
+          lineHeight: Math.round(stufe.anteil * 1.35),
+          width: anteilBreite,
+        },
+        abstand: { width: abstand },
+        zusatz: { color: KACHEL.leise, fontSize: stufe.klein, width: zusatzBreite },
+        wert: {
+          fontSize: stufe.klein,
+          fontWeight: 500,
+          lineHeight: Math.round(stufe.klein * 1.5),
+          width: textBreite(wertFormat(betrag), stufe.klein, 500),
+        },
+        balken: {
+          width: Math.max(balkenBreite, 0),
+          height: stufe.balkenHoehe,
+          backgroundColor: {
+            image: balkenBild(beamtenAnteil, Math.max(balkenBreite, 1), stufe.balkenHoehe),
           },
-        }
-      : { show: false },
+        },
+      },
+    },
   }
 }
-/** Hängt jeder Treemap-Zeile Stil und Beschriftung an; der Flächenanteil bestimmt die Schriftstufe. */
+/** Hängt jeder Treemap-Zeile Stil und Beschriftung an; die Kachelgröße bestimmt die Schriftstufe. */
 const mitKacheln = <T extends { value: number; beamtenAnteil: number; code?: string }>(
   rows: T[],
 ) => {
   const summe = rows.reduce((s, row) => s + row.value, 0)
+  const flaeche = chartBreite.value * treemapHoehe.value
   return rows.map((row) => ({
     ...row,
     ...kachel(
       row.beamtenAnteil,
       row.value,
-      summe === 0 ? 0 : row.value / summe,
+      summe === 0 ? 0 : Math.sqrt((row.value / summe) * flaeche),
       row.code !== undefined && row.code === auswahl.value,
     ),
   }))
@@ -404,26 +458,38 @@ const hauptOption = computed<EChartsOption>(() => {
           top: 0,
           bottom: 0,
           upperLabel: { show: false },
+          cursor: 'pointer',
+          emphasis: { itemStyle: { color: KACHEL.hover } },
           /* Oben links, damit die Zeilen die volle Kachelbreite nutzen. Was nicht
-             passt, fällt weg: Zeilen von unten, Zahlen und Balken als Ganzes, Namen mit „…“.
-             Deshalb stehen Anteil und Balken vor dem Wert – die Größe zeigt schon die Fläche.
-             Schriftgrößen und Balken je Kachel kommen aus kachel(). */
+             passt, fällt weg: Zeilen von unten, Zahlen und Balken als Ganzes, Namen
+             mit „…“. „Beamte“ steht direkt hinter der Zahl, damit „32 %“ nicht als
+             Anteil an allen Stellen gelesen wird. Größen je Kachel kommen aus kachel(). */
           label: {
             position: 'insideTopLeft',
+            color: KACHEL.text,
             overflow: 'truncate',
             lineOverflow: 'truncate',
             formatter: (p) => {
-              const data = p.data as { beamtenAnteil?: number }
+              const data = p.data as {
+                beamtenAnteil?: number
+                balkenBreite?: number
+                kompakt?: boolean
+              }
+              const prozentText = ganzProzent(data.beamtenAnteil ?? 0)
+              const anteil = data.kompakt
+                ? `{anteil|${prozentText} Beamte}`
+                : `{anteil|${prozentText}}{abstand| }{zusatz|Beamte}`
+              // Der Balken steht zuletzt: Ist es eng, fällt er zuerst weg, nicht „Beamte“.
+              const balken = data.balkenBreite ? '{abstand| }{balken| }' : ''
               return [
                 `{name|${p.name}}`,
-                `{anteil|${ganzProzent(data.beamtenAnteil ?? 0)}}{zusatz|Beamte}`,
-                `{balken|\u00a0}`,
+                anteil + balken,
                 `{wert|${wertFormat(Number(p.value))}}`,
               ].join('\n')
             },
           },
           levels: [
-            { itemStyle: { borderColor: '#ffffff', borderWidth: 0, gapWidth: 3 } },
+            { itemStyle: { borderWidth: 0, gapWidth: 3 } },
             { itemStyle: { borderWidth: 0, borderRadius: 4 } },
           ],
           data: treemapDaten.value,
@@ -519,10 +585,12 @@ watch([kennzahl, jahr, stufe, besoldungsStufe], () =>
   melden(`Stadt insgesamt ${jahr.value}: ${wertFormat(kennzahlGesamt.value)}`),
 )
 
-/* Fokusziele: Überschrift der Produktgruppen-Karte und der Rangliste. */
+/* Fokusziele: Überschrift der Produktgruppen-Karte, der Rangliste (nur bei den
+   Veränderungen), der Pfad und als letzter Halt die Bereichsauswahl. */
 const detailTitel = ref<HTMLElement | null>(null)
 const toplisteTitel = ref<HTMLElement | null>(null)
 const pfadTitel = ref<HTMLElement | null>(null)
+const bereichAuswahl = ref<HTMLElement | null>(null)
 async function produktgruppeWaehlen(code: string) {
   auswahl.value = code
   // Die Karte erscheint weiter unten: Fokus auf ihre Überschrift.
@@ -532,7 +600,7 @@ async function produktgruppeWaehlen(code: string) {
 /** Nach einem Bereichswechsel verschwindet der gewählte Eintrag – Fokus neu setzen. */
 async function bereichFokussieren() {
   await nextTick()
-  ;(toplisteTitel.value ?? pfadTitel.value)?.focus()
+  ;(toplisteTitel.value ?? pfadTitel.value ?? bereichAuswahl.value)?.focus()
 }
 function auswahlAendern(ereignis: Event) {
   auswahl.value = auswahlWert(ereignis)
@@ -651,6 +719,7 @@ function zurUebersicht() {
           <wa-option value="2027">2027</wa-option>
         </wa-select>
         <wa-select
+          ref="bereichAuswahl"
           class="stellen-bereich"
           label="Produktbereich"
           :value="bereich"
@@ -675,8 +744,11 @@ function zurUebersicht() {
           <button type="button" class="stellen-zurueck" @click="zurUebersicht">
             <span aria-hidden="true">←</span> Alle Themenbereiche
           </button>
-          <span aria-hidden="true">›</span>
-          <strong ref="pfadTitel" tabindex="-1" aria-current="location">{{ bereichName }}</strong>
+          <!-- Trenner und Ziel brechen gemeinsam um, damit „›“ nicht allein am Zeilenende steht. -->
+          <span class="stellen-pfad__ziel">
+            <span aria-hidden="true">›</span>
+            <strong ref="pfadTitel" tabindex="-1" aria-current="location">{{ bereichName }}</strong>
+          </span>
         </nav>
         <p v-if="ansicht === 'map'" class="stellen-legende stellen-legende--haupt">
           <span class="mm-visually-hidden">Balken in den Kacheln: </span>
@@ -691,22 +763,28 @@ function zurUebersicht() {
           Produktgruppe.</template
         >
       </p>
-      <div v-if="!ohneVeraenderung" class="stellen-visualisierung">
-        <BaseChart
-          :key="`${ansicht}-${bereich}`"
-          :option="hauptOption"
-          :hoehe="hauptHoehe"
-          @chart-click="waehlen"
-        />
-        <aside class="stellen-topliste" aria-labelledby="stellen-topliste-titel">
+      <!-- Im Bestand nimmt die Treemap die volle Breite; die Rangliste gibt es nur
+           bei den Veränderungen. Tastaturweg im Bestand: Bereichsauswahl und Tabelle. -->
+      <div
+        v-if="!ohneVeraenderung"
+        class="stellen-visualisierung"
+        :class="{ 'stellen-visualisierung--mit-liste': ansicht === 'change' }"
+      >
+        <div ref="chartRahmen">
+          <BaseChart
+            :key="`${ansicht}-${bereich}`"
+            :option="hauptOption"
+            :hoehe="hauptHoehe"
+            @chart-click="waehlen"
+          />
+        </div>
+        <aside
+          v-if="ansicht === 'change'"
+          class="stellen-topliste"
+          aria-labelledby="stellen-topliste-titel"
+        >
           <h3 id="stellen-topliste-titel" ref="toplisteTitel" tabindex="-1">
-            {{
-              ansicht === 'change'
-                ? 'Größte Veränderungen'
-                : bereich === 'all'
-                  ? 'Größte Themenbereiche'
-                  : 'Größte Produktgruppen'
-            }}
+            Größte Veränderungen
           </h3>
           <ol role="list">
             <li v-for="row in topListe" :key="row.code">
@@ -1004,9 +1082,16 @@ button[aria-pressed='true'] {
 }
 .stellen-visualisierung {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.3fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--wa-space-l);
   align-items: start;
+}
+.stellen-visualisierung--mit-liste {
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.3fr);
+}
+/* Luft zwischen Diagramm und Tabellen-Aufklapper, sonst wirkt die Treemap abgeschnitten. */
+.stellen-visualisierung + details {
+  margin-top: var(--wa-space-m);
 }
 .stellen-visualisierung > * {
   min-width: 0;
@@ -1017,6 +1102,12 @@ button[aria-pressed='true'] {
   align-items: center;
   gap: var(--wa-space-xs);
   color: var(--wa-color-text-quiet);
+}
+.stellen-pfad__ziel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--wa-space-xs);
+  min-width: 0;
 }
 .stellen-zurueck {
   min-height: 36px;
@@ -1194,8 +1285,13 @@ td .stellen-leise {
   margin: 0;
 }
 @media (max-width: 850px) {
-  .stellen-visualisierung {
+  .stellen-visualisierung--mit-liste {
     grid-template-columns: minmax(0, 1fr);
+  }
+  /* Schmal: Legende in eine eigene Zeile unter den Pfad. */
+  .stellen-pfad + .stellen-legende--haupt {
+    flex-basis: 100%;
+    margin-left: 0;
   }
   .stellen-topliste {
     border-left: 0;
