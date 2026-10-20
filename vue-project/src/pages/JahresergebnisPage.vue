@@ -333,7 +333,9 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
           Finanzerträge sind vor allem Gewinnausschüttungen städtischer Unternehmen wie der
           Stadtwerke, die Zinsen fallen für die Kredite der Stadt an. Unter dem Strich steht das
           <GlossarBegriff id="jahresergebnis">Jahresergebnis</GlossarBegriff>. Nach ihm richtet
-          sich, ob der Haushalt ausgeglichen ist.
+          sich, ob der Haushalt ausgeglichen ist. Kredite für Investitionen erscheinen hier nur über
+          ihre Zinsen; wie sich die Schulden entwickeln, zeigt die Seite
+          <RouterLink to="/schulden">Schulden und Investitionen</RouterLink>.
         </p>
       </div>
 

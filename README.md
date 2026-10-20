@@ -174,6 +174,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Zuschüsse an Vereine und Verbände | `/zuschuesse` | `src/pages/ZuschuessePage.vue` |
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
 | Planspiel (Haushalt 2026 ausgleichen) | `/planspiel` | `src/pages/PlanspielPage.vue` |
+| Schulden und Investitionen (Router-Eintrag steht noch aus) | `/schulden` | `src/pages/SchuldenPage.vue` |
 | Glossar (Fachwörter, Produkte des Haushaltsplans) | `/glossar` | `src/pages/GlossarPage.vue` |
 
 Wird eine Seite zu groß für eine Datei, kommen ihre Bestandteile in einen
@@ -185,7 +186,9 @@ Das Planspiel liest `src/data/planspiel.json`, erzeugt von
 Gesamtergebnisplans und aller Teilergebnispläne und wird auch von Start-,
 Überblick-, Ein-&-Ausgaben- und Jahresergebnis-Seite gelesen. Die Rücklagen
 2024-2030 für die Jahresergebnis-Seite und das Planspiel stehen in
-`src/data/ruecklagen.json`, erzeugt von `scripts/pipeline/agg_ruecklagen.py`.
+`src/data/ruecklagen.json`, erzeugt von `scripts/pipeline/agg_ruecklagen.py`. Schulden,
+Kredite und Investitionen stehen in `src/data/schulden.json`, erzeugt von
+`scripts/pipeline/agg_schulden.py`.
 
 ### Bitte nicht allein ändern
 
