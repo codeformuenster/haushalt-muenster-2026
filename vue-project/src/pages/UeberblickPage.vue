@@ -9,6 +9,7 @@ import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
+import ErgebnisReihe from '@/components/ueberblick/ErgebnisReihe.vue'
 import { euro, euroKurz, prozent, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import daten from '@/data/planspiel.json'
@@ -244,6 +245,14 @@ const treemap = computed<EChartsOption>(() => {
         </DatenTabelle>
       </wa-details>
     </ChartCard>
+
+    <ErgebnisReihe
+      v-if="bereichDaten"
+      :key="bereichDaten.code"
+      :bereich-code="bereichDaten.code"
+      :bereich-name="bereichDaten.name"
+      :farbe="bereichDaten.farbe"
+    />
   </div>
 </template>
 
