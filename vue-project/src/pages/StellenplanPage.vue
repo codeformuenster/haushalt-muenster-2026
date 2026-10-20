@@ -191,15 +191,15 @@ const beschreibung = computed(() =>
     ? '2027 minus 2026 · Änderungen nach Größe sortiert · Balken auswählen'
     : [
         kennzahl.value === 'vzae'
-          ? 'Fläche = Stellenumfang · Violetter Teil und Zahl: Beamtenanteil'
-          : 'Fläche = geschätztes Tabellenentgelt · Violetter Teil und Zahl: Beamtenanteil an den Stellen (VZÄ), nicht an den Kosten',
+          ? 'Länge = Stellenumfang · Violett: Anteil der Beamtinnen und Beamten'
+          : 'Länge = geschätztes Tabellenentgelt · Violett: Anteil der Beamtinnen und Beamten an diesen Kosten',
         bereich.value === 'all' ? 'Themenbereich auswählen' : 'Produktgruppe auswählen',
       ].join(' · '),
 )
 const ohneVeraenderung = computed(() => ansicht.value === 'change' && !balken.value.length)
 const hauptHoehe = computed(() =>
   ansicht.value === 'map'
-    ? `${treemapHoehe.value}px`
+    ? `${bestandZeilen.value.length * bestandLayout.value.zeile + 8}px`
     : `${Math.max(240, balken.value.length * 40 + 75)}px`,
 )
 const detailZeilen = computed(() =>
@@ -213,55 +213,9 @@ const detailZeilen = computed(() =>
 )
 const detailHoehe = computed(() => `${Math.max(180, detailZeilen.value.length * 38 + 70)}px`)
 const tooltip = { renderMode: 'richText' as const, confine: true }
-/** Mischt eine Farbe mit Weiß; `deckung` 1 = Originalfarbe, 0 = Weiß. */
-const aufhellen = (hex: string, deckung: number) => {
-  const kanaele = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
-  return `#${kanaele
-    .map((k) =>
-      Math.round(255 + (k - 255) * deckung)
-        .toString(16)
-        .padStart(2, '0'),
-    )
-    .join('')}`
-}
-/*
- * Jede Kachel ist von links nach rechts geteilt: links Beamte (Aufhellung von
- * KATEGORIE_FARBEN[3], Violett), rechts Tarif (Aufhellung von KATEGORIE_FARBEN[0],
- * Blau) – dieselbe Zuordnung wie in der Detailkarte. Die Teilung läuft immer in
- * derselben Richtung, damit sich Anteile zwischen Kacheln vergleichen lassen, und
- * zeigt das Verhältnis auch in Kacheln ohne Platz für Text.
- * Text (#31333d = TEXT_NORMAL aus echartsTheme.ts) hat auf den Normaltönen 6,7:1
- * (Violett) und 6,5:1 (Blau), auf den Hover-Tönen 5,7:1 und 5,6:1.
- */
-const KACHEL = {
-  beamte: aufhellen(KATEGORIE_FARBEN[3], 0.45),
-  tarif: aufhellen(KATEGORIE_FARBEN[0], 0.45),
-  beamteHover: aufhellen(KATEGORIE_FARBEN[3], 0.55),
-  tarifHover: aufhellen(KATEGORIE_FARBEN[0], 0.55),
-  text: '#31333d',
-  auswahl: '#31333d',
-} as const
-/**
- * Kachelfläche als Verlauf mit doppeltem Stopp an der Anteilsgrenze: eine harte
- * Kante, links Beamte, rechts Tarif. Der Verlauf bezieht sich auf die Kachel selbst.
- */
-const teilung = (beamtenAnteil: number, beamte: string, tarif: string) => {
-  const grenze = Math.max(0, Math.min(1, beamtenAnteil))
-  return {
-    type: 'linear' as const,
-    x: 0,
-    y: 0,
-    x2: 1,
-    y2: 0,
-    colorStops: [
-      { offset: 0, color: beamte },
-      { offset: grenze, color: beamte },
-      { offset: grenze, color: tarif },
-      { offset: 1, color: tarif },
-    ],
-  }
-}
-/** Breite des Treemap-Rahmens in Pixeln, gemessen per ResizeObserver (auf 10 px gerundet). */
+/** Textfarbe und Rahmen der gewählten Produktgruppe, wie TEXT_NORMAL aus echartsTheme.ts. */
+const TEXT_FARBE = '#31333d'
+/** Breite des Diagrammrahmens in Pixeln, gemessen per ResizeObserver (auf 10 px gerundet). */
 const chartRahmen = ref<HTMLElement | null>(null)
 const chartBreite = ref(800)
 let rahmenBeobachter: ResizeObserver | undefined
@@ -275,224 +229,239 @@ watch(chartRahmen, (element) => {
   rahmenBeobachter.observe(element)
 })
 onBeforeUnmount(() => rahmenBeobachter?.disconnect())
-/** Bei voller Breite reicht weniger Höhe; schmal braucht die Treemap mehr. */
-const treemapHoehe = computed(() => (chartBreite.value >= 900 ? 460 : 520))
-/**
- * Schriftstufen nach der geschätzten Kachelseite in Pixeln (Wurzel aus
- * Flächenanteil × Diagrammfläche). Kleinere Kacheln bleiben ohne Text; das
- * Verhältnis zeigt dort die Teilung, die Werte zeigen Tooltip und Tabelle.
- * In der kleinsten Stufe (und in engen Kacheln, siehe kachel()) ist „18 % Beamte“
- * ein einziges Textstück: Es passt ganz oder fällt ganz weg, nie bleibt „18 %“ allein.
- */
-const SCHRIFTSTUFEN = [
-  { ab: 260, name: 18, anteil: 22, klein: 14, rand: [14, 16] },
-  { ab: 170, name: 16, anteil: 20, klein: 13, rand: [12, 14] },
-  { ab: 110, name: 14, anteil: 16, klein: 12, rand: [9, 10] },
-  { ab: 72, name: 12, anteil: 12, klein: 11, rand: [7, 8] },
-]
+/** Unter dieser Breite steht der Name über dem Balken statt links daneben. */
+const schmal = computed(() => chartBreite.value < 560)
 const SCHRIFT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
 let messKontext: CanvasRenderingContext2D | null | undefined
-/**
- * Textbreite in Pixeln mit der Diagrammschrift. Zahlen und „Beamte“ bekommen
- * diese feste Breite: Passt sie nicht in die Kachel, lässt ECharts sie ganz weg,
- * statt sie zu kürzen – aus „100 %“ darf nie „10…“ werden.
- */
+/** Textbreite in Pixeln mit der Diagrammschrift – für Umbruch und Platz der Beschriftung. */
 const textBreite = (text: string, groesse: number, gewicht = 400) => {
   if (messKontext === undefined) messKontext = document.createElement('canvas').getContext('2d')
   if (!messKontext) return Math.ceil(text.length * groesse * 0.6)
   messKontext.font = `${gewicht} ${groesse}px ${SCHRIFT}`
   return Math.ceil(messKontext.measureText(text).width) + 1
 }
-/** Anteil als ganze Prozentzahl für die Kacheln; Randwerte nicht auf 0 % oder 100 % runden. */
+/** Bricht einen Namen in Zeilen bis `breite` Pixel um, notfalls im Wort – gekürzt wird nichts. */
+const umbrechen = (text: string, breite: number, groesse: number, gewicht = 400) => {
+  const passt = (t: string) => textBreite(t, groesse, gewicht) <= breite
+  const zeilen: string[] = []
+  let zeile = ''
+  for (const wort of text.split(' ')) {
+    const versuch = zeile ? `${zeile} ${wort}` : wort
+    if (passt(versuch)) {
+      zeile = versuch
+      continue
+    }
+    if (zeile) zeilen.push(zeile)
+    let rest = wort
+    while (!passt(rest) && rest.length > 1) {
+      let n = rest.length - 1
+      while (n > 1 && !passt(rest.slice(0, n))) n--
+      zeilen.push(rest.slice(0, n))
+      rest = rest.slice(n)
+    }
+    zeile = rest
+  }
+  if (zeile) zeilen.push(zeile)
+  return zeilen
+}
+/** Anteil als ganze Prozentzahl für die Beschriftung; Randwerte nicht auf 0 % oder 100 % runden. */
 const ganzProzent = (anteil: number) => {
   if (anteil > 0 && anteil < 0.005) return '< 1 %'
   if (anteil < 1 && anteil > 0.995) return '> 99 %'
   return `${Math.round(anteil * 100)} %`
 }
 /**
- * Kachelfläche, Hover, Auswahlrahmen und Beschriftung. `seite` ist die geschätzte
- * Kachelseite in Pixeln und wählt die Schriftstufe.
+ * Stellen und geschätzte Kosten von Stellenplanzeilen, getrennt nach Beamten und
+ * Tarif. Die Tarifkosten sind der Rest der Schätzung (samt TVöD-Festentgelt),
+ * damit beide Teile zusammen genau die Balkenlänge ergeben. `beamte`, `tarif` und
+ * `anteil` folgen der gewählten Kennzahl.
  */
-const kachel = (beamtenAnteil: number, betrag: number, seite: number, gewaehlt: boolean) => {
-  const stufe = SCHRIFTSTUFEN.find((s) => seite >= s.ab)
-  const flaeche = teilung(beamtenAnteil, KACHEL.beamte, KACHEL.tarif)
-  const itemStyle = gewaehlt
-    ? { color: flaeche, borderColor: KACHEL.auswahl, borderWidth: 2 }
-    : { color: flaeche }
-  const emphasis = {
-    itemStyle: { color: teilung(beamtenAnteil, KACHEL.beamteHover, KACHEL.tarifHover) },
+const aufteilung = (rows: Stelle[]) => {
+  let beamteVzae = 0
+  let tarifVzae = 0
+  let beamteEuro = 0
+  let euro = 0
+  for (const row of rows) {
+    euro += entgelt(row)
+    for (const [key, value] of Object.entries(row.grades)) {
+      if (key.startsWith('Tarif_')) tarifVzae += value
+      else if (key.startsWith('Beamte_')) {
+        beamteVzae += value
+        beamteEuro +=
+          (jahresentgelt(key, row.year, stufe.value, besoldungsStufe.value) ?? 0) * value
+      }
+    }
   }
-  if (!stufe) return { itemStyle, emphasis, kompakt: true, label: { show: false } }
-  const abstand = Math.round(stufe.klein * 0.4)
-  const prozent = ganzProzent(beamtenAnteil)
-  const zusatzBreite = textBreite('Beamte', stufe.klein)
-  // Kacheln sind selten quadratisch. Reicht schon die vorsichtig geschätzte
-  // Breite (55 % der Seite) nicht für Zahl und „Beamte“, kommt beides als ein
-  // Textstück in kleinerer Schrift – so bleibt nie eine Zahl ohne „Beamte“ stehen.
-  const kompakt =
-    stufe === SCHRIFTSTUFEN[SCHRIFTSTUFEN.length - 1] ||
-    seite * 0.55 - 2 * (stufe.rand[1] ?? 0) <
-      textBreite(prozent, stufe.anteil, 700) + abstand + zusatzBreite
-  const anteilSchrift = kompakt ? stufe.klein + 1 : stufe.anteil
+  const tarifEuro = euro - beamteEuro
+  const [beamte, tarif] =
+    kennzahl.value === 'vzae' ? [beamteVzae, tarifVzae] : [beamteEuro, tarifEuro]
   return {
-    itemStyle,
-    emphasis,
-    kompakt,
-    label: {
-      show: true,
-      padding: stufe.rand,
-      rich: {
-        name: {
-          fontSize: stufe.name,
-          fontWeight: 600,
-          lineHeight: Math.round(stufe.name * 1.4),
-        },
-        anteil: {
-          fontSize: anteilSchrift,
-          fontWeight: 700,
-          lineHeight: Math.round(stufe.anteil * 1.35),
-          width: textBreite(kompakt ? `${prozent} Beamte` : prozent, anteilSchrift, 700),
-        },
-        abstand: { width: abstand },
-        zusatz: { fontSize: stufe.klein, width: zusatzBreite },
-        wert: {
-          fontSize: stufe.klein,
-          fontWeight: 500,
-          lineHeight: Math.round(stufe.klein * 1.5),
-          width: textBreite(wertFormat(betrag), stufe.klein, 500),
-        },
+    beamteVzae,
+    tarifVzae,
+    beamteEuro,
+    tarifEuro,
+    beamte,
+    tarif,
+    anteil: beamte + tarif === 0 ? 0 : beamte / (beamte + tarif),
+  }
+}
+const stellenVon = (row: RangZeile) =>
+  stellen.filter(
+    (r) =>
+      r.year === jahr.value &&
+      (row.kind === 'area' ? r.code.startsWith(row.code) : r.code === row.code),
+  )
+/** Beamtenanteil einer Tabellenzeile in der gewählten Kennzahl, genauer als im Diagramm. */
+const beamtenAnteilZeile = (row: RangZeile) => aufteilung(stellenVon(row)).anteil
+/** Zeilen der Bestandsansicht: dieselbe Rangfolge wie die Tabelle, dazu die Aufteilung. */
+const bestandZeilen = computed(() =>
+  ansicht.value === 'map'
+    ? sortiert.value.map((row) => ({ ...row, ...aufteilung(stellenVon(row)) }))
+    : [],
+)
+type BestandZeile = (typeof bestandZeilen.value)[number]
+const BALKEN_HOEHE = 14
+/**
+ * Namenszeilen, Beschriftung am Balkenende und Zeilenhöhe für die aktuelle Breite.
+ * Breit: Name links an der Achse, Wert rechts am Balken. Schmal: Name und Wert
+ * über dem Balken, der dann die volle Breite hat.
+ */
+const bestandLayout = computed(() => {
+  const zeilen = bestandZeilen.value
+  const etiketten = zeilen.map((z) => `${wertFormat(z.value)} · ${ganzProzent(z.anteil)} Beamte`)
+  if (schmal.value) {
+    const namen = zeilen.map((z) => umbrechen(z.name, chartBreite.value - 4, 13, 600))
+    const kopf = Math.max(1, ...namen.map((n) => n.length)) * 17 + 18
+    return { namen, etiketten, kopf, zeile: kopf + BALKEN_HOEHE + 14, rechts: 0 }
+  }
+  const namen = zeilen.map((z) =>
+    umbrechen(z.name, Math.min(260, Math.round(chartBreite.value * 0.28)), 12),
+  )
+  return {
+    namen,
+    etiketten,
+    kopf: 0,
+    zeile: Math.max(30, Math.max(1, ...namen.map((n) => n.length)) * 15 + 14),
+    rechts: Math.max(0, ...etiketten.map((e) => textBreite(e, 12))) + 20,
+  }
+})
+const bestandTooltip = (z: BestandZeile) =>
+  [
+    z.kind === 'area' ? z.name : `${z.code} · ${z.name}`,
+    `Stellen: ${vzae(z.beamteVzae + z.tarifVzae)} VZÄ`,
+    `  Beamte ${vzae(z.beamteVzae)} · Tarif ${vzae(z.tarifVzae)}`,
+    `Geschätzte Kosten (TVöD ${stufe.value}, Besoldung ${besoldungsStufe.value}): ${euroKurz(z.beamteEuro + z.tarifEuro)}`,
+    `  Beamte ${euroKurz(z.beamteEuro)} · Tarif ${euroKurz(z.tarifEuro)}`,
+  ].join('\n')
+/**
+ * Bestand als waagerechte Balken: Länge = gewählte Kennzahl, links der Teil der
+ * Beamtinnen und Beamten (violett), rechts der Tarifteil (blau) wie in der Detailkarte.
+ */
+const bestandOption = computed<EChartsOption>(() => {
+  const zeilen = bestandZeilen.value
+  const layout = bestandLayout.value
+  const max = Math.max(0, ...zeilen.map((z) => z.value))
+  const ziel = (z: BestandZeile) => (z.kind === 'area' ? { areaCode: z.code } : { code: z.code })
+  const segment = (z: BestandZeile, wert: number, farbe: string, rundung: number[]) => ({
+    value: wert,
+    ...ziel(z),
+    itemStyle:
+      z.code === auswahl.value
+        ? { color: farbe, borderRadius: rundung, borderColor: TEXT_FARBE, borderWidth: 2 }
+        : { color: farbe, borderRadius: rundung },
+  })
+  return {
+    tooltip: {
+      ...tooltip,
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: (params: unknown) => {
+        const erster = (params as { dataIndex?: number }[])[0]
+        const zeile = zeilen[erster?.dataIndex ?? 0]
+        return zeile ? bestandTooltip(zeile) : ''
       },
     },
+    grid: schmal.value
+      ? { left: 0, right: 0, top: 4, bottom: 4 }
+      : { left: 0, right: layout.rechts, top: 4, bottom: 4, containLabel: true },
+    xAxis: { type: 'value', show: false, max },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      data: zeilen.map((z) => z.name),
+      axisTick: { show: false },
+      axisLine: { show: !schmal.value },
+      axisLabel: schmal.value
+        ? { show: false }
+        : {
+            interval: 0,
+            fontSize: 12,
+            lineHeight: 15,
+            formatter: (_wert: string, index: number) => layout.namen[index]?.join('\n') ?? '',
+          },
+    },
+    series: [
+      // Schmal: eine unsichtbare Spalte je Zeile trägt Name und Wert über dem Balken.
+      ...(schmal.value
+        ? [
+            {
+              type: 'bar' as const,
+              barWidth: layout.kopf,
+              barGap: '0%',
+              cursor: 'pointer',
+              itemStyle: { color: 'transparent' },
+              emphasis: { disabled: true },
+              data: zeilen.map((z) => ({ value: max, ...ziel(z) })),
+              label: {
+                show: true,
+                // Unten links in der unsichtbaren Spalte, also direkt über dem Balken.
+                position: ['0%', '100%'],
+                align: 'left' as const,
+                verticalAlign: 'bottom' as const,
+                // Ohne feste Farbe wählt ECharts für Text „im“ Balken eine helle Farbe.
+                color: TEXT_FARBE,
+                formatter: (p: { dataIndex: number }) =>
+                  [
+                    ...(layout.namen[p.dataIndex] ?? []).map((zeile) => `{name|${zeile}}`),
+                    `{wert|${layout.etiketten[p.dataIndex] ?? ''}}`,
+                  ].join('\n'),
+                rich: {
+                  name: { fontSize: 13, fontWeight: 600, lineHeight: 17 },
+                  wert: { fontSize: 12, lineHeight: 18 },
+                },
+              },
+            },
+          ]
+        : []),
+      {
+        type: 'bar',
+        name: 'Beamtinnen / Beamte',
+        stack: 'bestand',
+        barWidth: BALKEN_HOEHE,
+        cursor: 'pointer',
+        data: zeilen.map((z) => segment(z, z.beamte, KATEGORIE_FARBEN[3], [3, 0, 0, 3])),
+      },
+      {
+        type: 'bar',
+        name: 'Tarifbeschäftigte',
+        stack: 'bestand',
+        barWidth: BALKEN_HOEHE,
+        cursor: 'pointer',
+        data: zeilen.map((z) => segment(z, z.tarif, KATEGORIE_FARBEN[0], [0, 3, 3, 0])),
+        label: schmal.value
+          ? { show: false }
+          : {
+              show: true,
+              position: 'right',
+              fontSize: 12,
+              formatter: (p) => layout.etiketten[p.dataIndex] ?? '',
+            },
+      },
+    ],
   }
-}
-/** Hängt jeder Treemap-Zeile Stil und Beschriftung an; die Kachelgröße bestimmt die Schriftstufe. */
-const mitKacheln = <T extends { value: number; beamtenAnteil: number; code?: string }>(
-  rows: T[],
-) => {
-  const summe = rows.reduce((s, row) => s + row.value, 0)
-  const flaeche = chartBreite.value * treemapHoehe.value
-  return rows.map((row) => ({
-    ...row,
-    ...kachel(
-      row.beamtenAnteil,
-      row.value,
-      summe === 0 ? 0 : Math.sqrt((row.value / summe) * flaeche),
-      row.code !== undefined && row.code === auswahl.value,
-    ),
-  }))
-}
-/** VZÄ nach Beschäftigungsart und Anteil der Beamtenstellen, 0–1. */
-const statusSummen = (rows: Stelle[]) => {
-  let tarif = 0
-  let beamte = 0
-  for (const row of rows)
-    for (const [key, value] of Object.entries(row.grades)) {
-      if (key.startsWith('Tarif_')) tarif += value
-      else if (key.startsWith('Beamte_')) beamte += value
-    }
-  return { tarif, beamte, beamtenAnteil: tarif + beamte === 0 ? 0 : beamte / (tarif + beamte) }
-}
-/** Beamtenanteil einer Tabellenzeile, genauer als die ganze Zahl in der Kachel. */
-const beamtenAnteilZeile = (row: RangZeile) =>
-  statusSummen(
-    stellen.filter(
-      (r) =>
-        r.year === jahr.value &&
-        (row.kind === 'area' ? r.code.startsWith(row.code) : r.code === row.code),
-    ),
-  ).beamtenAnteil
-const treemapDaten = computed(() => {
-  if (bereich.value === 'all')
-    return mitKacheln(
-      Object.entries(daten.areas)
-        .map(([code, name]) => {
-          const rows = stellen.filter((row) => row.year === jahr.value && row.code.startsWith(code))
-          return {
-            name,
-            value: rows.reduce((summe, row) => summe + wert(row), 0),
-            areaCode: code,
-            ...statusSummen(rows),
-          }
-        })
-        .filter((row) => row.value > 0),
-    )
-
-  return mitKacheln(
-    auswahlZeilen.value.map((row) => ({
-      name: anzeigeName(row.name),
-      value: wert(row),
-      code: row.code,
-      areaCode: bereich.value,
-      ...statusSummen([row]),
-    })),
-  )
 })
 const hauptOption = computed<EChartsOption>(() => {
-  if (ansicht.value === 'map')
-    return {
-      tooltip: {
-        ...tooltip,
-        formatter: (params: unknown) => {
-          const info = params as {
-            name: string
-            value: number
-            data?: { beamtenAnteil?: number; beamte?: number; tarif?: number }
-          }
-          const zeilen = [`${info.name}`, wertFormat(Number(info.value))]
-          if (
-            typeof info.data?.beamtenAnteil === 'number' &&
-            typeof info.data.beamte === 'number' &&
-            typeof info.data.tarif === 'number'
-          ) {
-            zeilen.push(`${prozent(info.data.beamtenAnteil)} Beamtinnen / Beamte`)
-            zeilen.push(`${vzae(info.data.beamte)} VZÄ Beamte`)
-            zeilen.push(`${vzae(info.data.tarif)} VZÄ tariflich`)
-          }
-          return zeilen.join('\n')
-        },
-      },
-      series: [
-        {
-          type: 'treemap',
-          roam: false,
-          nodeClick: false,
-          breadcrumb: { show: false },
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-          upperLabel: { show: false },
-          cursor: 'pointer',
-          /* Oben links, damit die Zeilen die volle Kachelbreite nutzen. Was nicht
-             passt, fällt weg: Zeilen von unten, Zahlen als Ganzes, Namen mit „…“.
-             „Beamte“ steht direkt hinter der Zahl, damit „32 %“ nicht als Anteil
-             an allen Stellen gelesen wird. Flächen, Hover und Größen je Kachel
-             kommen aus kachel(). */
-          label: {
-            position: 'insideTopLeft',
-            color: KACHEL.text,
-            overflow: 'truncate',
-            lineOverflow: 'truncate',
-            formatter: (p) => {
-              const data = p.data as { beamtenAnteil?: number; kompakt?: boolean }
-              const prozentText = ganzProzent(data.beamtenAnteil ?? 0)
-              return [
-                `{name|${p.name}}`,
-                data.kompakt
-                  ? `{anteil|${prozentText} Beamte}`
-                  : `{anteil|${prozentText}}{abstand| }{zusatz|Beamte}`,
-                `{wert|${wertFormat(Number(p.value))}}`,
-              ].join('\n')
-            },
-          },
-          levels: [
-            { itemStyle: { borderWidth: 0, gapWidth: 3 } },
-            { itemStyle: { borderWidth: 0, borderRadius: 4 } },
-          ],
-          data: treemapDaten.value,
-        },
-      ],
-    }
+  if (ansicht.value === 'map') return bestandOption.value
   return {
     tooltip: {
       ...tooltip,
@@ -735,7 +704,7 @@ function zurUebersicht() {
       :quelle="quelle"
       :pdf="{ band: 2, seite: 41 }"
     >
-      <!-- Pfad und Legende teilen sich eine Zeile, damit die Treemap Höhe behält. -->
+      <!-- Pfad und Legende teilen sich eine Zeile. -->
       <div v-if="bereich !== 'all' || ansicht === 'map'" class="stellen-kopfzeile">
         <nav v-if="bereich !== 'all'" class="stellen-pfad" aria-label="Pfad">
           <button type="button" class="stellen-zurueck" @click="zurUebersicht">
@@ -748,9 +717,9 @@ function zurUebersicht() {
           </span>
         </nav>
         <p v-if="ansicht === 'map'" class="stellen-legende stellen-legende--haupt">
-          <span class="mm-visually-hidden">Teilung jeder Kachel: </span>
-          <span><i :style="{ background: KACHEL.beamte }"></i>Beamtinnen / Beamte (links)</span>
-          <span><i :style="{ background: KACHEL.tarif }"></i>Tarifbeschäftigte (rechts)</span>
+          <span class="mm-visually-hidden">Balkenfarben: </span>
+          <span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
+          <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span>
         </p>
       </div>
       <!-- Status bleibt im DOM, nur der Text erscheint bei Bedarf. -->
@@ -760,7 +729,7 @@ function zurUebersicht() {
           Produktgruppe.</template
         >
       </p>
-      <!-- Im Bestand nimmt die Treemap die volle Breite; die Rangliste gibt es nur
+      <!-- Im Bestand nimmt das Balkendiagramm die volle Breite; die Rangliste gibt es nur
            bei den Veränderungen. Tastaturweg im Bestand: Bereichsauswahl und Tabelle. -->
       <div
         v-if="!ohneVeraenderung"
@@ -1086,7 +1055,7 @@ button[aria-pressed='true'] {
 .stellen-visualisierung--mit-liste {
   grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.3fr);
 }
-/* Luft zwischen Diagramm und Tabellen-Aufklapper, sonst wirkt die Treemap abgeschnitten. */
+/* Luft zwischen Diagramm und Tabellen-Aufklapper. */
 .stellen-visualisierung + details {
   margin-top: var(--wa-space-m);
 }
@@ -1128,7 +1097,7 @@ h3 {
   margin-right: 0.35rem;
   border-radius: 50%;
 }
-/* Legende über der Treemap: Felder in den Kacheltönen, eckig wie die Kacheln. */
+/* Legende über dem Bestandsdiagramm: Felder in den Balkenfarben. */
 .stellen-legende--haupt {
   margin: 0;
   color: var(--wa-color-text-quiet);
