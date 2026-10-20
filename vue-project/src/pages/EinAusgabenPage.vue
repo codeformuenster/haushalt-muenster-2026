@@ -244,12 +244,12 @@ async function clearSelection(): Promise<void> {
 
     <h2>Investitionen (Finanzplan)</h2>
     <p>
-      <GlossarBegriff id="investitionen">Investitionen</GlossarBegriff> sind Auszahlungen für
-      Dinge, die viele Jahre genutzt werden, etwa Schulen, Sporthallen oder Straßen. Sie stehen im
+      <GlossarBegriff id="investitionen">Investitionen</GlossarBegriff> sind Auszahlungen für Dinge,
+      die viele Jahre genutzt werden, etwa Schulen, Sporthallen oder Straßen. Sie stehen im
       <GlossarBegriff id="finanzplan">Finanzplan</GlossarBegriff> und gehören nicht zu den
       Aufwendungen oben. Im Ergebnis erscheinen sie erst nach und nach als Abschreibungen. Die
-      Einzahlungen sind zum größten Teil Zuwendungen für Investitionen, meist von Land und Bund,
-      als Fördermittel für einzelne Vorhaben oder als Pauschale. Im Bereich 16 Allgemeine
+      Einzahlungen sind zum größten Teil Zuwendungen für Investitionen, meist von Land und Bund, als
+      Fördermittel für einzelne Vorhaben oder als Pauschale. Im Bereich 16 Allgemeine
       Finanzwirtschaft ist 2026 der größte Posten der Erwerb von Finanzanlagen (103,8 Mio. €, etwa
       Beteiligungen der Stadt), kein Bauprojekt; 2027 sind dafür nur 20.000 € angesetzt.
     </p>
