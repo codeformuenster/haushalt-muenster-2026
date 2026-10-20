@@ -87,10 +87,10 @@ const option = computed<EChartsOption>(() => ({
 
     <p class="mm-fussnote">
       Summiert über alle Bereiche ergeben diese Werte das Jahresergebnis des Gesamtergebnisplans.
-      Die Seite Jahresergebnis zeigt für 2025 den fortgeschriebenen Ansatz (−30,3 Mio. € statt
-      −47,3 Mio. €) und für 2028 bis 2030 das Ergebnis nach dem globalen Minderaufwand, einer
-      pauschal eingeplanten Kürzung (2030: −37,0 Mio. € statt −46,0 Mio. €). Deshalb weichen ihre
-      Gesamtwerte für diese Jahre ab.
+      Die Seite Jahresergebnis zeigt für 2025 den fortgeschriebenen Ansatz (−30,3 Mio. € statt −47,3
+      Mio. €) und für 2028 bis 2030 das Ergebnis nach dem globalen Minderaufwand, einer pauschal
+      eingeplanten Kürzung (2030: −37,0 Mio. € statt −46,0 Mio. €). Deshalb weichen ihre Gesamtwerte
+      für diese Jahre ab.
     </p>
 
     <wa-details summary="Werte als Tabelle" class="mm-tabelle-details">
