@@ -1,7 +1,8 @@
 """Daten für das Planspiel der Vue-App (vue-project/src/data/planspiel.json).
 
 Liest die Zeilen 01-26 (Erträge, Aufwendungen, Finanzergebnis, außerordentliches
-Ergebnis bis zum Jahresergebnis) der Jahre 2026 und 2027 aus
+Ergebnis bis zum Jahresergebnis) der Jahre 2024 (Ergebnis), 2025-2027 (Ansatz) und
+2028-2030 (Planung) aus
 
 - den Teilergebnisplänen aller 68 Produktgruppen (Band 1, PDF-Seiten 15-558),
 - dem Gesamtergebnisplan (Band 1, PDF-Seite 9).
@@ -23,8 +24,9 @@ sein) sowie die geplante Ausschüttung der Stadtwerke Münster GmbH an die Stadt
 Gesamtübersicht.
 
 Prüft, ob die Summe über alle Produktgruppen je Zeile und Jahr dem
-Gesamtergebnisplan entspricht (Toleranz 1 €), ob Zeile 26 jeder Produktgruppe dem
-Ergebnis des Teilhaushaltes in der Gesamtübersicht entspricht (Toleranz 1 €), und ob
+Gesamtergebnisplan entspricht (in Cent summiert, Toleranz 1 €; 2024 enthält Centbeträge),
+ob Zeile 26 jeder Produktgruppe dem
+Ergebnis des Teilhaushaltes in der Gesamtübersicht entspricht (nur 2026 und 2027, Toleranz 1 €), und ob
 die von Hand übertragenen Steuerarten zusammen Zeile 01 der Produktgruppe 16 01
 ergeben (Rundungstoleranz).
 
@@ -55,9 +57,20 @@ TOLERANZ_EUR = 1.0
 # in Mio. € auf höchstens 0,05 Mio. € gerundet, daher diese Toleranz je Zeile beim Summenvergleich.
 STEUERARTEN_DATEI = "band1_p545_PG1601_Erlaeuterungen_Steuerarten_t0.csv"
 RUNDUNG_MIO = 0.05
+# Jahre der Einzelwerte (Entscheidungskarten) und des Abgleichs mit der Gesamtübersicht.
 JAHRE = ("2026", "2027")
-# Spalten der Roh-CSVs: Zeilennummer, Bezeichnung, 2024, 2025, 2026, 2027, ...
-JAHR_SPALTE = {"2026": "column_5", "2027": "column_6"}
+# Jahre der Ergebnispläne mit ihrer Art laut Tabellenkopf (Ergebnis, Haushaltsansatz, Planung).
+PLAN_JAHRE = {
+    "2024": "Ergebnis (Ist)",
+    "2025": "Ansatz",
+    "2026": "Ansatz",
+    "2027": "Ansatz",
+    "2028": "Planung",
+    "2029": "Planung",
+    "2030": "Planung",
+}
+# Spalten der Roh-CSVs: Zeilennummer, Bezeichnung, 2024, 2025, ..., 2030
+JAHR_SPALTE = {j: f"column_{i}" for i, j in enumerate(PLAN_JAHRE, start=3)}
 # Produktgruppen, deren Stellen eine Entscheidungskarte braucht (Bürgerangelegenheiten).
 STELLEN_PG = ("0204",)
 
@@ -95,17 +108,22 @@ c = pl.col
 
 
 def lies_plan(pfad: Path) -> dict[str, list[int]]:
-    """Zeilen 01-26 eines (Teil-)Ergebnisplans: Jahr -> 26 Beträge in €."""
+    """Zeilen 01-26 eines (Teil-)Ergebnisplans: Jahr -> 26 Beträge in Cent."""
     df = lies(pfad).filter(c("column_1").str.contains(r"^(0[1-9]|1[0-9]|2[0-6])$")).sort("column_1")
     if df.height != len(ZEILEN):
         raise typer.BadParameter(f"{pfad.name}: {df.height} statt {len(ZEILEN)} Zeilen")
-    werte = df.select(zahl(c(JAHR_SPALTE[j])).fill_null(0.0).alias(j) for j in JAHRE)
-    return {j: [round(w) for w in werte[j]] for j in JAHRE}
+    werte = df.select(zahl(c(JAHR_SPALTE[j])).fill_null(0.0).alias(j) for j in PLAN_JAHRE)
+    return {j: [round(w * 100) for w in werte[j]] for j in PLAN_JAHRE}
+
+
+def in_euro(plan: dict[str, list[int]]) -> dict[str, list[int]]:
+    """Rundet einen Plan von Cent auf ganze €."""
+    return {j: [round(w / 100) for w in werte] for j, werte in plan.items()}
 
 
 def plan_zeile(pfad: Path, nummer: str) -> dict[str, int]:
     """Eine einzelne Zeile eines Gesamtplans je Jahr in €."""
-    zeile = lies(pfad).filter(c("column_1") == nummer).select(zahl(c(s)).alias(j) for j, s in JAHR_SPALTE.items())
+    zeile = lies(pfad).filter(c("column_1") == nummer).select(zahl(c(JAHR_SPALTE[j])).alias(j) for j in JAHRE)
     return {j: round(zeile[j][0]) for j in JAHRE}
 
 
@@ -158,7 +176,7 @@ def zuschuesse(daten: Path, nur_freiwillig: bool) -> dict[str, int]:
 def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> None:
     """Schreibt die Planspiel-Daten und prüft die PG-Summen gegen den Gesamtergebnisplan.
 
-    Quelle: Band 1, PDF-Seite 9 und Teilergebnispläne der Produktgruppen (S. 15-558),
+    Quelle: Band 1, PDF-Seite 9 und Teilergebnispläne der Produktgruppen (S. 15-558), je 2024-2030,
     Band 1, PDF-Seite 11 (Finanzplan) und 545 (Steuerarten, daten/manuell/), Band 2, PDF-Seite 20 (Steuern) und 143 (Stadtwerke), Zuschusstabelle,
     Stellenplan und Gesamtübersicht unter daten/agg_tables/.
     Ausgabe: vue-project/src/data/planspiel.json. Exit-Code 1 bei Abweichungen.
@@ -176,12 +194,18 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     gesamt = lies_plan(ergebnisplan)
 
     abweichungen = 0
-    for j in JAHRE:
+    for j in PLAN_JAHRE:
         for i, zeile in enumerate(ZEILEN):
             summe = sum(pg["werte"][j][i] for pg in produktgruppen)
-            if abs(summe - gesamt[j][i]) > TOLERANZ_EUR:
+            if abs(summe - gesamt[j][i]) > TOLERANZ_EUR * 100:
                 abweichungen += 1
-                typer.echo(f"Abweichung {j} Zeile {i + 1:02d} {zeile}: PG-Summe {summe}, Gesamtplan {gesamt[j][i]}")
+                typer.echo(
+                    f"Abweichung {j} Zeile {i + 1:02d} {zeile}: PG-Summe {summe / 100}, Gesamtplan {gesamt[j][i] / 100}"
+                )
+    gesamt = in_euro(gesamt)
+    for pg in produktgruppen:
+        pg["werte"] = in_euro(pg["werte"])
+    for j in JAHRE:
         for pg in produktgruppen:
             zeile26 = pg["werte"][j][ZEILEN.index("Jahresergebnis")]
             if abs(zeile26 - gu_ergebnis[j][pg["code"]]) > TOLERANZ_EUR:
@@ -200,6 +224,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
 
     pb_codes = sorted({pg["code"][:2] for pg in produktgruppen})
     daten_json = {
+        "jahre": [{"jahr": j, "art": art} for j, art in PLAN_JAHRE.items()],
         "zeilen": ZEILEN,
         "gesamt": gesamt,
         "produktbereiche": [{"code": pb, "name": namen[pb]} for pb in pb_codes],
