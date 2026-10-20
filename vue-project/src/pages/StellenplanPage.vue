@@ -191,8 +191,8 @@ const beschreibung = computed(() =>
     ? '2027 minus 2026 · Änderungen nach Größe sortiert · Balken auswählen'
     : [
         kennzahl.value === 'vzae'
-          ? 'Fläche = Stellenumfang · Zahl und Balken: Beamtenanteil'
-          : 'Fläche = geschätztes Tabellenentgelt · Zahl und Balken: Beamtenanteil an den Stellen (VZÄ), nicht an den Kosten',
+          ? 'Fläche = Stellenumfang · Violetter Teil und Zahl: Beamtenanteil'
+          : 'Fläche = geschätztes Tabellenentgelt · Violetter Teil und Zahl: Beamtenanteil an den Stellen (VZÄ), nicht an den Kosten',
         bereich.value === 'all' ? 'Themenbereich auswählen' : 'Produktgruppe auswählen',
       ].join(' · '),
 )
@@ -213,20 +213,54 @@ const detailZeilen = computed(() =>
 )
 const detailHoehe = computed(() => `${Math.max(180, detailZeilen.value.length * 38 + 70)}px`)
 const tooltip = { renderMode: 'richText' as const, confine: true }
+/** Mischt eine Farbe mit Weiß; `deckung` 1 = Originalfarbe, 0 = Weiß. */
+const aufhellen = (hex: string, deckung: number) => {
+  const kanaele = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16))
+  return `#${kanaele
+    .map((k) =>
+      Math.round(255 + (k - 255) * deckung)
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`
+}
 /*
- * Treemap-Kacheln sind neutral grau; der Beamtenanteil steht als Zahl und als
- * Mini-Balken in der Kachel. Violett = Beamte, Blau = Tarif wie in der Detailkarte.
- * Die Textfarben entsprechen TEXT_NORMAL und TEXT_LEISE aus echartsTheme.ts.
- * Die Fläche ist POL_FARBEN.neutral zu 12 % auf Weiß, bewusst deckend: Beim
- * Auswahlrahmen zeichnet ECharts die Rahmenfarbe unter die Kachelfläche.
+ * Jede Kachel ist von links nach rechts geteilt: links Beamte (Aufhellung von
+ * KATEGORIE_FARBEN[3], Violett), rechts Tarif (Aufhellung von KATEGORIE_FARBEN[0],
+ * Blau) – dieselbe Zuordnung wie in der Detailkarte. Die Teilung läuft immer in
+ * derselben Richtung, damit sich Anteile zwischen Kacheln vergleichen lassen, und
+ * zeigt das Verhältnis auch in Kacheln ohne Platz für Text.
+ * Text (#31333d = TEXT_NORMAL aus echartsTheme.ts) hat auf den Normaltönen 6,7:1
+ * (Violett) und 6,5:1 (Blau), auf den Hover-Tönen 5,7:1 und 5,6:1.
  */
 const KACHEL = {
-  flaeche: '#eeeef0',
-  hover: '#e4e5e9',
+  beamte: aufhellen(KATEGORIE_FARBEN[3], 0.45),
+  tarif: aufhellen(KATEGORIE_FARBEN[0], 0.45),
+  beamteHover: aufhellen(KATEGORIE_FARBEN[3], 0.55),
+  tarifHover: aufhellen(KATEGORIE_FARBEN[0], 0.55),
   text: '#31333d',
-  leise: '#545868',
   auswahl: '#31333d',
 } as const
+/**
+ * Kachelfläche als Verlauf mit doppeltem Stopp an der Anteilsgrenze: eine harte
+ * Kante, links Beamte, rechts Tarif. Der Verlauf bezieht sich auf die Kachel selbst.
+ */
+const teilung = (beamtenAnteil: number, beamte: string, tarif: string) => {
+  const grenze = Math.max(0, Math.min(1, beamtenAnteil))
+  return {
+    type: 'linear' as const,
+    x: 0,
+    y: 0,
+    x2: 1,
+    y2: 0,
+    colorStops: [
+      { offset: 0, color: beamte },
+      { offset: grenze, color: beamte },
+      { offset: grenze, color: tarif },
+      { offset: 1, color: tarif },
+    ],
+  }
+}
 /** Breite des Treemap-Rahmens in Pixeln, gemessen per ResizeObserver (auf 10 px gerundet). */
 const chartRahmen = ref<HTMLElement | null>(null)
 const chartBreite = ref(800)
@@ -245,18 +279,17 @@ onBeforeUnmount(() => rahmenBeobachter?.disconnect())
 const treemapHoehe = computed(() => (chartBreite.value >= 900 ? 460 : 520))
 /**
  * Schriftstufen nach der geschätzten Kachelseite in Pixeln (Wurzel aus
- * Flächenanteil × Diagrammfläche). Kleinere Kacheln bleiben ohne Text, dort
- * reichen Tooltip und Tabelle. In der kleinsten Stufe (und in engen Kacheln,
- * siehe kachel()) ist „18 % Beamte“ ein einziges Textstück: Es passt ganz oder
- * fällt ganz weg, nie bleibt „18 %“ allein stehen.
+ * Flächenanteil × Diagrammfläche). Kleinere Kacheln bleiben ohne Text; das
+ * Verhältnis zeigt dort die Teilung, die Werte zeigen Tooltip und Tabelle.
+ * In der kleinsten Stufe (und in engen Kacheln, siehe kachel()) ist „18 % Beamte“
+ * ein einziges Textstück: Es passt ganz oder fällt ganz weg, nie bleibt „18 %“ allein.
  */
 const SCHRIFTSTUFEN = [
-  { ab: 260, name: 18, anteil: 22, klein: 14, balkenHoehe: 10, rand: [14, 16] },
-  { ab: 170, name: 16, anteil: 20, klein: 13, balkenHoehe: 8, rand: [12, 14] },
-  { ab: 110, name: 14, anteil: 16, klein: 12, balkenHoehe: 6, rand: [9, 10] },
-  { ab: 72, name: 12, anteil: 12, klein: 11, balkenHoehe: 5, rand: [7, 8] },
+  { ab: 260, name: 18, anteil: 22, klein: 14, rand: [14, 16] },
+  { ab: 170, name: 16, anteil: 20, klein: 13, rand: [12, 14] },
+  { ab: 110, name: 14, anteil: 16, klein: 12, rand: [9, 10] },
+  { ab: 72, name: 12, anteil: 12, klein: 11, rand: [7, 8] },
 ]
-const BALKEN_MAX = 240
 const SCHRIFT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
 let messKontext: CanvasRenderingContext2D | null | undefined
 /**
@@ -270,24 +303,6 @@ const textBreite = (text: string, groesse: number, gewicht = 400) => {
   messKontext.font = `${gewicht} ${groesse}px ${SCHRIFT}`
   return Math.ceil(messKontext.measureText(text).width) + 1
 }
-/**
- * Mini-Balken als ein SVG-Bild: links Beamte, rechts Tarif. Ein einziges Bild
- * mit fester Breite lässt ECharts in zu schmalen Kacheln ganz weg, statt es
- * abzuschneiden – ein halber Balken würde einen falschen Anteil zeigen.
- */
-const balkenBild = (beamtenAnteil: number, breite: number, hoehe: number) => {
-  const anteil = Math.max(0, Math.min(1, beamtenAnteil))
-  // Ein kleiner Beamtenanteil bleibt sichtbar, statt im Rundungsrest zu verschwinden.
-  const b = anteil === 0 ? 0 : Math.max(2, Math.round(anteil * breite * 10) / 10)
-  const fuge =
-    b >= 3 && breite - b >= 3 ? `<rect x="${b}" width="1" height="${hoehe}" fill="#fff"/>` : ''
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${breite}" height="${hoehe}">` +
-    `<clipPath id="r"><rect width="${breite}" height="${hoehe}" rx="${hoehe / 2}"/></clipPath>` +
-    `<g clip-path="url(#r)"><rect width="${breite}" height="${hoehe}" fill="${KATEGORIE_FARBEN[0]}"/>` +
-    `<rect width="${b}" height="${hoehe}" fill="${KATEGORIE_FARBEN[3]}"/>${fuge}</g></svg>`
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`
-}
 /** Anteil als ganze Prozentzahl für die Kacheln; Randwerte nicht auf 0 % oder 100 % runden. */
 const ganzProzent = (anteil: number) => {
   if (anteil > 0 && anteil < 0.005) return '< 1 %'
@@ -295,19 +310,20 @@ const ganzProzent = (anteil: number) => {
   return `${Math.round(anteil * 100)} %`
 }
 /**
- * Kachelstil und Beschriftung. `seite` ist die geschätzte Kachelseite in Pixeln;
- * sie wählt die Schriftstufe; der Balken füllt, was neben Zahl und „Beamte“
- * sicher frei bleibt (höchstens BALKEN_MAX).
+ * Kachelfläche, Hover, Auswahlrahmen und Beschriftung. `seite` ist die geschätzte
+ * Kachelseite in Pixeln und wählt die Schriftstufe.
  */
 const kachel = (beamtenAnteil: number, betrag: number, seite: number, gewaehlt: boolean) => {
   const stufe = SCHRIFTSTUFEN.find((s) => seite >= s.ab)
+  const flaeche = teilung(beamtenAnteil, KACHEL.beamte, KACHEL.tarif)
   const itemStyle = gewaehlt
-    ? { color: KACHEL.flaeche, borderColor: KACHEL.auswahl, borderWidth: 2 }
-    : { color: KACHEL.flaeche }
-  if (!stufe) return { itemStyle, kompakt: true, balkenBreite: 0, label: { show: false } }
-  // Vorsichtige Innenbreite: Kacheln sind selten quadratisch.
-  const innen = seite * 0.7 - 2 * (stufe.rand[1] ?? 0)
-  const abstand = Math.round(stufe.klein * 0.5)
+    ? { color: flaeche, borderColor: KACHEL.auswahl, borderWidth: 2 }
+    : { color: flaeche }
+  const emphasis = {
+    itemStyle: { color: teilung(beamtenAnteil, KACHEL.beamteHover, KACHEL.tarifHover) },
+  }
+  if (!stufe) return { itemStyle, emphasis, kompakt: true, label: { show: false } }
+  const abstand = Math.round(stufe.klein * 0.4)
   const prozent = ganzProzent(beamtenAnteil)
   const zusatzBreite = textBreite('Beamte', stufe.klein)
   // Kacheln sind selten quadratisch. Reicht schon die vorsichtig geschätzte
@@ -318,15 +334,10 @@ const kachel = (beamtenAnteil: number, betrag: number, seite: number, gewaehlt: 
     seite * 0.55 - 2 * (stufe.rand[1] ?? 0) <
       textBreite(prozent, stufe.anteil, 700) + abstand + zusatzBreite
   const anteilSchrift = kompakt ? stufe.klein + 1 : stufe.anteil
-  const anteilBreite = textBreite(kompakt ? `${prozent} Beamte` : prozent, anteilSchrift, 700)
-  // Der Balken nimmt nur Platz, der neben dem Text sicher frei ist; sonst stünde er
-  // in schmalen Kacheln allein da, wenn ECharts den Text weglässt.
-  const frei = innen - anteilBreite - (kompakt ? 0 : zusatzBreite + abstand) - abstand
-  const balkenBreite = Math.min(BALKEN_MAX, Math.floor(frei))
   return {
     itemStyle,
+    emphasis,
     kompakt,
-    balkenBreite: balkenBreite >= 24 ? balkenBreite : 0,
     label: {
       show: true,
       padding: stufe.rand,
@@ -340,22 +351,15 @@ const kachel = (beamtenAnteil: number, betrag: number, seite: number, gewaehlt: 
           fontSize: anteilSchrift,
           fontWeight: 700,
           lineHeight: Math.round(stufe.anteil * 1.35),
-          width: anteilBreite,
+          width: textBreite(kompakt ? `${prozent} Beamte` : prozent, anteilSchrift, 700),
         },
         abstand: { width: abstand },
-        zusatz: { color: KACHEL.leise, fontSize: stufe.klein, width: zusatzBreite },
+        zusatz: { fontSize: stufe.klein, width: zusatzBreite },
         wert: {
           fontSize: stufe.klein,
           fontWeight: 500,
           lineHeight: Math.round(stufe.klein * 1.5),
           width: textBreite(wertFormat(betrag), stufe.klein, 500),
-        },
-        balken: {
-          width: Math.max(balkenBreite, 0),
-          height: stufe.balkenHoehe,
-          backgroundColor: {
-            image: balkenBild(beamtenAnteil, Math.max(balkenBreite, 1), stufe.balkenHoehe),
-          },
         },
       },
     },
@@ -459,31 +463,24 @@ const hauptOption = computed<EChartsOption>(() => {
           bottom: 0,
           upperLabel: { show: false },
           cursor: 'pointer',
-          emphasis: { itemStyle: { color: KACHEL.hover } },
           /* Oben links, damit die Zeilen die volle Kachelbreite nutzen. Was nicht
-             passt, fällt weg: Zeilen von unten, Zahlen und Balken als Ganzes, Namen
-             mit „…“. „Beamte“ steht direkt hinter der Zahl, damit „32 %“ nicht als
-             Anteil an allen Stellen gelesen wird. Größen je Kachel kommen aus kachel(). */
+             passt, fällt weg: Zeilen von unten, Zahlen als Ganzes, Namen mit „…“.
+             „Beamte“ steht direkt hinter der Zahl, damit „32 %“ nicht als Anteil
+             an allen Stellen gelesen wird. Flächen, Hover und Größen je Kachel
+             kommen aus kachel(). */
           label: {
             position: 'insideTopLeft',
             color: KACHEL.text,
             overflow: 'truncate',
             lineOverflow: 'truncate',
             formatter: (p) => {
-              const data = p.data as {
-                beamtenAnteil?: number
-                balkenBreite?: number
-                kompakt?: boolean
-              }
+              const data = p.data as { beamtenAnteil?: number; kompakt?: boolean }
               const prozentText = ganzProzent(data.beamtenAnteil ?? 0)
-              const anteil = data.kompakt
-                ? `{anteil|${prozentText} Beamte}`
-                : `{anteil|${prozentText}}{abstand| }{zusatz|Beamte}`
-              // Der Balken steht zuletzt: Ist es eng, fällt er zuerst weg, nicht „Beamte“.
-              const balken = data.balkenBreite ? '{abstand| }{balken| }' : ''
               return [
                 `{name|${p.name}}`,
-                anteil + balken,
+                data.kompakt
+                  ? `{anteil|${prozentText} Beamte}`
+                  : `{anteil|${prozentText}}{abstand| }{zusatz|Beamte}`,
                 `{wert|${wertFormat(Number(p.value))}}`,
               ].join('\n')
             },
@@ -751,9 +748,9 @@ function zurUebersicht() {
           </span>
         </nav>
         <p v-if="ansicht === 'map'" class="stellen-legende stellen-legende--haupt">
-          <span class="mm-visually-hidden">Balken in den Kacheln: </span>
-          <span><i :style="{ background: KATEGORIE_FARBEN[3] }"></i>Beamtinnen / Beamte</span>
-          <span><i :style="{ background: KATEGORIE_FARBEN[0] }"></i>Tarifbeschäftigte</span>
+          <span class="mm-visually-hidden">Teilung jeder Kachel: </span>
+          <span><i :style="{ background: KACHEL.beamte }"></i>Beamtinnen / Beamte (links)</span>
+          <span><i :style="{ background: KACHEL.tarif }"></i>Tarifbeschäftigte (rechts)</span>
         </p>
       </div>
       <!-- Status bleibt im DOM, nur der Text erscheint bei Bedarf. -->
@@ -1131,7 +1128,7 @@ h3 {
   margin-right: 0.35rem;
   border-radius: 50%;
 }
-/* Legende über der Treemap: Felder in Form des Mini-Balkens in den Kacheln. */
+/* Legende über der Treemap: Felder in den Kacheltönen, eckig wie die Kacheln. */
 .stellen-legende--haupt {
   margin: 0;
   color: var(--wa-color-text-quiet);
@@ -1140,10 +1137,10 @@ h3 {
   margin-left: auto;
 }
 .stellen-legende--haupt i {
-  width: 1rem;
-  height: 0.375rem;
-  border-radius: 999px;
-  vertical-align: 0.15em;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 3px;
+  vertical-align: -0.15em;
 }
 .stellen-kopfzeile {
   display: flex;
