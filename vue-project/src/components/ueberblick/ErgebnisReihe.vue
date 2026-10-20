@@ -68,7 +68,7 @@ const option = computed<EChartsOption>(() => ({
   <ChartCard
     :titel="`Entwicklung 2024 bis 2030: ${titel}`"
     beschreibung="Ergebnis vor internen Leistungsbeziehungen: Erträge minus Aufwendungen. Ein Minus ist der Betrag, den die Stadt für diesen Bereich aus allgemeinen Mitteln wie Steuern zuschießt. 2024 ist das tatsächliche Ergebnis, 2025 bis 2027 sind Haushaltsansätze, 2028 bis 2030 Planungen."
-    quelle="Haushaltsplan 2026/27, Band 1, Teilergebnispläne der Produktgruppen, Zeile 26"
+    quelle="Haushaltsplan 2026/27, Band 1, Teilergebnispläne der Produktgruppen (S. 15-558), Zeile 26; Summe im Gesamtergebnisplan S. 9"
     :pdf="{ band: 1, seite: 9 }"
   >
     <wa-select
@@ -87,9 +87,10 @@ const option = computed<EChartsOption>(() => ({
 
     <p class="mm-fussnote">
       Summiert über alle Bereiche ergeben diese Werte das Jahresergebnis des Gesamtergebnisplans.
-      Die Seite Jahresergebnis zeigt für 2025 den fortgeschriebenen Ansatz und für 2028 bis 2030
-      das Ergebnis nach dem globalen Minderaufwand (pauschal eingeplante Kürzung), deshalb weichen
-      ihre Gesamtwerte für diese Jahre ab.
+      Die Seite Jahresergebnis zeigt für 2025 den fortgeschriebenen Ansatz (−30,3 Mio. € statt
+      −47,3 Mio. €) und für 2028 bis 2030 das Ergebnis nach dem globalen Minderaufwand, einer
+      pauschal eingeplanten Kürzung (2030: −37,0 Mio. € statt −46,0 Mio. €). Deshalb weichen ihre
+      Gesamtwerte für diese Jahre ab.
     </p>
 
     <wa-details summary="Werte als Tabelle" class="mm-tabelle-details">
