@@ -19,7 +19,7 @@
 import { computed, ref, shallowRef, useId } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ladeProduktbereiche, type Produktgruppe } from '@/data/produkte'
-import { ladeErlaeuterungen, type Erlaeuterung } from '@/data/erlaeuterungen'
+import { bezug, ladeErlaeuterungen, type Erlaeuterung } from '@/data/erlaeuterungen'
 import {
   besonderheiten,
   ersteSeite,
@@ -39,8 +39,12 @@ const knopfId = `mm-produktgruppe-${useId()}`
 const offen = ref(false)
 /** Alle Produktgruppen nach Code, erst nach dem ersten Öffnen gefüllt. */
 const gruppen = shallowRef<Map<string, Produktgruppe> | null>(null)
-/** Sperrvermerke der Gruppe, erst nach dem ersten Öffnen gefüllt. */
-const sperrvermerke = shallowRef<Erlaeuterung[]>([])
+/** Erläuterungen aller Gruppen nach Code, erst nach dem ersten Öffnen gefüllt. */
+const erlaeuterungen = shallowRef<Map<string, Erlaeuterung[]> | null>(null)
+/** Nach dem aktuellen Posten: Die Seite tauscht `posten` je Runde aus. */
+const sperrvermerke = computed(() =>
+  (erlaeuterungen.value?.get(props.posten.code) ?? []).filter((e) => e.sperrvermerk),
+)
 
 const gruppe = computed(() => gruppen.value?.get(props.posten.code) ?? null)
 const beschreibung = computed(() => (gruppe.value ? gruppenBeschreibung(gruppe.value) : null))
@@ -56,23 +60,29 @@ const hinweise = computed(() => {
   return { notiz, texte, sperren: sperrvermerke.value }
 })
 
-/** Produkttexte einmal laden; ohne sie bleibt das Fenster eben knapper. */
+/**
+ * Produkttexte und Erläuterungen einmal laden, jeweils für sich: Schlägt eins
+ * fehl, wird nur das beim nächsten Öffnen erneut versucht.
+ */
 function ladeGruppen() {
-  if (gruppen.value) return
-  ladeProduktbereiche()
-    .then((bereiche) => {
-      gruppen.value = new Map(bereiche.flatMap((b) => b.gruppen.map((g) => [g.nummer, g])))
-    })
-    .catch(() => {
-      // Kein Fehlerhinweis: Titel und Glossar-Link reichen als Rückfall.
-    })
-  ladeErlaeuterungen()
-    .then((nachPg) => {
-      sperrvermerke.value = (nachPg.get(props.posten.code) ?? []).filter((e) => e.sperrvermerk)
-    })
-    .catch(() => {
-      // Ohne Sperrvermerke bleibt das Fenster wie bisher.
-    })
+  if (!gruppen.value) {
+    ladeProduktbereiche()
+      .then((bereiche) => {
+        gruppen.value = new Map(bereiche.flatMap((b) => b.gruppen.map((g) => [g.nummer, g])))
+      })
+      .catch(() => {
+        // Kein Fehlerhinweis: Titel und Glossar-Link reichen als Rückfall.
+      })
+  }
+  if (!erlaeuterungen.value) {
+    ladeErlaeuterungen()
+      .then((nachPg) => {
+        erlaeuterungen.value = nachPg
+      })
+      .catch(() => {
+        // Ohne Sperrvermerke bleibt das Fenster wie bisher.
+      })
+  }
 }
 
 /** Enter und Leertaste wirken wie bei einem echten Knopf (Leertaste ohne Scrollen). */
@@ -136,7 +146,7 @@ function umschalten(ereignis: Event, zustand: boolean) {
             <template v-for="sperre in hinweise.sperren" :key="sperre.text">
               <span>{{ sperre.text }}</span>
               <span class="mm-produktgruppe__quelle">
-                Bewirtschaftungsregel, Haushaltsplan Band 1, S. {{ sperre.seite }} (PDF)
+                {{ bezug(sperre) }}, Haushaltsplan Band 1, S. {{ sperre.seite }} (PDF)
               </span>
             </template>
           </span>
