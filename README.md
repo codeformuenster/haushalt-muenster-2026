@@ -183,7 +183,13 @@ Das Planspiel liest `src/data/planspiel.json`, erzeugt von
 `scripts/pipeline/planspiel_daten.py`; die Entscheidungskarten stehen in
 `src/components/planspiel/karten.ts`. Die Datei enthält die Zeilen 01-26 des
 Gesamtergebnisplans und aller Teilergebnispläne und wird auch von Start-,
-Überblick-, Ein-&-Ausgaben- und Jahresergebnis-Seite gelesen. Die Rücklagen
+Überblick-, Ein-&-Ausgaben- und Jahresergebnis-Seite gelesen. Schema:
+`jahre` listet `{jahr, art}` für 2024 ("Ergebnis (Ist)"), 2025-2027 ("Ansatz") und
+2028-2030 ("Planung"); `gesamt[jahr]` und `produktgruppen[].werte[jahr]` haben für
+jedes dieser Jahre 26 Beträge in € in der Reihenfolge von `zeilen`. Die Einzelwerte der
+Entscheidungskarten (Steuern, Zuschüsse, Stellen usw.) gibt es nur für "2026" und
+"2027". Zeile 26 ist 2025 der ursprüngliche Ansatz und 2028-2030 der Wert vor dem
+globalen Minderaufwand, deshalb weicht die Summe dort von `ruecklagen.json` ab. Die Rücklagen
 2024-2030 für die Jahresergebnis-Seite und das Planspiel stehen in
 `src/data/ruecklagen.json`, erzeugt von `scripts/pipeline/agg_ruecklagen.py`.
 
