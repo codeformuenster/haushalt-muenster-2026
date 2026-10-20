@@ -18,6 +18,7 @@ const navIcons: Record<string, string> = {
   '/ueberblick': 'chart-pie',
   '/ein-ausgaben': 'scale-balanced',
   '/jahresergebnis': 'scale-unbalanced',
+  '/schulden': 'building-columns',
   '/stellenplan': 'users',
   '/zuschuesse': 'hand-holding-heart',
   '/bezirke': 'map-location-dot',
@@ -38,6 +39,7 @@ type NavLink = {
 const NAV_ENTDECKEN = [
   '/ein-ausgaben',
   '/jahresergebnis',
+  '/schulden',
   '/stellenplan',
   '/zuschuesse',
   '/bezirke',
