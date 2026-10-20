@@ -226,7 +226,7 @@ async function clearSelection(): Promise<void> {
       :beschreibung="
         selectedGroup
           ? `Anteile der Aufwandsarten an den ordentlichen Aufwendungen: oben die ganze Stadt, darunter die Produktgruppen von ${selectedGroupName}.`
-          : 'Anteile der Aufwandsarten an den ordentlichen Aufwendungen: oben die ganze Stadt, darunter je Produktbereich. Wählen Sie oben eine Produktgruppe, um deren Produkte zu sehen.'
+          : 'Anteile der Aufwandsarten an den ordentlichen Aufwendungen: oben die ganze Stadt, darunter je Produktbereich. Wählen Sie oben einen Bereich aus, um seine Produktgruppen zu sehen.'
       "
       :quelle="QUELLE_ARTEN"
       :pdf="{ band: 1, seite: 9 }"
@@ -248,9 +248,10 @@ async function clearSelection(): Promise<void> {
       Dinge, die viele Jahre genutzt werden, etwa Schulen, Sporthallen oder Straßen. Sie stehen im
       <GlossarBegriff id="finanzplan">Finanzplan</GlossarBegriff> und gehören nicht zu den
       Aufwendungen oben. Im Ergebnis erscheinen sie erst nach und nach als Abschreibungen. Die
-      Einzahlungen sind vor allem Fördermittel von Land und Bund. Im Bereich 16 Allgemeine
+      Einzahlungen sind zum größten Teil Zuwendungen für Investitionen, meist von Land und Bund,
+      als Fördermittel für einzelne Vorhaben oder als Pauschale. Im Bereich 16 Allgemeine
       Finanzwirtschaft ist 2026 der größte Posten der Erwerb von Finanzanlagen (103,8 Mio. €, etwa
-      Beteiligungen der Stadt), kein Bauprojekt.
+      Beteiligungen der Stadt), kein Bauprojekt; 2027 sind dafür nur 20.000 € angesetzt.
     </p>
 
     <ChartCard
