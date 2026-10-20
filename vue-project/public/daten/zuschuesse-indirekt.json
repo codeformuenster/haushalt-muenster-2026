@@ -1,0 +1,411 @@
+{
+  "quelle": "Haushaltsplan 2026/27, Band 2, S. 359–361 (Zuschussbericht, Anlagen 3 und 4)",
+  "erbbaurechte": {
+    "zeilen": [
+      {
+        "nr": 1,
+        "objekt": "Bonhoefferstraße 54",
+        "berechtigter": "Sportverein Blau-Weiss Aasee e.V.",
+        "zweck": "Multifunktionshaus",
+        "flaeche": 1280.0,
+        "zuschuss": 2483.2,
+        "vertragsende": "31.12.2053"
+      },
+      {
+        "nr": 2,
+        "objekt": "Rheinstraße 40",
+        "berechtigter": "Akademischer Ruderclub",
+        "zweck": "Clubhaus, Bootshalle (Stadt darf Anlage für Schulsport nutzen)",
+        "flaeche": 660.0,
+        "zuschuss": 5016.0,
+        "vertragsende": "31.12.2038"
+      },
+      {
+        "nr": 3,
+        "objekt": "Westerheide 3 a",
+        "berechtigter": "Kuratorium Mehrzweck St. Josef Gelmer 1865 e.V.",
+        "zweck": "Mehrzweckhalle",
+        "flaeche": 1055.0,
+        "zuschuss": 4357.15,
+        "vertragsende": "31.12.2077"
+      },
+      {
+        "nr": 4,
+        "objekt": "Zum Hiltruper See 177",
+        "berechtigter": "1. TC Hiltrup",
+        "zweck": "Tennishalle, Clubhaus",
+        "flaeche": 2755.0,
+        "zuschuss": 20831.2,
+        "vertragsende": "31.12.2039"
+      },
+      {
+        "nr": 5,
+        "objekt": "Hansestraße 74",
+        "berechtigter": "Die Residenz Münster e.V.",
+        "zweck": "Tanzsporthalle",
+        "flaeche": 2996.0,
+        "zuschuss": 1438.08,
+        "vertragsende": "31.12.2062"
+      },
+      {
+        "nr": 6,
+        "objekt": "Hansestraße 80",
+        "berechtigter": "Akademischer Ruderclub",
+        "zweck": "Bootshalle (Erweiterung)",
+        "flaeche": 161.0,
+        "zuschuss": 53.9,
+        "vertragsende": "31.12.2054"
+      },
+      {
+        "nr": 7,
+        "objekt": "Hansestraße 80",
+        "berechtigter": "Akademischer Ruderclub",
+        "zweck": "Bootshalle (Erweiterung)",
+        "flaeche": 137.0,
+        "zuschuss": 5.48,
+        "vertragsende": "31.12.2054"
+      },
+      {
+        "nr": 8,
+        "objekt": "Brandhoveweg 95",
+        "berechtigter": "Turnverein Wolbeck von 1962 e.V.",
+        "zweck": "Funktionsgebäude \"Haus des Sports\"",
+        "flaeche": 1370.0,
+        "zuschuss": 54.8,
+        "vertragsende": "31.12.2071"
+      },
+      {
+        "nr": 9,
+        "objekt": "Theo-Breider-Weg 1",
+        "berechtigter": "De Bockwindmüel e. V.",
+        "zweck": "Mühlenhof (kulturelle Zwecke)",
+        "flaeche": 16657.0,
+        "zuschuss": 13133.47,
+        "vertragsende": "31.12.2026"
+      },
+      {
+        "nr": 10,
+        "objekt": "Meckmannweg 72",
+        "berechtigter": "Kath. Kirchengemeinde St. Liudger",
+        "zweck": "Kindertagesstätte und Familienzentrum \"Maria Aparecida\"",
+        "flaeche": 5026.0,
+        "zuschuss": 1465.92,
+        "vertragsende": "31.07.2026"
+      },
+      {
+        "nr": 11,
+        "objekt": "Hobbeltstraße 144",
+        "berechtigter": "Bürgerbad Handorf gGmbH",
+        "zweck": "Hallenbad",
+        "flaeche": 5585.0,
+        "zuschuss": 7428.05,
+        "vertragsende": "31.12.2077"
+      }
+    ],
+    "summe": 56267.25
+  },
+  "mieten": {
+    "stand": 2024,
+    "zeilen": [
+      {
+        "nr": 1,
+        "objekt": "Ahausweg 37",
+        "mieter": "Evang. Jugendhilfe Münsterland - Kita",
+        "flaeche": 751.0,
+        "grundlage": "Ratsbeschluss vom 13.09.2000",
+        "warmmiete": 51880.41,
+        "kaltmiete": 0.0,
+        "zuschuss": 51880.41,
+        "anpassungAb": "01.05.2031",
+        "erlaeuterung": "(1)"
+      },
+      {
+        "nr": 2,
+        "objekt": "Alt Angelmodde 11 d",
+        "mieter": "Arbeiterwohlfahrt - Kita",
+        "flaeche": 337.0,
+        "grundlage": "Ratsbeschluss vom 04.05.1994",
+        "warmmiete": 11076.86,
+        "kaltmiete": 0.0,
+        "zuschuss": 11076.86,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": "(1)"
+      },
+      {
+        "nr": 3,
+        "objekt": "Am Hof Hesselmann 10",
+        "mieter": "Bürgerverein für Mecklenbeck e. V.",
+        "flaeche": 592.0,
+        "grundlage": "Verwaltungsentscheidung",
+        "warmmiete": 24328.69,
+        "kaltmiete": 0.0,
+        "zuschuss": 24328.69,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": "(2)"
+      },
+      {
+        "nr": 4,
+        "objekt": "An der Clemenskirche 11",
+        "mieter": "Bischöfliches Generalvikariat",
+        "flaeche": 317.0,
+        "grundlage": "Ratsbeschluss vom 08.04.1968",
+        "warmmiete": 98534.21,
+        "kaltmiete": 0.0,
+        "zuschuss": 98534.21,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 5,
+        "objekt": "An der Meerwiese 11",
+        "mieter": "DRK - Kita",
+        "flaeche": 628.0,
+        "grundlage": "Ratsbeschluss vom 24.05.2000",
+        "warmmiete": 70222.44,
+        "kaltmiete": 52017.6,
+        "zuschuss": 18204.84,
+        "anpassungAb": "01.01.2031",
+        "erlaeuterung": "(1)*"
+      },
+      {
+        "nr": 6,
+        "objekt": "Angelmodder Weg 97",
+        "mieter": "Heimatfreunde Angelmodde",
+        "flaeche": 136.0,
+        "grundlage": "Beschluss Liegenschaftsausschuss vom 28.01.1992",
+        "warmmiete": 2335.09,
+        "kaltmiete": 0.0,
+        "zuschuss": 2335.09,
+        "anpassungAb": "01.06.2024",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 7,
+        "objekt": "Coerdestraße 36 a",
+        "mieter": "Förderverein \"Altes Backhaus e. V.\"",
+        "flaeche": 206.0,
+        "grundlage": "Verwaltungsentscheidung",
+        "warmmiete": 5072.04,
+        "kaltmiete": 0.0,
+        "zuschuss": 5072.04,
+        "anpassungAb": "01.03.2025",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 8,
+        "objekt": "Dyckburgstraße 228",
+        "mieter": "Kreisjägerschaft Münster e. V.",
+        "flaeche": 17.0,
+        "grundlage": "Verwaltungsentscheidung",
+        "warmmiete": 160.0,
+        "kaltmiete": 25.0,
+        "zuschuss": 135.0,
+        "anpassungAb": "01.06.2024",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 9,
+        "objekt": "Gartenstraße 123",
+        "mieter": "Filmwerkstatt Münster e. V.",
+        "flaeche": 168.0,
+        "grundlage": "Verwaltungsentscheidung",
+        "warmmiete": 7332.58,
+        "kaltmiete": 0.0,
+        "zuschuss": 7332.58,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 10,
+        "objekt": "Gronowskistraße 70",
+        "mieter": "Kath. Kirchengemeinde St. Michael - Kita",
+        "flaeche": 814.0,
+        "grundlage": "Ratsbeschluss vom 28.04.1999",
+        "warmmiete": 25387.72,
+        "kaltmiete": 0.0,
+        "zuschuss": 25387.72,
+        "anpassungAb": "01.01.2030",
+        "erlaeuterung": "(1)"
+      },
+      {
+        "nr": 11,
+        "objekt": "Heumannsweg 127",
+        "mieter": "KG Poahlbürger e. V.",
+        "flaeche": 880.0,
+        "grundlage": "AFBL Beschluss 07.12.2004",
+        "warmmiete": 12130.86,
+        "kaltmiete": 8076.0,
+        "zuschuss": 4054.86,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 12,
+        "objekt": "Heumannsweg 127",
+        "mieter": "Verkehrswacht Münster e. V.",
+        "flaeche": 272.0,
+        "grundlage": "Ratsbeschluss vom 24.04.2024",
+        "warmmiete": 3749.54,
+        "kaltmiete": 0.0,
+        "zuschuss": 3749.54,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 13,
+        "objekt": "Im Seihof 14, 16 und 18",
+        "mieter": "CVJM Christlicher Verein junger Menschen",
+        "flaeche": 1356.0,
+        "grundlage": "Ratsbeschluss vom 17.05.2006",
+        "warmmiete": 257626.0,
+        "kaltmiete": 161088.0,
+        "zuschuss": 96538.0,
+        "anpassungAb": "01.12.2026",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 14,
+        "objekt": "Korbmacherweg 19",
+        "mieter": "Arbeiterwohlfahrt - Kita",
+        "flaeche": 372.0,
+        "grundlage": "Ratsbeschluss (kein Datum) lt. Vorlage Nr. 138/84",
+        "warmmiete": 21461.9,
+        "kaltmiete": 0.0,
+        "zuschuss": 21461.9,
+        "anpassungAb": "01.01.2025",
+        "erlaeuterung": "(1)"
+      },
+      {
+        "nr": 15,
+        "objekt": "Neutor 2",
+        "mieter": "Stadtheimatbund e. V.",
+        "flaeche": 71.0,
+        "grundlage": "Beschluss Liegenschaftsausschuss vom 25.04.2004",
+        "warmmiete": 32970.78,
+        "kaltmiete": 0.0,
+        "zuschuss": 32970.78,
+        "anpassungAb": "01.07.2024",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 16,
+        "objekt": "Rilkeweg 43",
+        "mieter": "DRK - Kita",
+        "flaeche": 768.0,
+        "grundlage": "Beschluss Ausschuss für Kinder, Jugendliche und Familien vom 17.08.1994",
+        "warmmiete": 42457.99,
+        "kaltmiete": 0.0,
+        "zuschuss": 42457.99,
+        "anpassungAb": "01.08.2026",
+        "erlaeuterung": "(1)"
+      },
+      {
+        "nr": 17,
+        "objekt": "Schulstraße 43",
+        "mieter": "Ateliergemeinschaft Schulstraße 43 e. V.",
+        "flaeche": 916.25,
+        "grundlage": "Ratsbeschluss vom 13.12.2023",
+        "warmmiete": 99920.34,
+        "kaltmiete": 43320.0,
+        "zuschuss": 56600.34,
+        "anpassungAb": "01.01.2030",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 18,
+        "objekt": "Schulstraße 45",
+        "mieter": "Zukunftswerkstatt Kreuzviertel e. V.",
+        "flaeche": 165.0,
+        "grundlage": "Ratsbeschluss vom 13.12.2023",
+        "warmmiete": 17993.84,
+        "kaltmiete": 9480.0,
+        "zuschuss": 8513.84,
+        "anpassungAb": "01.01.2030",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 19,
+        "objekt": "Sprickmannplatz 1",
+        "mieter": "Internationaler Kulturverein \"ATRIUM\"",
+        "flaeche": 377.0,
+        "grundlage": "Ratsbeschluss vom 09.12.2009",
+        "warmmiete": 13290.62,
+        "kaltmiete": 0.0,
+        "zuschuss": 13290.62,
+        "anpassungAb": "01.07.2024",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 20,
+        "objekt": "Verth 12 - 14",
+        "mieter": "Emshof Trägerverein e. V.",
+        "flaeche": 1736.0,
+        "grundlage": "Beschluss Liegenschaftsausschuss vom 13.06.2001",
+        "warmmiete": 23619.2,
+        "kaltmiete": 0.0,
+        "zuschuss": 23619.2,
+        "anpassungAb": "01.08.2031",
+        "erlaeuterung": "(2)"
+      },
+      {
+        "nr": 21,
+        "objekt": "Zum Häpper 5",
+        "mieter": "Jugendzentrum Amelsbüren; \"Black Bull\"",
+        "flaeche": 230.97,
+        "grundlage": "Beschluss Liegenschaftsausschuss vom 15.10.1981",
+        "warmmiete": 11853.46,
+        "kaltmiete": 0.0,
+        "zuschuss": 11853.46,
+        "anpassungAb": "01.01.2024",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 22,
+        "objekt": "Zumsandestraße 15",
+        "mieter": "Umweltforum Münster e. V.",
+        "flaeche": 200.0,
+        "grundlage": "Beschluss Haupt- und Finanzausschuss vom 05.07.1995",
+        "warmmiete": 7385.0,
+        "kaltmiete": 0.0,
+        "zuschuss": 7385.0,
+        "anpassungAb": "01.06.2024",
+        "erlaeuterung": ""
+      },
+      {
+        "nr": 23,
+        "objekt": "Zwi-Schulmann-Weg 25",
+        "mieter": "CVJM Christlicher Verein junger Menschen",
+        "flaeche": 700.0,
+        "grundlage": "Ratsbeschluss vom 28.03.2001",
+        "warmmiete": 34532.06,
+        "kaltmiete": 0.0,
+        "zuschuss": 34532.06,
+        "anpassungAb": "01.08.2031",
+        "erlaeuterung": "(1)"
+      },
+      {
+        "nr": 24,
+        "objekt": "Zur Alten Feuerwache 26",
+        "mieter": "Hiltruper Museum",
+        "flaeche": 33.0,
+        "grundlage": "Beschluss Ausschuss f. Liegenschaften, Wirtschaft u. strategisches Flächenmanagement vom 30.11.2016",
+        "warmmiete": 293.0,
+        "kaltmiete": 0.0,
+        "zuschuss": 293.0,
+        "anpassungAb": "01.01.2029",
+        "erlaeuterung": "(2)"
+      }
+    ],
+    "summe": {
+      "warmmiete": 875614.63,
+      "kaltmiete": 274006.6,
+      "zuschuss": 601608.03
+    },
+    "hinweis": "Da die Warmmiete durchlaufende Posten enthält, werden die Kaltmieten angegeben. Die Beträge wurden kaufmännisch gerundet.",
+    "fussnoten": {
+      "(1)": "Die Errichtung der Kindertagesstätte wurde bezuschusst. Aus diesem Grund dürfen durch die Stadt Münster nur die Nebenkosten auf den Mieter umgelegt werden.",
+      "(1)*": "Die Erweiterung durch einen Kitapavillon wurde nicht bezuschusst. Aus diesem Grund wird für diesen Teil Miete erhoben.",
+      "(2)": "Herrichtungskosten, bzw. Instandhaltung an Dach und Fach werden im Gegenzug ganz, bzw. teilweise vom Mieter übernommen."
+    }
+  }
+}
