@@ -40,7 +40,7 @@ const kennzahlen = [
   {
     titel: 'Liquiditätskredite Ende 2026',
     wert: euroKurz(verbindlichkeiten.liquiditaetskredite[stichtag2026] ?? 0),
-    zusatz: 'kurzfristige Kredite, damit die Stadt jederzeit zahlen kann',
+    zusatz: 'kurzfristige Kredite für laufende Zahlungen; sie steigen, wenn im Betrieb Geld fehlt',
   },
   {
     titel: 'Neue Schulden für Investitionen 2026',
@@ -56,7 +56,16 @@ const schuldenstand: EChartsOption = {
   legend: { top: 0 },
   tooltip: { trigger: 'axis', valueFormatter: (v) => euroKurz(Number(v)) },
   xAxis: { type: 'category', data: jahrLabel },
-  yAxis: { type: 'value', axisLabel: { formatter: (v: number) => euroKurz(v) } },
+  // Eigene Achse für die Jahresbeträge, sonst liegen die Linien neben 2 Mrd. € flach am Boden.
+  yAxis: [
+    { type: 'value', name: 'Stand', axisLabel: { formatter: (v: number) => euroKurz(v) } },
+    {
+      type: 'value',
+      name: 'pro Jahr',
+      splitLine: { show: false },
+      axisLabel: { formatter: (v: number) => euroKurz(v) },
+    },
+  ],
   series: [
     {
       name: 'Schulden am 31.12.',
@@ -67,6 +76,7 @@ const schuldenstand: EChartsOption = {
     {
       name: 'Neue Kredite',
       type: 'line',
+      yAxisIndex: 1,
       data: kredite.aufnahme,
       itemStyle: { color: KATEGORIE_FARBEN[1] },
       lineStyle: { color: KATEGORIE_FARBEN[1] },
@@ -74,6 +84,7 @@ const schuldenstand: EChartsOption = {
     {
       name: 'Tilgung',
       type: 'line',
+      yAxisIndex: 1,
       data: kredite.tilgung,
       itemStyle: { color: KATEGORIE_FARBEN[2] },
       lineStyle: { color: KATEGORIE_FARBEN[2] },
@@ -141,7 +152,7 @@ const verpflichtungen: EChartsOption = {
   <div class="mm-seite">
     <PageIntro
       titel="Schulden und Investitionen"
-      :beschreibung="`Münster investiert in den nächsten Jahren so viel wie selten zuvor und bezahlt das größtenteils mit Krediten. Die Schulden für Investitionen steigen bis ${jahrHoechststand} auf ${euroKurz(hoechststand)}.`"
+      :beschreibung="`Münster plant in den nächsten Jahren hohe Investitionen und bezahlt sie größtenteils mit Krediten. Die Schulden für Investitionen steigen bis ${jahrHoechststand} auf ${euroKurz(hoechststand)}.`"
     />
 
     <div class="mm-text">
@@ -153,6 +164,7 @@ const verpflichtungen: EChartsOption = {
         Schulden entstehen dagegen vor allem durch
         <GlossarBegriff id="investitionen">Investitionen</GlossarBegriff>: Schulen, Straßen oder
         Feuerwachen bezahlt die Stadt größtenteils mit Krediten, die sie über viele Jahre abzahlt.
+        Fehlt im laufenden Betrieb Geld, überbrückt sie das mit kurzfristigen Liquiditätskrediten.
       </p>
       <p>
         2026 plant die Stadt ein Jahresergebnis von {{ euroKurz(jahresergebnis2026) }}. Für
@@ -179,11 +191,11 @@ const verpflichtungen: EChartsOption = {
       <div class="mm-text">
         <p>
           Die Zahlen schließen Kredite ein, die die Stadt aufnimmt und an ihre Beteiligungen (etwa
-          städtische Gesellschaften) weitergibt. Ende {{ beteiligungen.jahre[1] }} waren das
+          städtische Gesellschaften) weitergibt. Ende {{ beteiligungen.jahre[1] }} sollen das
           {{ euroKurz(beteiligungen.betrag[1] ?? 0) }} oder
-          {{ zahl(beteiligungen.prozent[1] ?? 0) }} % der Schulden. Wie viel tatsächlich aufgenommen
-          wird, hängt davon ab, wie schnell gebaut wird; in den vergangenen Jahren lagen die Kredite
-          regelmäßig deutlich unter dem Plan.
+          {{ zahl(beteiligungen.prozent[1] ?? 0) }} % der Schulden sein (Prognose). Wie viel
+          tatsächlich aufgenommen wird, hängt davon ab, wie schnell gebaut wird; in den vergangenen
+          Jahren lagen die aufgenommenen Kredite stets deutlich unter dem erlaubten Rahmen.
         </p>
       </div>
 
@@ -219,7 +231,7 @@ const verpflichtungen: EChartsOption = {
 
     <ChartCard
       titel="Wofür investiert wird: 2026 bis 2030"
-      :beschreibung="`Geplante Investitionen nach Dezernat, zusammen ${euroKurz(investitionenGesamt)} in fünf Jahren. Den größten Teil hat das Dezernat für Bildung, Jugend, Familie und Sport, vor allem für Schulen.`"
+      :beschreibung="`Geplante Investitionen nach Dezernat, zusammen ${euroKurz(investitionenGesamt)} in fünf Jahren. Den größten Teil hat das Dezernat für Bildung, Jugend, Familie und Sport, darunter viel Geld für Schulen.`"
       quelle="Haushaltsplan 2026/27, Band 2, Vorbericht, investive Dezernatsbudgets"
       :pdf="{ band: 2, seite: 27 }"
     >
