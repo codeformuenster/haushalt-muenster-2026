@@ -54,7 +54,8 @@ Jahresveränderungen und alle Entgelt-/Besoldungsgruppen der gewählten Produktg
 Die Diagramme wachsen mit der Zahl der Einträge; Tabellen bieten dieselben Werte
 und eine Auswahl per Tastatur. Produktbereich und Planjahr filtern die Ansicht.
 Die Kennzahlen oben beziehen sich ausdrücklich auf die gesamte Stadt. Ein zentraler
-Umschalter wechselt Treemap, Rangliste, Veränderungen, Detaildiagramm und Tabellen
+Umschalter wechselt Bestandsbalken (Länge = Kennzahl, Teilung = Anteil der Beamtinnen
+und Beamten), Rangliste, Veränderungen, Detaildiagramm und Tabellen
 zwischen VZÄ und dem geschätzten TVöD-Tabellenentgelt.
 
 ### Daten aktualisieren
