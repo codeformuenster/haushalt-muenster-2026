@@ -2,7 +2,8 @@
 
 Reihenfolge: Gesamtübersicht (liefert die PG-Bezeichnungen für die Zuschüsse),
 Stellenplan, Zuschüsse, Investitionsmaßnahmen der Bezirksvertretungen, Rücklagen
-(agg_ruecklagen.py, schreibt auch vue-project/src/data/ruecklagen.json), danach die
+(agg_ruecklagen.py, schreibt auch vue-project/src/data/ruecklagen.json), Schulden und
+Investitionen (agg_schulden.py, schreibt nur vue-project/src/data/schulden.json), danach die
 Planspiel-Daten der Vue-App (planspiel_daten.py). Zuletzt läuft
 die Konsistenzprüfung (scripts/check_konsistenz.py) und schreibt ihren Bericht nach
 daten/pruefberichte/konsistenz.md.
@@ -22,6 +23,7 @@ import typer
 import agg_bezirksvertretungen
 import agg_gesamtuebersicht
 import agg_ruecklagen
+import agg_schulden
 import agg_stellenplan
 import agg_zuschuesse
 import planspiel_daten
@@ -34,7 +36,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
     """Erzeugt alle Tabellen unter daten/agg_tables/ neu und prüft sie auf Konsistenz.
 
     Ausgaben: die sieben CSVs unter daten/agg_tables/, vue-project/src/data/planspiel.json,
-    vue-project/src/data/ruecklagen.json und daten/pruefberichte/konsistenz.md.
+    vue-project/src/data/ruecklagen.json, vue-project/src/data/schulden.json und daten/pruefberichte/konsistenz.md.
     Exit-Code 1 nur, wenn ein Erzeugungsschritt fehlschlägt.
     Abweichungen der Konsistenzprüfung werden gemeldet, aber nicht als Fehler gewertet.
     """
@@ -44,6 +46,7 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
         agg_zuschuesse,
         agg_bezirksvertretungen,
         agg_ruecklagen,
+        agg_schulden,
         planspiel_daten,
     )
     for skript in skripte:
