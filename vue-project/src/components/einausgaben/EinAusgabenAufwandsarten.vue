@@ -27,7 +27,12 @@ const ARTEN = [
   { zeile: 'Sonstige ordentliche Aufwendungen', label: 'Sonstige' },
 ].map((art) => ({ ...art, index: daten.zeilen.indexOf(art.zeile) }))
 
-type Balken = { name: string; werte: number[] }
+type Balken = { name: string; werte: number[]; hinweis?: string }
+
+/** Erklärung für Balken, deren Aufteilung ohne Kontext irreführt (Band 1, PDF-Seite 555). */
+const STIFTUNGEN =
+  'Die Stiftungen führen eigene Wirtschaftspläne; der Haushalt enthält nur ihr Jahresergebnis als eine Summe unter „Sonstige“.'
+const HINWEISE: Record<string, string> = { '17': STIFTUNGEN, '1701': STIFTUNGEN }
 
 function arten(zeilen: (number | null)[]): number[] {
   return ARTEN.map((art) => zeilen[art.index] ?? 0)
@@ -49,10 +54,11 @@ const balken = computed<Balken[]>(() => {
   const einzeln: Balken[] = props.groupCode
     ? gruppen
         .filter((g) => g.code.startsWith(props.groupCode ?? ''))
-        .map((g) => ({ name: `${g.code} ${g.name}`, werte: g.werte }))
+        .map((g) => ({ name: `${g.code} ${g.name}`, werte: g.werte, hinweis: HINWEISE[g.code] }))
     : daten.produktbereiche.map((b) => ({
         name: `${b.code} ${b.name}`,
         werte: summe(gruppen.filter((g) => g.code.startsWith(b.code)).map((g) => g.werte)),
+        hinweis: HINWEISE[b.code],
       }))
 
   // Ohne Aufwand (z. B. die Abfallwirtschaft) gäbe es keinen Balken.
@@ -89,7 +95,13 @@ const option = computed<EChartsOption>(() => {
           const wert = b.werte[p.seriesIndex] ?? 0
           return `${p.marker}${ARTEN[p.seriesIndex]?.label}: ${euro(wert)} (${prozent(wert / gesamt(b))})`
         })
-        return [`<strong>${b.name}</strong>`, ...zeilen, `Summe: ${euro(gesamt(b))}`].join('<br>')
+        const hinweis = b.hinweis
+          ? `<div style="max-width: 18rem; white-space: normal; margin-top: 4px">${b.hinweis}</div>`
+          : ''
+        return (
+          [`<strong>${b.name}</strong>`, ...zeilen, `Summe: ${euro(gesamt(b))}`].join('<br>') +
+          hinweis
+        )
       },
     },
     xAxis: { type: 'value', max: 1, axisLabel: { formatter: (v: number) => prozent(v) } },
