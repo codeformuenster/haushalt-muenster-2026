@@ -8,8 +8,8 @@
  * Solange `aufgedeckt` falsch ist, zeigt das Fenster nichts, was den Betrag
  * verrät: keine Summen, keine Hinweise auf 2027, keine Besonderheiten. Erst nach
  * der Auflösung kommt der Abschnitt „Gut zu wissen“ dazu, mit Notizen aus
- * NOTIZEN, dem Betrag 2027 bei großen Sprüngen und den Besonderheiten aus dem
- * Haushaltsplan.
+ * NOTIZEN, dem Betrag 2027 bei großen Sprüngen, den Besonderheiten und den
+ * Sperrvermerken aus dem Haushaltsplan.
  *
  * Die Produkttexte (daten/produkte.json, gut 600 kB) lädt die Komponente erst
  * beim ersten Öffnen. Bis dahin oder bei einem Ladefehler stehen nur Titel,
@@ -19,6 +19,7 @@
 import { computed, ref, shallowRef, useId } from 'vue'
 import { RouterLink } from 'vue-router'
 import { ladeProduktbereiche, type Produktgruppe } from '@/data/produkte'
+import { ladeErlaeuterungen, type Erlaeuterung } from '@/data/erlaeuterungen'
 import {
   besonderheiten,
   ersteSeite,
@@ -38,6 +39,8 @@ const knopfId = `mm-produktgruppe-${useId()}`
 const offen = ref(false)
 /** Alle Produktgruppen nach Code, erst nach dem ersten Öffnen gefüllt. */
 const gruppen = shallowRef<Map<string, Produktgruppe> | null>(null)
+/** Sperrvermerke der Gruppe, erst nach dem ersten Öffnen gefüllt. */
+const sperrvermerke = shallowRef<Erlaeuterung[]>([])
 
 const gruppe = computed(() => gruppen.value?.get(props.posten.code) ?? null)
 const beschreibung = computed(() => (gruppe.value ? gruppenBeschreibung(gruppe.value) : null))
@@ -45,12 +48,12 @@ const seite = computed(() => (gruppe.value ? ersteSeite(gruppe.value) : null))
 
 /** Inhalt von „Gut zu wissen“; leer, solange der Betrag verdeckt ist. */
 const hinweise = computed(() => {
-  if (!props.aufgedeckt) return { notiz: null, texte: [] }
+  if (!props.aufgedeckt) return { notiz: null, texte: [], sperren: [] }
   const notiz = NOTIZEN[props.posten.code] ?? null
   // Eine Notiz nennt den Betrag 2027 schon selbst.
   const sprung = notiz ? null : hinweis2027(props.posten)
   const texte = [...(sprung ? [sprung] : []), ...(gruppe.value ? besonderheiten(gruppe.value) : [])]
-  return { notiz, texte }
+  return { notiz, texte, sperren: sperrvermerke.value }
 })
 
 /** Produkttexte einmal laden; ohne sie bleibt das Fenster eben knapper. */
@@ -62,6 +65,13 @@ function ladeGruppen() {
     })
     .catch(() => {
       // Kein Fehlerhinweis: Titel und Glossar-Link reichen als Rückfall.
+    })
+  ladeErlaeuterungen()
+    .then((nachPg) => {
+      sperrvermerke.value = (nachPg.get(props.posten.code) ?? []).filter((e) => e.sperrvermerk)
+    })
+    .catch(() => {
+      // Ohne Sperrvermerke bleibt das Fenster wie bisher.
     })
 }
 
@@ -111,7 +121,10 @@ function umschalten(ereignis: Event, zustand: boolean) {
             }}, Band 1, S. {{ seite }} (PDF)
           </span>
 
-          <span v-if="hinweise.notiz || hinweise.texte.length" class="mm-produktgruppe__hinweise">
+          <span
+            v-if="hinweise.notiz || hinweise.texte.length || hinweise.sperren.length"
+            class="mm-produktgruppe__hinweise"
+          >
             <strong class="mm-produktgruppe__zwischentitel">Gut zu wissen</strong>
             <template v-if="hinweise.notiz">
               <span>{{ hinweise.notiz.text }}</span>
@@ -120,6 +133,12 @@ function umschalten(ereignis: Event, zustand: boolean) {
               </span>
             </template>
             <span v-for="text in hinweise.texte" :key="text">{{ text }}</span>
+            <template v-for="sperre in hinweise.sperren" :key="sperre.text">
+              <span>{{ sperre.text }}</span>
+              <span class="mm-produktgruppe__quelle">
+                Bewirtschaftungsregel, Haushaltsplan Band 1, S. {{ sperre.seite }} (PDF)
+              </span>
+            </template>
           </span>
         </span>
 
