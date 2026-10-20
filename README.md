@@ -237,6 +237,9 @@ Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
   Zu jedem Posten der Tabelle öffnet ein Knopf eine Seitenleiste mit dem
   Ausschnitt der PDF-Seite, einem Link ins Original-PDF und der Zeile der Roh-CSV.
   Die Angaben dafür erzeugt `scripts/pipeline/quellen_zuschuesse.py` aus dem lokalen PDF.
+  Ein Jahresschalter stellt alle Summen und Diagramme auf 2026 oder 2027 um.
+  Darunter stehen die indirekten Zuschüsse (vergünstigte Erbbaurechte und Mieten,
+  Anlagen 3 und 4 des Berichts) aus `scripts/pipeline/agg_zuschuesse_indirekt.py`.
 * **Bezirke** (`/bezirke`) — die bezirksbezogenen Haushaltsangaben aus Band 2,
   auf einer Karte der sechs Stadtbezirke.
 

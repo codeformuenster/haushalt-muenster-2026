@@ -13,6 +13,7 @@ import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import BaseChart from '@/components/ui/BaseChart.vue'
+import IndirekteZuschuesse from '@/components/zuschuesse/IndirekteZuschuesse.vue'
 import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
@@ -91,7 +92,18 @@ const alle = computed<Posten[]>(() => posten.value ?? [])
 
 // --------------------------------------------------------------- Aggregate
 
-const summe = (liste: Posten[]): number => liste.reduce((s, p) => s + p.eur2026, 0)
+/** Alle Summen, Diagramme und Sortierungen folgen dem gewählten Haushaltsjahr. */
+const JAHRE = ['2026', '2027'] as const
+type Jahr = (typeof JAHRE)[number]
+const jahr = ref<Jahr>('2026')
+
+function jahrGewaehlt(ereignis: Event): void {
+  const gewaehlt = (ereignis.target as HTMLInputElement).value
+  if (JAHRE.includes(gewaehlt as Jahr)) jahr.value = gewaehlt as Jahr
+}
+
+const betrag = (p: Posten): number => (jahr.value === '2026' ? p.eur2026 : p.eur2027)
+const summe = (liste: Posten[]): number => liste.reduce((s, p) => s + betrag(p), 0)
 const mitGrad = (liste: Posten[], grad: Grad): Posten[] => liste.filter((p) => p.grad === grad)
 
 /** 0.286 -> "28,6 %" */
@@ -572,7 +584,7 @@ const gefiltert = computed(() => {
         p.empfaenger.toLocaleLowerCase('de').includes(begriff) ||
         p.zweck.toLocaleLowerCase('de').includes(begriff),
     )
-    .sort((a, b) => b.eur2026 - a.eur2026)
+    .sort((a, b) => betrag(b) - betrag(a))
 })
 
 const filterAktiv = computed(
@@ -591,7 +603,7 @@ const widerspruch = computed(() =>
 
 const trefferText = computed(
   () =>
-    `${zahl(gefiltert.value.length)} von ${zahl(alle.value.length)} Posten · ${euroKurz(summe(gefiltert.value))} in 2026`,
+    `${zahl(gefiltert.value.length)} von ${zahl(alle.value.length)} Posten · ${euroKurz(summe(gefiltert.value))} in ${jahr.value}`,
 )
 
 /*
@@ -665,7 +677,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
     if (!eintrag || !seite) throw new Error(`Keine Quelle für Nr. ${p.nr}`)
     quelle.value = {
       titel: p.empfaenger,
-      betrag: `${euro(p.eur2026)} in 2026`,
+      betrag: `${euro(betrag(p))} in ${jahr.value}`,
       band: q.band,
       seite: eintrag.seite,
       bild: `${import.meta.env.BASE_URL}${seite.bild}`,
@@ -696,6 +708,9 @@ async function zeigeQuelle(p: Posten): Promise<void> {
     />
 
     <wa-card v-if="posten" class="mm-kennzahlen-band">
+      <wa-select class="mm-jahr" label="Haushaltsjahr" :value="jahr" @change="jahrGewaehlt">
+        <wa-option v-for="j in JAHRE" :key="j" :value="j">{{ j }}</wa-option>
+      </wa-select>
       <dl class="mm-kennzahlen">
         <div v-for="k in kennzahlen" :key="k.titel" class="mm-kennzahl">
           <dt>{{ k.titel }}</dt>
@@ -737,7 +752,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             der Betrag schon fest?). Die vier Stufen sind die vier Kombinationen daraus.
           </p>
           <DatenTabelle
-            beschriftung="Die vier Stufen der Verpflichtung: Postenzahl und Betrag 2026"
+            :beschriftung="`Die vier Stufen der Verpflichtung: Postenzahl und Betrag ${jahr}`"
           >
             <thead>
               <tr>
@@ -808,11 +823,11 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             @legendselectchanged="legendeGeaendert"
           />
           <wa-details summary="Werte als Tabelle">
-            <DatenTabelle beschriftung="Zuschüsse 2026 nach Produktbereich">
+            <DatenTabelle :beschriftung="`Zuschüsse ${jahr} nach Produktbereich`">
               <thead>
                 <tr>
                   <th scope="col">Produktbereich</th>
-                  <th scope="col" class="mm-zahl">Summe 2026 (€)</th>
+                  <th scope="col" class="mm-zahl">Summe {{ jahr }} (€)</th>
                   <th scope="col" class="mm-zahl">Anteil</th>
                 </tr>
               </thead>
@@ -847,11 +862,11 @@ async function zeigeQuelle(p: Posten): Promise<void> {
             :beschreibung="spielraumBeschreibung"
           />
           <wa-details summary="Werte als Tabelle">
-            <DatenTabelle beschriftung="Verhandelbare Zuschüsse 2026 nach Produktbereich">
+            <DatenTabelle :beschriftung="`Verhandelbare Zuschüsse ${jahr} nach Produktbereich`">
               <thead>
                 <tr>
                   <th scope="col">Produktbereich</th>
-                  <th scope="col" class="mm-zahl">Summe 2026 (€)</th>
+                  <th scope="col" class="mm-zahl">Summe {{ jahr }} (€)</th>
                   <th scope="col" class="mm-zahl">freiwillig (€)</th>
                   <th scope="col" class="mm-zahl">dem Grunde nach (€)</th>
                 </tr>
@@ -908,7 +923,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 
       <ChartCard
         titel="Alle Posten einzeln"
-        beschreibung="Der vollständige Zuschussbericht, sortiert nach dem Betrag für 2026."
+        :beschreibung="`Der vollständige Zuschussbericht, sortiert nach dem Betrag für ${jahr}.`"
         :quelle="QUELLE"
         :pdf="{ band: 2, seite: 349 }"
       >
@@ -957,7 +972,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
         <!-- Entprellte Ansage der Trefferzahl; bleibt immer im DOM. -->
         <p class="mm-visually-hidden" aria-live="polite">{{ trefferAnsage }}</p>
 
-        <DatenTabelle beschriftung="Alle Zuschüsse einzeln, sortiert nach dem Betrag 2026">
+        <DatenTabelle :beschriftung="`Alle Zuschüsse einzeln, sortiert nach dem Betrag ${jahr}`">
           <thead>
             <tr>
               <th scope="col">Empfänger und Zweck</th>
@@ -1008,7 +1023,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 
         <p v-if="widerspruch" class="mm-fussnote">
           <strong>Ein Widerspruch in der Quelle:</strong> Der Posten „{{ widerspruch.zweck }}“ ({{
-            euro(widerspruch.eur2026)
+            euro(betrag(widerspruch))
           }}, Produktgruppe {{ widerspruch.produktgruppe }}) ist als
           <em>{{ widerspruch.grad }}</em> eingestuft, nennt sich im Verwendungszweck aber
           ausdrücklich „Freiwillige Zuschüsse“. Beides steht so im Haushaltsplan. Wir haben es nicht
@@ -1017,11 +1032,18 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       </ChartCard>
     </template>
 
+    <IndirekteZuschuesse />
+
     <QuelleSeitenleiste v-model:offen="quelleOffen" :quelle="quelle" :fehler="quellenFehler" />
   </div>
 </template>
 
 <style scoped>
+.mm-jahr {
+  max-width: 12rem;
+  margin-bottom: var(--wa-space-m);
+}
+
 .mm-laden {
   color: var(--wa-color-text-quiet);
 }
