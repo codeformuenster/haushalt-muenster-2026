@@ -1,5 +1,5 @@
 /**
- * Erträge, Aufwendungen und Investitionen je Produkt aus der Gesamtübersicht 2026/2027.
+ * Erträge, Aufwendungen und Investitionen je Produktgruppe aus der Gesamtübersicht 2026/2027.
  * Wird von der Seite „Ein- & Ausgaben“ und von „1 Mio. €“ genutzt.
  */
 import rawData from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv?raw'
@@ -87,7 +87,7 @@ export function asNumber(value: string): number {
   return Number.isFinite(num) ? num : 0
 }
 
-/** Alle Produkte, einmal geparst. */
+/** Alle Produktgruppen, einmal geparst. */
 export const produkte: DataRow[] = toObjects<DataRow>(rawData)
 
 /** Produktbereich-Code (z. B. "01") -> Name (z. B. "Innere Verwaltung"). */

@@ -26,7 +26,7 @@ type SankeyNodeModel = {
   displayName: string
   code?: string
   direction?: Richtung
-  /** 'stadt': Finanzerträge, Zinsen und das Minus; sie gehören zu keiner Produktgruppe. */
+  /** 'stadt': Finanzerträge, Zinsen und das Minus; sie gehören zu keinem Produktbereich. */
   nodeType: 'group' | 'haushalt' | 'stadt'
 }
 

@@ -29,7 +29,7 @@ const props = defineProps<{
 <template>
   <!-- Das Haushaltsjahr wird oben auf der Seite gewählt und gilt auch hier. -->
   <DatenTabelle
-    :beschriftung="`Erträge und Aufwendungen je Produkt, gruppiert nach Produktgruppe (${props.selectedYear})`"
+    :beschriftung="`Erträge und Aufwendungen je Produktgruppe, gruppiert nach Produktbereich (${props.selectedYear})`"
   >
     <thead>
       <tr>
@@ -40,7 +40,7 @@ const props = defineProps<{
         <th scope="col" class="mm-zahl">Ergebnis mit Finanzergebnis</th>
       </tr>
     </thead>
-    <!-- Je Produktgruppe ein eigener <tbody>, damit die Gruppenüberschrift als
+    <!-- Je Produktbereich ein eigener <tbody>, damit die Gruppenüberschrift als
          Kopf ihrer Zeilengruppe gilt. -->
     <tbody v-for="group in props.groups" :key="group.code">
       <tr class="mm-gruppe-trenner">

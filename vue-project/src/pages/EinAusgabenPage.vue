@@ -122,7 +122,7 @@ const selectedGroupName = computed(() => {
   return groupMap.get(selectedGroup.value) ?? selectedGroup.value
 })
 
-/** Auswahl „Produktgruppe“: Tastatur-Alternative zum Klick auf einen Sankey-Knoten. */
+/** Auswahl „Produktbereich“: Tastatur-Alternative zum Klick auf einen Sankey-Knoten. */
 const gruppenAuswahl = ref<HTMLElement | null>(null)
 
 /** Text der Live-Region, die Ansichtswechsel für Screenreader ansagt. */
@@ -136,7 +136,7 @@ function onGroupSelect(groupCode: string): void {
   selectedGroup.value = groupCode
 }
 
-/** Produktgruppe aus dem <wa-select> übernehmen; „gesamt“ heißt: keine Auswahl. */
+/** Produktbereich aus dem <wa-select> übernehmen; „gesamt“ heißt: keine Auswahl. */
 function onGroupSelectChange(event: Event): void {
   const wert = (event.target as HTMLInputElement).value
   selectedGroup.value = wert && wert !== 'gesamt' ? wert : null
@@ -172,7 +172,7 @@ async function clearSelection(): Promise<void> {
 
     <ChartCard
       titel="Erträge und Aufwendungen"
-      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktgruppe, dazu Finanzerträge, Zinsen und das Minus der ganzen Stadt. Wählen Sie eine Produktgruppe aus (oder klicken Sie im Diagramm darauf), um ihre Produkte zu sehen. Alle Werte stehen auch in der Tabelle unten."
+      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktbereich, dazu Finanzerträge, Zinsen und das Minus der ganzen Stadt. Wählen Sie einen Produktbereich aus (oder klicken Sie im Diagramm darauf), um seine Produktgruppen zu sehen. Alle Werte stehen auch in der Tabelle unten."
       :quelle="QUELLE"
       :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
     >
@@ -180,7 +180,7 @@ async function clearSelection(): Promise<void> {
         <wa-select
           ref="gruppenAuswahl"
           class="gruppen-auswahl"
-          label="Produktgruppe"
+          label="Produktbereich"
           :value="selectedGroup ?? 'gesamt'"
           @change="onGroupSelectChange"
         >
@@ -235,7 +235,7 @@ async function clearSelection(): Promise<void> {
     </ChartCard>
 
     <ChartCard
-      :titel="`Tabellarische Übersicht nach Produktgruppe (${selectedYear})`"
+      :titel="`Tabellarische Übersicht nach Produktbereich (${selectedYear})`"
       :quelle="QUELLE"
       :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
     >

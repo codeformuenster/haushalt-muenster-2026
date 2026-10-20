@@ -58,9 +58,9 @@ const saldoText = computed(() => {
 
 const beschreibung = computed(
   () =>
-    `Flussdiagramm für ${props.groupName} ${props.selectedYear}: links die Erträge der Produkte (${euro(summen.value.sumErtraege)}), ` +
+    `Flussdiagramm für ${props.groupName} ${props.selectedYear}: links die Erträge der Produktgruppen (${euro(summen.value.sumErtraege)}), ` +
     `rechts die Aufwendungen (${euro(summen.value.sumAufwendungen)}). ${saldoText.value}. ` +
-    'Die Werte je Produkt stehen in der tabellarischen Übersicht unten.',
+    'Die Werte je Produktgruppe stehen in der tabellarischen Übersicht unten.',
 )
 
 const option = computed<EChartsOption>(() => {
