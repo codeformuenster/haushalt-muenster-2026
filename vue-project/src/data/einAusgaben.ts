@@ -1,5 +1,5 @@
 /**
- * Erträge und Aufwendungen je Produkt aus der Gesamtübersicht 2026/2027.
+ * Erträge, Aufwendungen und Investitionen je Produktgruppe aus der Gesamtübersicht 2026/2027.
  * Wird von der Seite „Ein- & Ausgaben“ und von „1 Mio. €“ genutzt.
  */
 import rawData from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv?raw'
@@ -16,6 +16,12 @@ export type DataRow = {
   Aufwendungen_2027: string
   Ergebnis_2027: string
   Gruppe: string
+  /** Einzahlungen aus Investitionstätigkeit (Finanzplan), etwa Fördermittel. */
+  EinzInvest_2026: string
+  /** Auszahlungen aus Investitionstätigkeit (Finanzplan). Keine Aufwendungen. */
+  AuszInvest_2026: string
+  EinzInvest_2027: string
+  AuszInvest_2027: string
 }
 
 type GroupRow = {
@@ -81,7 +87,7 @@ export function asNumber(value: string): number {
   return Number.isFinite(num) ? num : 0
 }
 
-/** Alle Produkte, einmal geparst. */
+/** Alle Produktgruppen, einmal geparst. */
 export const produkte: DataRow[] = toObjects<DataRow>(rawData)
 
 /** Produktbereich-Code (z. B. "01") -> Name (z. B. "Innere Verwaltung"). */

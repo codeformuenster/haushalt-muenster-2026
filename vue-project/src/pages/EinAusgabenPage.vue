@@ -6,6 +6,8 @@ import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import EinAusgabenSankey from '@/components/einausgaben/EinAusgabenSankey.vue'
 import EinAusgabenGruppenDetail from '@/components/einausgaben/EinAusgabenGruppenDetail.vue'
 import EinAusgabenGruppenTabelle from '@/components/einausgaben/EinAusgabenGruppenTabelle.vue'
+import EinAusgabenAufwandsarten from '@/components/einausgaben/EinAusgabenAufwandsarten.vue'
+import EinAusgabenInvestitionen from '@/components/einausgaben/EinAusgabenInvestitionen.vue'
 import { euroKurz } from '@/charts/format'
 import { asNumber, gruppenNamen as groupMap, produkte, type DataRow } from '@/data/einAusgaben'
 import ergebnisplan from '@/data/planspiel.json'
@@ -32,6 +34,12 @@ const selectedYear = ref<2026 | 2027>(2026)
 const ZEILE = { finanzertraege: 18, zinsen: 19, jahresergebnis: 25 } as const
 // Erste PDF-Seite des Haushaltsquerschnitts Teil 1 (Ergebnisplanung) je Jahr in Band 2.
 const QUERSCHNITT_SEITE = { 2026: 71, 2027: 74 } as const
+// Erste PDF-Seite des Haushaltsquerschnitts Teil 2 (Finanzplanung) je Jahr in Band 2.
+const FINANZ_SEITE = { 2026: 77, 2027: 79 } as const
+const QUELLE_INVEST =
+  'Haushaltsplan Band 2, S. 77–80 (PDF), Haushaltsquerschnitt Teil 2: Finanzplanung, Investitionstätigkeit'
+const QUELLE_ARTEN =
+  'Haushaltsplan Band 1, Gesamtergebnisplan (S. 9, PDF) und Teilergebnispläne der Produktgruppen, Zeilen 11 bis 16'
 const QUELLE =
   'Haushaltsplan Band 2, S. 71–76 (PDF), Haushaltsquerschnitt Teil 1: Ergebnisplanung; Finanzerträge, Zinsen und Jahresergebnis: Band 1, S. 9 (PDF), Gesamtergebnisplan'
 
@@ -114,7 +122,7 @@ const selectedGroupName = computed(() => {
   return groupMap.get(selectedGroup.value) ?? selectedGroup.value
 })
 
-/** Auswahl „Produktgruppe“: Tastatur-Alternative zum Klick auf einen Sankey-Knoten. */
+/** Auswahl „Produktbereich“: Tastatur-Alternative zum Klick auf einen Sankey-Knoten. */
 const gruppenAuswahl = ref<HTMLElement | null>(null)
 
 /** Text der Live-Region, die Ansichtswechsel für Screenreader ansagt. */
@@ -128,7 +136,7 @@ function onGroupSelect(groupCode: string): void {
   selectedGroup.value = groupCode
 }
 
-/** Produktgruppe aus dem <wa-select> übernehmen; „gesamt“ heißt: keine Auswahl. */
+/** Produktbereich aus dem <wa-select> übernehmen; „gesamt“ heißt: keine Auswahl. */
 function onGroupSelectChange(event: Event): void {
   const wert = (event.target as HTMLInputElement).value
   selectedGroup.value = wert && wert !== 'gesamt' ? wert : null
@@ -164,7 +172,7 @@ async function clearSelection(): Promise<void> {
 
     <ChartCard
       titel="Erträge und Aufwendungen"
-      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktgruppe, dazu Finanzerträge, Zinsen und das Minus der ganzen Stadt. Wählen Sie eine Produktgruppe aus (oder klicken Sie im Diagramm darauf), um ihre Produkte zu sehen. Alle Werte stehen auch in der Tabelle unten."
+      beschreibung="Links stehen die Erträge, rechts die Aufwendungen je Produktbereich, dazu Finanzerträge, Zinsen und das Minus der ganzen Stadt. Wählen Sie einen Produktbereich aus (oder klicken Sie im Diagramm darauf), um seine Produktgruppen zu sehen. Alle Werte stehen auch in der Tabelle unten."
       :quelle="QUELLE"
       :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
     >
@@ -172,7 +180,7 @@ async function clearSelection(): Promise<void> {
         <wa-select
           ref="gruppenAuswahl"
           class="gruppen-auswahl"
-          label="Produktgruppe"
+          label="Produktbereich"
           :value="selectedGroup ?? 'gesamt'"
           @change="onGroupSelectChange"
         >
@@ -214,11 +222,45 @@ async function clearSelection(): Promise<void> {
     </ChartCard>
 
     <ChartCard
-      :titel="`Tabellarische Übersicht nach Produktgruppe (${selectedYear})`"
+      :titel="`Wofür das Geld ausgegeben wird (${selectedYear})`"
+      :beschreibung="
+        selectedGroup
+          ? `Anteile der Aufwandsarten an den ordentlichen Aufwendungen: oben die ganze Stadt, darunter die Produktgruppen von ${selectedGroupName}.`
+          : 'Anteile der Aufwandsarten an den ordentlichen Aufwendungen: oben die ganze Stadt, darunter je Produktbereich. Wählen Sie oben einen Bereich aus, um seine Produktgruppen zu sehen.'
+      "
+      :quelle="QUELLE_ARTEN"
+      :pdf="{ band: 1, seite: 9 }"
+    >
+      <EinAusgabenAufwandsarten :selected-year="selectedYear" :group-code="selectedGroup" />
+    </ChartCard>
+
+    <ChartCard
+      :titel="`Tabellarische Übersicht nach Produktbereich (${selectedYear})`"
       :quelle="QUELLE"
       :pdf="{ band: 2, seite: QUERSCHNITT_SEITE[selectedYear] }"
     >
       <EinAusgabenGruppenTabelle :groups="tableGroups" :selected-year="selectedYear" />
+    </ChartCard>
+
+    <h2>Investitionen (Finanzplan)</h2>
+    <p>
+      <GlossarBegriff id="investitionen">Investitionen</GlossarBegriff> sind Auszahlungen für Dinge,
+      die viele Jahre genutzt werden, etwa Schulen, Sporthallen oder Straßen. Sie stehen im
+      <GlossarBegriff id="finanzplan">Finanzplan</GlossarBegriff> und gehören nicht zu den
+      Aufwendungen oben. Im Ergebnis erscheinen sie erst nach und nach als Abschreibungen. Die
+      Einzahlungen sind zum größten Teil Zuwendungen für Investitionen, meist von Land und Bund, als
+      Fördermittel für einzelne Vorhaben oder als Pauschale. Im Bereich 16 Allgemeine
+      Finanzwirtschaft ist 2026 der größte Posten der Erwerb von Finanzanlagen (103,8 Mio. €, etwa
+      Beteiligungen der Stadt), kein Bauprojekt; 2027 sind dafür nur 20.000 € angesetzt.
+    </p>
+
+    <ChartCard
+      :titel="`Investitionen nach Produktbereich (${selectedYear})`"
+      beschreibung="Auszahlungen und Einzahlungen aus Investitionstätigkeit. Klicken Sie auf einen Bereich oder wählen Sie ihn aus, um seine Produktgruppen zu sehen."
+      :quelle="QUELLE_INVEST"
+      :pdf="{ band: 2, seite: FINANZ_SEITE[selectedYear] }"
+    >
+      <EinAusgabenInvestitionen :selected-year="selectedYear" />
     </ChartCard>
   </div>
 </template>

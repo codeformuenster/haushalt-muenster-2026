@@ -240,8 +240,11 @@ Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
 * **Bezirke** (`/bezirke`) — die bezirksbezogenen Haushaltsangaben aus Band 2,
   auf einer Karte der sechs Stadtbezirke.
 
-**Ein- & Ausgaben** und **Stellenplan** lesen ihre Zahlen direkt aus CSV bzw.
-JSON unter `vue-project/src/`, ohne Skript in `preprocessing/`.
+**Ein- & Ausgaben** liest Erträge, Aufwendungen und Investitionen (Ein- und
+Auszahlungen aus Investitionstätigkeit) je Produktgruppe aus einer CSV, die
+`preprocessing/preprocess_gesamtuebersicht.py` aus der Gesamtübersicht erzeugt
+(mit Summenprüfung der Investitionen), und die Aufwandsarten (Zeilen 11-16) aus
+`src/data/planspiel.json`. **Stellenplan** liest JSON unter `vue-project/src/`.
 
 Die Hauptkennzahl der App ist das **Jahresergebnis** (Zeile 26 des Ergebnisplans):
 ordentliches Ergebnis plus Finanzergebnis (Finanzerträge minus Zinsen). Danach
