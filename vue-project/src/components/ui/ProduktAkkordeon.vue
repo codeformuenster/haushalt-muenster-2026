@@ -2,7 +2,8 @@
 /**
  * Klappliste über alle Produkte des Haushaltsplans: erst der Produktbereich,
  * darin die Produktgruppen, darin die einzelnen Produkte mit Beschreibung und
- * den Zielen ihrer Gruppe.
+ * den Zielen ihrer Gruppe. Am Ende jeder Gruppe stehen die Erläuterungen aus
+ * dem Haushaltsplan („zu Zeile …“) und eingeklappt die Bewirtschaftungsregeln.
  *
  * Alles, was dazugehört, steckt in dieser Komponente — Daten laden und der
  * Umschalter auf Einfache Sprache. Einbauen heißt: <ProduktAkkordeon />.
@@ -22,8 +23,11 @@ import {
   type Produktbereich,
   type Produktgruppe,
 } from '@/data/produkte'
+import { bezug, ladeErlaeuterungen, type Erlaeuterung } from '@/data/erlaeuterungen'
 
 const bereiche = ref<Produktbereich[]>([])
+/** Erläuterungen nach Produktgruppe; fehlen sie, bleibt der Abschnitt einfach weg. */
+const erlaeuterungen = ref<Map<string, Erlaeuterung[]>>(new Map())
 const ladefehler = ref(false)
 /** false = Wortlaut des Haushaltsplans, true = Fassung in Einfacher Sprache. */
 const einfacheSprache = ref(false)
@@ -45,7 +49,19 @@ onMounted(() => {
     .catch(() => {
       ladefehler.value = true
     })
+  ladeErlaeuterungen()
+    .then((geladen) => {
+      erlaeuterungen.value = geladen
+    })
+    .catch(() => {
+      // Kein Fehlerhinweis: Die Produkttexte stehen auch ohne Erläuterungen.
+    })
 })
+
+/** Blöcke eines Abschnitts der Textseite „Bewirtschaftungsregeln / Erläuterungen“. */
+function bloecke(gruppe: Produktgruppe, abschnitt: Erlaeuterung['abschnitt']): Erlaeuterung[] {
+  return (erlaeuterungen.value.get(gruppe.nummer) ?? []).filter((e) => e.abschnitt === abschnitt)
+}
 
 const route = useRoute()
 
@@ -184,6 +200,25 @@ function merkmale(produkt: Produkt): { bezeichnung: string; wert: string }[] {
                   </p>
                 </div>
               </article>
+
+              <section v-if="bloecke(gruppe, 'erlaeuterung').length" class="mm-erlaeuterungen">
+                <h5>Erläuterungen im Haushaltsplan</h5>
+                <div v-for="(e, i) in bloecke(gruppe, 'erlaeuterung')" :key="i">
+                  <h6>{{ bezug(e) }} · Band 1, PDF-Seite {{ e.seite }}</h6>
+                  <p class="mm-erlaeuterungen__text">{{ e.text }}</p>
+                </div>
+              </section>
+
+              <wa-details
+                v-if="bloecke(gruppe, 'regel').length"
+                summary="Bewirtschaftungsregeln"
+                class="mm-erlaeuterungen"
+              >
+                <div v-for="(e, i) in bloecke(gruppe, 'regel')" :key="i">
+                  <h6>{{ bezug(e) }} · Band 1, PDF-Seite {{ e.seite }}</h6>
+                  <p class="mm-erlaeuterungen__text">{{ e.text }}</p>
+                </div>
+              </wa-details>
             </div>
           </wa-accordion-item>
         </wa-accordion>
@@ -320,7 +355,13 @@ function merkmale(produkt: Produkt): { bezeichnung: string; wert: string }[] {
   font-weight: var(--wa-font-weight-semibold);
 }
 
-.mm-produkt__besonderheiten {
+.mm-produkt__besonderheiten,
+.mm-erlaeuterungen {
   font-size: var(--wa-font-size-s);
+}
+
+/* Aufzählungen und Beträge im Originaltext stehen je auf einer Zeile. */
+.mm-erlaeuterungen__text {
+  white-space: pre-line;
 }
 </style>

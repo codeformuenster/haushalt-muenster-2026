@@ -175,7 +175,7 @@ nur dort — dann kommen sich mehrere Leute nicht in die Quere.
 | Bezirke | `/bezirke` | `src/pages/BezirkePage.vue` |
 | Planspiel (Haushalt 2026 ausgleichen) | `/planspiel` | `src/pages/PlanspielPage.vue` |
 | Schulden und Investitionen (Router-Eintrag steht noch aus) | `/schulden` | `src/pages/SchuldenPage.vue` |
-| Glossar (Fachwörter, Produkte des Haushaltsplans) | `/glossar` | `src/pages/GlossarPage.vue` |
+| Glossar (Fachwörter, Produkte des Haushaltsplans mit Erläuterungen und Bewirtschaftungsregeln je Produktgruppe aus `public/daten/erlaeuterungen.json`) | `/glossar` | `src/pages/GlossarPage.vue` |
 
 Wird eine Seite zu groß für eine Datei, kommen ihre Bestandteile in einen
 eigenen Ordner `src/components/<seite>/`.
