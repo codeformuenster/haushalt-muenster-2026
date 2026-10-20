@@ -63,6 +63,8 @@ OHNE_SEITE = {
 ZU_ZEILE = re.compile(r"^[Zz]u Zeilen? (\d+(?:\s*(?:,|–|-|und(?: Zeile)?)\s*\d+)*)\s*:?\s*(.*)$")
 ALLGEMEIN = re.compile(r"^allgemein:\s*(.*)$")
 ZU_MASSNAHME = re.compile(r"^zu Maßnahme (\d{4})\s*(.*)$")
+# Seitenweiter Schlusssatz nach mehreren Sperrvermerken zu Maßnahmen.
+SCHLUSSSATZ = "Zur Aufhebung einer oder mehrerer der o. a. Sperrvermerke"
 PG = re.compile(r"Produktgruppe\s*(\d{4})")
 # Zeile, die eine volle Satzbreite füllt: die nächste setzt den Satz fort.
 VOLLE_ZEILE = 120
@@ -130,6 +132,9 @@ def bloecke(pg: str, seite: int, zeilen: list[str], abschnitt: str) -> list[dict
             neu = {"art": "allgemein", "zeilen": [], "kopf": [m[1]] if m[1] else []}
         elif m := ZU_MASSNAHME.match(zeile):
             neu = {"art": "massnahme", "zeilen": [], "massnahme": m[1], "titel": m[2].strip('"„“ '), "kopf": []}
+        elif zeile.startswith(SCHLUSSSATZ):
+            # Gilt für alle Sperrvermerke davor (S. 632), nicht nur für die letzte Maßnahme.
+            neu = {"art": "frei", "zeilen": [], "kopf": [zeile]}
         if neu:
             liste.append({"abschnitt": abschnitt, **neu})
         else:
@@ -149,7 +154,7 @@ def bloecke(pg: str, seite: int, zeilen: list[str], abschnitt: str) -> list[dict
             "zeilen": b["zeilen"],
             "massnahme": b.get("massnahme"),
             "titel": b.get("titel") or None,
-            "sperrvermerk": "SPERRVERMERK" in text or "SPERRVERMERK" in (b.get("titel") or ""),
+            "sperrvermerk": "SPERRVERMERK" in text or text.startswith(SCHLUSSSATZ),
             "text": text,
             "seite": seite,
         })
