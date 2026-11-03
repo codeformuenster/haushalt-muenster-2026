@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simplification Review</title>
+<style>
+:root {
+  --bg: #f7f6f2; --surface: #ffffff; --text: #23252b; --muted: #61646e; --line: #dedbd2;
+  --accent: #1f5f8b; --accent-soft: #e3eef6; --code-bg: #f0eee8;
+  --hi: #1d7a46; --hi-bg: #e2f3e8; --med: #8a6400; --med-bg: #fbf0d3; --lo: #5f6370; --lo-bg: #ecedf0;
+  --warn: #a33b2b; --warn-bg: #fae6e2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17181c; --surface: #202227; --text: #e6e6e9; --muted: #a2a5ae; --line: #34363d;
+    --accent: #79b4dd; --accent-soft: #1d3140; --code-bg: #2a2c32;
+    --hi: #7fd3a0; --hi-bg: #173525; --med: #e6c36a; --med-bg: #3a3014; --lo: #b5b8c0; --lo-bg: #2c2e34;
+    --warn: #f0a191; --warn-bg: #3d221d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17181c; --surface: #202227; --text: #e6e6e9; --muted: #a2a5ae; --line: #34363d;
+  --accent: #79b4dd; --accent-soft: #1d3140; --code-bg: #2a2c32;
+  --hi: #7fd3a0; --hi-bg: #173525; --med: #e6c36a; --med-bg: #3a3014; --lo: #b5b8c0; --lo-bg: #2c2e34;
+  --warn: #f0a191; --warn-bg: #3d221d;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 72rem; margin: 0 auto; padding: 2.5rem 16px 4rem; }
+header h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 .4rem; }
+header p.sub { color: var(--muted); margin: 0 0 1.5rem; }
+h2 { font-size: 1.4rem; margin: 3rem 0 .6rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+h3 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+p { max-width: 46rem; }
+code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .86em;
+  background: var(--code-bg); padding: .08em .35em; border-radius: 4px; }
+pre { background: var(--code-bg); padding: .9rem 1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.45; margin: .5rem 0; }
+pre code { background: none; padding: 0; }
+nav.toc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.25rem; }
+nav.toc ol { margin: 0; padding-left: 1.2rem; columns: 2 18rem; }
+nav.toc a { color: var(--accent); text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: .75rem; margin: 1.5rem 0; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1rem; }
+.stat b { display: block; font-size: 1.7rem; line-height: 1.1; color: var(--accent); }
+.stat span { font-size: .88rem; color: var(--muted); }
+.table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin: .75rem 0 1rem; }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; vertical-align: top; padding: .6rem .75rem; border-bottom: 1px solid var(--line); }
+th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+tr:last-child td { border-bottom: none; }
+td.loc { min-width: 12rem; }
+td.loc code { white-space: nowrap; }
+td.n { color: var(--muted); font-variant-numeric: tabular-nums; width: 2rem; }
+.b { display: inline-block; font-size: .75rem; font-weight: 600; padding: .1rem .5rem; border-radius: 99px; white-space: nowrap; }
+.b-hi { color: var(--hi); background: var(--hi-bg); }
+.b-med { color: var(--med); background: var(--med-bg); }
+.b-lo { color: var(--lo); background: var(--lo-bg); }
+.e { font-weight: 700; font-variant-numeric: tabular-nums; }
+.note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; max-width: 46rem; }
+.warn { background: var(--warn-bg); border-left: 4px solid var(--warn); padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; max-width: 46rem; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; }
+.card h4 { margin: 0 0 .4rem; font-size: 1rem; }
+.card p, .card ul { margin: .3rem 0; font-size: .93rem; }
+.phase { counter-increment: phase; }
+ol.phases { list-style: none; padding: 0; counter-reset: phase; }
+ol.phases > li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .9rem 1.1rem .9rem 3.4rem; margin-bottom: .75rem; position: relative; }
+ol.phases > li::before { counter-increment: phase; content: counter(phase); position: absolute; left: 1rem; top: .85rem;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--accent); color: var(--bg); font-weight: 700; display: grid; place-items: center; font-size: .9rem; }
+ol.phases h4 { margin: 0 0 .25rem; }
+ol.phases p { margin: .2rem 0; font-size: .93rem; }
+.legend { font-size: .88rem; color: var(--muted); }
+.filter { display: flex; flex-wrap: wrap; gap: .4rem; margin: .5rem 0; }
+.filter button { font: inherit; font-size: .85rem; border: 1px solid var(--line); background: var(--surface); color: var(--text);
+  padding: .25rem .7rem; border-radius: 99px; cursor: pointer; }
+.filter button[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+footer { margin-top: 3rem; color: var(--muted); font-size: .88rem; }
+@media (max-width: 640px) { header h1 { font-size: 1.6rem; } th, td { padding: .5rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Simplification review: Münster Money</h1>
+  <p class="sub">Branch <code>feat/gesamt</code> at <code>2c53291</code>, 3 November 2026. Scope: <code>vue-project/src</code>, <code>scripts/</code>, <code>preprocessing/</code>, <code>vue-project/scripts/</code>. Goal: code that a new contributor can understand and change safely.</p>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <ol>
+    <li><a href="#fazit">Summary</a></li>
+    <li><a href="#prio">Priorities</a></li>
+    <li><a href="#a">One source per fact</a></li>
+    <li><a href="#b">Data pipeline</a></li>
+    <li><a href="#c">Shared frontend building blocks</a></li>
+    <li><a href="#d">Splitting the large pages</a></li>
+    <li><a href="#e">Dead code and stale comments</a></li>
+    <li><a href="#f">Naming and consistency</a></li>
+    <li><a href="#g">Theme, CSS and magic values</a></li>
+    <li><a href="#keep">Leave as is</a></li>
+    <li><a href="#order">Suggested order</a></li>
+    <li><a href="#method">How this review was done</a></li>
+  </ol>
+</nav>
+
+<h2 id="fazit">Summary</h2>
+<p>The code is carefully commented and accessible, and almost nothing in it is overengineered. The real cost is duplication. The same domain fact, such as an Ergebnisplan row index or the name of a Produktbereich, is defined in several files and often worded differently in each. Every copy is a place where a later change can be forgotten.</p>
+<p>The second problem is size. Three pages have more than 1,000 lines each and hold data loading, aggregation, chart options, screen-reader plumbing and 300 lines of CSS in one file. The third is the data pipeline. App data is produced in four places in two languages, and only part of the chain runs from the build script.</p>
+<p>Most of the gain comes from about ten small shared modules and from deleting one redundant preprocessing path. Splitting the big pages is easier after that, because much of their content moves into the shared modules.</p>
+
+<div class="stats">
+  <div class="stat"><b>6</b><span>definitions of the Ergebnisplan row indices</span></div>
+  <div class="stat"><b>6</b><span>places with Produktbereich names, in 4 wordings</span></div>
+  <div class="stat"><b>7</b><span>hand-written fetch-and-cache loaders</span></div>
+  <div class="stat"><b>3</b><span>hand-written CSV parsers</span></div>
+  <div class="stat"><b>3</b><span>pages over 1,000 lines</span></div>
+  <div class="stat"><b>4</b><span>places that generate app data</span></div>
+</div>
+
+<h2 id="prio">Priorities</h2>
+<p>These are the changes with the best ratio of benefit to effort. Effort is <span class="e">S</span> (under an hour), <span class="e">M</span> (half a day) or <span class="e">L</span> (a day or more). Details follow in the themed sections.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>Change</th><th>Removes</th><th>Effort</th><th>Benefit</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td>Write one data flow table in <code>scripts/README.md</code> and link to it from the other three READMEs</td><td>Four partial descriptions, references to a missing <code>plan.md</code></td><td class="e">S</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="n">2</td><td>Create <code>data/ergebnisplan.ts</code> with one <code>ZEILE</code> map and accessors for each year</td><td>Six row-index definitions</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="n">3</td><td>Derive Ein-&amp;-Ausgaben, Million, MehrOderWeniger and StartPage from <code>planspiel.json</code></td><td>2 Python scripts, 2 committed CSVs, 2 CSV parsers</td><td class="e">M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="n">4</td><td>Keep one list of Produktbereich names</td><td>Five copies, one of them dead</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="n">5</td><td>Derive the header navigation from route <code>meta</code></td><td>Icon map, two path lists, a missing icon, a false comment</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="n">6</td><td>Generate <code>stellenplan.json</code> from <code>agg_stellenplan.py</code> in the build</td><td>The fourth pipeline location</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="n">7</td><td>Add <code>lib/ladeJson.ts</code></td><td>Seven loader copies</td><td class="e">S</td><td><span class="b b-hi">med–high</span></td></tr>
+<tr><td class="n">8</td><td>Add a <code>&lt;KennzahlenBand&gt;</code> component</td><td>Kennzahlen CSS in four pages</td><td class="e">S</td><td><span class="b b-hi">med–high</span></td></tr>
+<tr><td class="n">9</td><td>Add <code>agg_zuschuesse_indirekt</code> to the build, check before writing everywhere</td><td>A manual step, stale JSON after failed builds</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="n">10</td><td>Fix or delete stale comments</td><td>Comments that describe code that no longer exists</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="n">11</td><td><code>useAnsage()</code> composable for screen-reader announcements</td><td>Five timer copies with four delays</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="n">12</td><td>Shared Stellenplan module plus two small controls</td><td>Duplicate state and markup across both Stellenplan pages</td><td class="e">M</td><td><span class="b b-hi">high</span></td></tr>
+</tbody></table></div>
+
+<h2 id="a">A. One source per fact</h2>
+<p>The app reads the same budget figures from several files. When a page needs a value, the author picked whichever source was nearest. The result is drift: the same Produktbereich has four different names, and the same row is addressed by a number in one file and by its label in another.</p>
+
+<h3>A1. Ergebnisplan row indices</h3>
+<p>Six files define their own way to address rows of <code>planspiel.json</code>. Three use a constant map, one uses bare numbers, two look up the label at runtime. The maps overlap but are not identical, so a reader cannot tell which is authoritative.</p>
+<div class="grid2">
+<div><pre><code>// components/planspiel/karten.ts:17
+export const ZEILE = {
+  steuern: 0, zuwendungen: 1, …
+  ertraege: 9, aufwendungen: 16,
+  jahresergebnis: 25,
+} as const</code></pre>
+<pre><code>// pages/EinAusgabenPage.vue:34
+const ZEILE = { finanzertraege: 18,
+  zinsen: 19, jahresergebnis: 25 } as const</code></pre></div>
+<div><pre><code>// pages/JahresergebnisPage.vue:23
+const ZEILE = { ertraege: 9, aufwendungen: 16,
+  ordentlichesErgebnis: 17, … } as const</code></pre>
+<pre><code>// pages/StartPage.vue:177
+ergebnisKarte('Erträge (mit Finanzerträgen)', [9, 18]),
+ergebnisKarte('Jahresergebnis', [25], …),</code></pre>
+<pre><code>// components/ueberblick/ErgebnisReihe.vue:17
+const ZEILE_ERGEBNIS = daten.zeilen.indexOf('Jahresergebnis')</code></pre></div>
+</div>
+<p><strong>Suggestion.</strong> Create <code>src/data/ergebnisplan.ts</code> with one complete <code>ZEILE</code> map, a <code>type Jahr = '2026' | '2027'</code>, and the accessors <code>gesamt(jahr, zeile)</code>, <code>produktgruppe(code, jahr, zeile)</code> and <code>bereichSumme(code, jahr, zeile)</code>. The accessors in <code>karten.ts</code> are fixed to 2026 today; the new ones take the year as a parameter. Also affected: <code>UeberblickPage.vue:18</code>, <code>EinAusgabenAufwandsarten.vue:28</code>.</p>
+
+<h3>A2. The same figures in CSV and JSON</h3>
+<p>Two scripts in <code>preprocessing/</code> reshape the Gesamtübersicht CSV into two committed CSVs under <code>src/assets/data/</code>. <code>data/einAusgaben.ts</code> parses them with a 50-line hand-written CSV parser. Both review agents checked that Erträge, Aufwendungen and Ergebnis per Produktgruppe are identical to <code>planspiel.json</code> rows 10, 17 and 26 (one checked all 68 Produktgruppen for 2026). Only the four investment columns are new. <code>StartPage.vue:10</code> imports a third copy of the data straight from <code>../../../daten/agg_tables/</code> and has its own copy of the CSV parser (<code>StartPage.vue:66-118</code>).</p>
+<p><strong>Suggestion.</strong> Add <code>EinzInvest</code> and <code>AuszInvest</code> per Produktgruppe to <code>planspiel.json</code> in <code>planspiel_daten.py</code>, which already loads the Gesamtübersicht. Then delete <code>preprocess_gesamtuebersicht.py</code>, <code>extract_gesamtuebersicht_gruppen.py</code>, both CSVs and both app-side CSV parsers. StartPage takes its totals from <code>planspiel.json</code> as well.</p>
+
+<h3>A3. Produktbereich names</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Location</th><th>Example for PB 09</th><th>Used?</th></tr></thead>
+<tbody>
+<tr><td><code>data/produkte.ts:65</code> <code>PRODUKTBEREICHE</code></td><td>Räumliche Planung und Entwicklung/Geoinformationen</td><td><span class="b b-lo">dead</span> no import found</td></tr>
+<tr><td><code>planspiel.json</code> <code>produktbereiche</code>, re-exported in <code>karten.ts:36</code></td><td>(from PDF)</td><td>PlanspielPage</td></tr>
+<tr><td><code>assets/data/*_gruppen.csv</code></td><td>Räuml.Planung/Entwickl.,Geoinformation</td><td>EinAusgaben</td></tr>
+<tr><td><code>stellenplan.json</code> <code>areas</code></td><td>Räumliche Planung, Entwicklung/GeoInfo</td><td>Stellenplan pages</td></tr>
+<tr><td><code>pages/ZuschuessePage.vue:43</code></td><td>local map; its comment says “wie in GlossarPage.vue”, which is wrong</td><td>Zuschüsse</td></tr>
+</tbody></table></div>
+<p><strong>Suggestion.</strong> Keep the list from <code>planspiel.json</code> (it comes from the PDF) and expose it from <code>data/</code>. Delete the other copies. Decide once whether the short Stellenplan names are intentional; if they are, store them as a separate <code>kurzname</code> field.</p>
+
+<h3>A4. Other duplicated facts</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Where</th><th>Problem</th><th>Suggestion</th><th>Effort</th><th>Benefit</th></tr></thead>
+<tbody>
+<tr><td class="loc"><code>PlanspielPage.vue:52</code>, <code>JahresergebnisPage.vue:240</code>, <code>SchuldenPage.vue:28</code></td><td>Each page looks up Rücklagen with <code>jahre.indexOf(2026)</code> and converts Mio. to € itself. Jahresergebnis also multiplies in the template.</td><td><code>data/ruecklagen.ts</code> converts once and exposes <code>fuerJahr(jahr)</code>.</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>ErgebnisReihe.vue:90-93</code></td><td>Footnote prose hard-codes amounts (“−30,3 Mio. € statt −47,3 Mio. €”). The −47,3 matches <code>planspiel.json</code>; the others were not checked.</td><td>Compute the figures with <code>euroKurz()</code> from the data.</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>StartPage.vue:245, 304</code>, <code>JahresergebnisPage.vue:301</code></td><td>“rund 92 Mio. € weniger Schlüsselzuweisungen” is written three times.</td><td>One constant or a shared callout component.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc"><code>StellenplanPage.vue:628</code></td><td>Hard-coded “63 Produktgruppen”. It matches the data today.</td><td>Derive the number.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc"><code>QuelleSeitenleiste.vue:125</code> and both <code>*-quellen.json</code></td><td>PDF URLs come from the JSON files, although <code>haushaltsplan.ts</code> already has <code>pdfLink(band, seite)</code>. The PDF file names also appear in <code>extrahiere_tabellen.py</code> and <code>quellen.py</code>.</td><td>Build links with <code>pdfLink</code>; keep PDF names in one Python constant.</td><td class="e">S–M</td><td><span class="b b-med">med</span></td></tr>
+</tbody></table></div>
+
+<h2 id="b">B. Data pipeline</h2>
+<p>The Python code in <code>scripts/pipeline</code> is in good shape. It has a shared helper (<code>rohdaten.py</code>), one script per source section, and checks against the sum rows printed in the PDF. The complexity sits around it. App data is produced in four places: <code>scripts/pipeline</code>, <code>preprocessing/*.ts</code>, <code>preprocessing/*.py</code> and <code>vue-project/scripts</code>. Each has its own language, path convention and validation style, and the dependency chain between them is manual.</p>
+
+<h3>B1. Current data flow</h3>
+<p class="legend"><span class="b b-hi">build</span> runs from <code>build_agg_tables.py</code> · <span class="b b-med">manual</span> started by hand · <span class="b b-lo">manual + PDF</span> needs the PDFs locally</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Source</th><th>Script</th><th>Run</th><th>Output</th><th>Consumer</th></tr></thead>
+<tbody>
+<tr><td>PDFs + <code>tabellennamen.csv</code></td><td><code>pipeline/extrahiere_tabellen.py</code></td><td><span class="b b-lo">manual + PDF</span></td><td><code>daten/raw_table_extraction/*.csv</code></td><td>all <code>agg_*</code>, <code>planspiel_daten</code>, <code>quellen_*</code></td></tr>
+<tr><td>raw B2 p71–80</td><td><code>agg_gesamtuebersicht.py</code></td><td><span class="b b-hi">build</span></td><td><code>Gesamtuebersicht_….csv</code></td><td>agg_zuschuesse, planspiel_daten, check_konsistenz, preprocessing/*.py, <strong>StartPage.vue</strong></td></tr>
+<tr><td>raw B2 p41–66</td><td><code>agg_stellenplan.py</code></td><td><span class="b b-hi">build</span></td><td>2 Stellenplan CSVs</td><td>planspiel_daten, check_konsistenz, generate-stellenplan.py</td></tr>
+<tr><td>Stellenplan CSVs</td><td><code>vue-project/scripts/generate-stellenplan.py</code></td><td><span class="b b-med">manual</span></td><td><code>src/data/stellenplan.json</code></td><td>both Stellenplan pages</td></tr>
+<tr><td>raw B2 p349–362 + GU CSV</td><td><code>agg_zuschuesse.py</code></td><td><span class="b b-hi">build</span></td><td>2 Zuschuss CSVs</td><td>planspiel_daten, zuschuesse.ts (the PG CSV only in a check)</td></tr>
+<tr><td>Zuschuss CSVs</td><td><code>preprocessing/zuschuesse.ts</code></td><td><span class="b b-med">manual</span></td><td><code>public/daten/zuschuesse-2026-2027.json</code></td><td>ZuschuessePage, quellen_zuschuesse</td></tr>
+<tr><td>raw B2 p147–328</td><td><code>agg_bezirksvertretungen.py</code></td><td><span class="b b-hi">build</span></td><td><code>Bezirksvertretungen_….csv</code></td><td>bezirke.ts</td></tr>
+<tr><td>Bezirke CSV + geojson</td><td><code>preprocessing/bezirke.ts</code></td><td><span class="b b-med">manual</span></td><td><code>public/daten/bezirke-2026-2027.json</code>, geojson</td><td>BezirkePage</td></tr>
+<tr><td>raw B2 p18 + B1 p9</td><td><code>agg_ruecklagen.py</code></td><td><span class="b b-hi">build</span></td><td><code>Ruecklagen_….csv</code> (README link only), <code>src/data/ruecklagen.json</code></td><td>Jahresergebnis, Planspiel, Schulden</td></tr>
+<tr><td>raw B2 p27/31/32/83/91</td><td><code>agg_schulden.py</code></td><td><span class="b b-hi">build</span></td><td><code>src/data/schulden.json</code></td><td>SchuldenPage</td></tr>
+<tr><td>raw B1/B2, <code>daten/manuell/</code>, agg CSVs</td><td><code>planspiel_daten.py</code></td><td><span class="b b-hi">build</span></td><td><code>src/data/planspiel.json</code></td><td>Planspiel, Start, Überblick, Ein-&amp;-Ausgaben, Jahresergebnis, quellen_planspiel, erlaeuterungen</td></tr>
+<tr><td>GU CSV</td><td><code>preprocessing/preprocess_gesamtuebersicht.py</code></td><td><span class="b b-med">manual</span> (cwd must be <code>preprocessing/</code>)</td><td><code>src/assets/data/…_preprocessed.csv</code></td><td>einAusgaben.ts → Ein-&amp;-Ausgaben, Million, MehrOderWeniger</td></tr>
+<tr><td>GU CSV</td><td><code>preprocessing/extract_gesamtuebersicht_gruppen.py</code></td><td><span class="b b-med">manual</span>, undocumented</td><td><code>src/assets/data/…_gruppen.csv</code></td><td>einAusgaben.ts</td></tr>
+<tr><td>raw B2 p363–365</td><td><code>agg_zuschuesse_indirekt.py</code></td><td><span class="b b-med">manual</span>, needs no PDF</td><td><code>public/daten/zuschuesse-indirekt.json</code></td><td>IndirekteZuschuesse</td></tr>
+<tr><td>PDF + raw + zuschuesse JSON</td><td><code>quellen_zuschuesse.py</code></td><td><span class="b b-lo">manual + PDF</span></td><td>webp files, <code>zuschuesse-quellen.json</code></td><td>ZuschuessePage</td></tr>
+<tr><td>PDFs + raw + planspiel.json</td><td><code>quellen_planspiel.py</code></td><td><span class="b b-lo">manual + PDF</span></td><td>webp files, <code>planspiel-quellen.json</code></td><td>PlanspielPage</td></tr>
+<tr><td>PDF B1 text + planspiel.json</td><td><code>erlaeuterungen.py</code></td><td><span class="b b-lo">manual + PDF</span></td><td><code>public/daten/erlaeuterungen.json</code></td><td>ProduktAkkordeon, ProduktgruppeInfo</td></tr>
+<tr><td>GU + SP CSVs</td><td><code>scripts/check_konsistenz.py</code></td><td><span class="b b-hi">build</span> (subprocess)</td><td><code>daten/pruefberichte/konsistenz.md</code></td><td>people</td></tr>
+</tbody></table></div>
+<div class="warn">Running only the build can leave stale JSON in <code>public/daten</code>. For example, a change in <code>agg_zuschuesse.py</code> reaches the app only after <code>zuschuesse.ts</code> and <code>quellen_zuschuesse.py</code> are run by hand, in that order.</div>
+
+<h3>B2. Findings</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Where</th><th>Problem</th><th>Suggestion</th><th>Effort</th><th>Benefit</th></tr></thead>
+<tbody>
+<tr><td class="loc"><code>README.md:242-260</code>, <code>scripts/README.md</code>, <code>preprocessing/README.md</code>, <code>vue-project/README.md:64</code></td><td>The pipeline is described in four places. The root README still says “Zwei Seiten lesen echte Daten”. <code>preprocessing/README.md:19</code> and <code>zuschuesse.ts:10</code> refer to <code>plan.md</code>, which is not in the repo.</td><td>One data flow table (B1) in <code>scripts/README.md</code>, links from the others.</td><td class="e">S</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="loc"><code>vue-project/scripts/generate-stellenplan.py</code></td><td>Fourth pipeline location, not in the build, English names. Its asserts repeat checks from <code>check_konsistenz.py</code>. Line 33 relies on the loop variable <code>grades</code> leaking out of an earlier loop.</td><td>Write <code>stellenplan.json</code> from <code>agg_stellenplan.py</code>, as <code>agg_ruecklagen.py</code> does for its JSON.</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="loc"><code>preprocessing/*.py</code></td><td>See A2. Both scripts use cwd-relative paths and work only from <code>preprocessing/</code>.</td><td>Delete after moving the investment columns into <code>planspiel.json</code>.</td><td class="e">M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="loc"><code>build_agg_tables.py:43-51</code></td><td><code>agg_zuschuesse_indirekt</code> is excluded from the build, although it only reads raw CSVs.</td><td>Add it to the <code>skripte</code> tuple.</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>build_agg_tables.py</code>, <code>preprocessing/*.ts</code></td><td>No single entry point across languages.</td><td>Either call <code>node preprocessing/*.ts</code> from the build (it already runs <code>check_konsistenz</code> as a subprocess) and add a <code>--mit-pdf</code> flag for the PDF steps, or port the two TS scripts to Python. Roughly half of each TS script is hard-coded expected values (see below), so a port is smaller than it looks.</td><td class="e">M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td class="loc"><code>agg_ruecklagen.py:93</code>, <code>agg_schulden.py:141</code>, <code>planspiel_daten.py:241</code></td><td>These write the JSON first and then exit with code 1 on deviations. The other scripts write nothing on error, and <code>preprocessing/README.md</code> states that rule.</td><td>Check first, then write, everywhere.</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>zuschuesse.ts</code> and <code>bezirke.ts</code> <code>pruefungen()</code></td><td>About 60 expected numbers such as <code>225_778_621</code> are snapshots of the current output and do not come from the PDF. Every legitimate data change needs a hand edit.</td><td>Keep the totals that are printed in the PDF, each with a page reference. Drop the rest.</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>zuschuesse.ts</code> <code>gegenprobe()</code></td><td>Compares a TS group-by with a CSV that <code>agg_zuschuesse.py</code> computed from the same rows. The check is circular and is the only code consumer of that CSV.</td><td>Delete the check. Keep the CSV only if it is published as open data.</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>zuschuesse.ts:58-80</code> vs <code>agg_zuschuesse_indirekt.py:48-59</code></td><td>The rule that repairs hyphenation breaks exists in TS and in Python. <code>agg_bezirksvertretungen.py</code> writes <code>"JA"</code>/<code>"NEIN (…)"</code> strings that <code>bezirke.ts</code> parses back into a boolean.</td><td>Clean text once in Python; emit a boolean column.</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc">13 files</td><td><code>DATEN = Path(__file__).resolve().parents[2] / "daten"</code> appears 13 times. App paths appear in 7 files. Raw file names such as <code>band1_p009_PG12_Ergebnisplan_t0.csv</code> are hard-coded in three scripts.</td><td>Move <code>DATEN</code>, <code>APP_DATA</code>, <code>APP_PUBLIC</code>, <code>PDFS</code> and named raw-file constants into <code>rohdaten.py</code>.</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>planspiel_daten.py:155-176</code> vs <code>quellen_planspiel.py:66-112</code></td><td>Single values (taxes p020, Stadtwerke p143) are located twice, with their own file, row key, column index and unit factor (<code>column_4</code> in one, index <code>3</code> in the other).</td><td>Share one table of <code>(datei, zeile, spalte, faktor)</code>.</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>quellen_zuschuesse.py:87</code> vs <code>quellen_planspiel.py:172</code></td><td>The two source JSONs differ: page keys <code>"351"</code> vs <code>"1-9"</code>, <code>band</code> global vs per entry, <code>pdf</code> string vs record. This forces two lookup implementations in the frontend (see C).</td><td>Use one schema with <code>band-seite</code> keys.</td><td class="e">S–M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc">GU vs Stellenplan/Zuschuss CSVs</td><td><code>Ebene</code> is <code>PB</code> in one, <code>Produktbereich-Summe</code> in the others, so <code>check_konsistenz.py:166</code> and <code>:187</code> need two mappings.</td><td>Use <code>PG</code>/<code>PB</code>/<code>Summe</code> everywhere.</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>scripts/check_konsistenz.py</code></td><td>Lives outside <code>pipeline/</code>, runs as a subprocess, redeclares the file constants, translates columns into English (<code>kind</code>, <code>level</code>). Its <code>zahl()</code> formats, while <code>rohdaten.zahl</code> parses.</td><td>Move it into <code>pipeline/</code>, import the constants, call <code>main()</code> directly, rename.</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>agg_zuschuesse_indirekt.py:62</code>, <code>quellen_planspiel.py:117</code></td><td>Two local <code>betrag()</code> helpers re-implement <code>rohdaten.zahl</code> for a single value. The first does not handle a trailing minus.</td><td>Add a scalar variant to <code>rohdaten</code>.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc"><code>erzeugtAm</code> in both TS outputs</td><td>No consumer. Because it is today's date, every rerun changes the committed JSON.</td><td>Drop the field.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc">docstrings vs <code>quelle</code> strings</td><td>Docstrings use PDF pages, user-facing strings use printed pages. The offset (+6 in Band 1, +4 in Band 2) is documented only in <code>haushaltsplan.ts:5</code>.</td><td>Put the offset in the shared constants and always name the convention.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+</tbody></table></div>
+
+<h2 id="c">C. Shared frontend building blocks</h2>
+<p>The existing primitives (<code>PageIntro</code>, <code>ChartCard</code>, <code>BaseChart</code>, <code>DatenTabelle</code>, <code>charts/format.ts</code>, <code>useSchmalerBildschirm</code>) are used consistently. Below them, about a dozen small mechanisms were written several times, each slightly differently. Each row is a candidate for one small module. None of them needs more abstraction than a function or a component with two or three props.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>New module</th><th>Replaces</th><th>Copies</th><th>Effort</th><th>Benefit</th></tr></thead>
+<tbody>
+<tr><td><code>lib/ladeJson.ts</code>: <code>ladeJson&lt;T&gt;(pfad)</code> caches, prefixes <code>BASE_URL</code>, clears the cache on error</td><td><code>data/produkte.ts:146</code>, <code>data/erlaeuterungen.ts:31</code>, <code>IndirekteZuschuesse.vue:53</code>, <code>PlanspielPage.vue:244</code>, <code>ZuschuessePage.vue:83, 661</code>, <code>BezirkePage.vue:70</code>. Some reset the cache in the loader, some in the caller, some never cache.</td><td>7</td><td class="e">S</td><td><span class="b b-hi">med–high</span></td></tr>
+<tr><td><code>&lt;KennzahlenBand :kennzahlen&gt;</code> in <code>components/ui</code></td><td><code>.mm-kennzahlen</code> markup and CSS in Stellenplan, Bezirke, Schulden, Zuschüsse. Zuschüsse has already drifted (<code>__wert</code> class, larger font).</td><td>4</td><td class="e">S</td><td><span class="b b-hi">med–high</span></td></tr>
+<tr><td><code>lib/ansage.ts</code>: <code>useAnsage(ms)</code> returns <code>{ text, melden }</code></td><td>Debounced screen-reader announcements in Stellenplan, StellenplanGesamt, Zuschüsse, Planspiel, Million, with delays of 400, 450 and 500 ms</td><td>5</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td><code>useQuelle(url, zuQuelle)</code> next to <code>QuelleSeitenleiste.vue</code></td><td><code>ZuschuessePage.vue:633-700</code>, <code>PlanspielPage.vue:213-289</code>: same refs, cached loader and mapping. After aligning the JSON schemas (B2) the mapping is shared too.</td><td>2</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td><code>&lt;JahrAuswahl v-model&gt;</code> plus the shared <code>Jahr</code> type</td><td>Four implementations with three types: <code>ref&lt;2026|2027&gt;</code> + <code>onYearSelect</code>, <code>JAHRE</code> + <code>jahrGewaehlt</code>, plain <code>ref('2026')</code> + <code>auswahlWert</code>. Labels differ (“Haushaltsjahr” vs “Planjahr”).</td><td>4</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td><code>AufklappBegriff.vue</code> with <code>#default</code> and <code>#inhalt</code> slots</td><td><code>GlossarBegriff.vue</code> and <code>ProduktgruppeInfo.vue</code> share trigger, keyboard handling, Teleport + popover and about 50 lines of CSS. The second file's own header says so.</td><td>2</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td>Chart helpers in <code>charts/</code>: <code>euroAchse</code>, <code>euroTooltip</code>, <code>rasterMitLegende</code></td><td><code>axisLabel: { formatter: (v) =&gt; euroKurz(v) }</code> 13×, <code>valueFormatter: (v) =&gt; euro(Number(v))</code> 8×, the same grid/legend block 6×</td><td>27</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr><td><code>sankeyBasis(istSchmal)</code> and <code>SANKEY_FARBEN</code> in <code>charts/</code></td><td><code>EinAusgabenSankey.vue</code> and <code>EinAusgabenGruppenDetail.vue</code> copy levels, node colors, label block and gaps. GruppenDetail also encodes the node type in a name prefix and parses it back.</td><td>2</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td>Formatters in <code>charts/format.ts</code>: <code>euroKurzMitVorzeichen</code>, <code>vzaeMitVorzeichen</code></td><td><code>mitVorzeichen</code>, <code>vorzeichen</code>, <code>geldVorzeichen</code> and inline code in four pages. Zuschüsse has a local copy of <code>format.prozent</code>. Planspiel's local <code>prozent</code> means something else and should be renamed.</td><td>6</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td>Route <code>meta.icon</code> and <code>meta.gruppe</code></td><td>Nav config is spread over the router, the <code>navIcons</code> map, two path lists and two hard-coded links in <code>TheHeader.vue:16-71</code>. <code>/mehr-oder-weniger</code> has no icon and falls back to <code>'circle'</code>. The router comment “eine neue Seite braucht also nur einen Eintrag hier” is false.</td><td>4</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr><td><code>v-for</code> over nav entries in TheHeader</td><td>The two dropdowns (<code>TheHeader.vue:136-214</code>) and the two top-level buttons are identical except for label, icon and list. CSS at 347–370 undoes parts of the rule at 372–399.</td><td>2</td><td class="e">M</td><td><span class="b b-med">med–high</span></td></tr>
+<tr><td>Global <code>.mm-umschalter</code>, <code>.mm-fussnote</code>, <code>.mm-tabelle-details</code> in <code>main.css</code></td><td>Toggle-button CSS in both Stellenplan pages (Bezirke uses <code>&lt;wa-button&gt;</code> instead). <code>.mm-fussnote</code> in five scoped styles with three margins. <code>.mm-tabelle-details</code> in three pages; <code>ErgebnisReihe.vue:96</code> uses it with no matching rule in reach.</td><td>10</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+</tbody></table></div>
+
+<h2 id="d">D. Splitting the large pages</h2>
+<p>Three pages are larger than a reader can hold in their head. After section C, a good part of each moves out on its own. The remaining split follows the visible cards on the page.</p>
+<div class="grid2">
+<div class="card">
+<h4>StellenplanPage.vue · 1,297 lines</h4>
+<p>About 340 lines are CSS. It shares state and helpers with StellenplanGesamtPage: the <code>Stelle</code> type, grade normalisation (written two ways), <code>anzeigeName</code>/<code>titelName</code>, <code>wert</code>/<code>wertFormat</code>, route-query state, default Stufen and the identical VZÄ/Gehalt toggle.</p>
+<ul>
+<li><code>lib/stellenplan.ts</code>: data, names, <code>wertVon(row, kennzahl, stufe, besoldung)</code>, <code>BEAMTE_FARBE</code>/<code>TARIF_FARBE</code> (today <code>KATEGORIE_FARBEN[3]</code>/<code>[0]</code> 8 times)</li>
+<li><code>useStellenplanAuswahl()</code> for jahr, kennzahl and Stufen from the route</li>
+<li><code>&lt;KennzahlUmschalter&gt;</code>, <code>&lt;EntgeltStufen&gt;</code></li>
+<li><code>StellenBestandDiagramm.vue</code> (lines 218–462), text measurement into <code>lib/textMessung.ts</code></li>
+<li>The cards “Ausgewählte Produktgruppe” and “Zur Gehaltskostenschätzung” as components</li>
+</ul>
+<p>Effort <span class="e">M</span> · Benefit <span class="b b-hi">high</span></p>
+</div>
+<div class="card">
+<h4>ZuschuessePage.vue · 1,171 lines</h4>
+<ul>
+<li>Move “Alle Posten einzeln” with filters, hit count and source drawer (script 568–700, template 924–1037) into <code>components/zuschuesse/ZuschussTabelle.vue</code>, as was done for <code>IndirekteZuschuesse</code>.</li>
+<li><code>summe(mitGrad(alle.value, grad))</code> is computed about six times inside one chart option. One computed <code>summeJeGrad</code> reads better.</li>
+<li>Import Produktbereich names and <code>prozent</code> instead of local copies.</li>
+</ul>
+<p>Effort <span class="e">M</span> · Benefit <span class="b b-med">med</span></p>
+</div>
+<div class="card">
+<h4>PlanspielPage.vue · 1,024 lines</h4>
+<ul>
+<li>The Einnahmen and Ausgaben slider blocks (507–531, 539–565) are the same markup with mirrored colours. One <code>&lt;ReglerListe :invertiert&gt;</code>.</li>
+<li><code>ERTRAG_HILFE</code> (35–44) is an array indexed in parallel to <code>ERTRAGSARTEN</code> in <code>karten.ts</code>. Store <code>{ name, hilfe }</code> together.</li>
+<li>“um bis zu 20 %” in the template duplicates <code>GRENZE = 20</code>.</li>
+<li><code>ERTRAG_REGLER</code>/<code>BEREICH_REGLER</code> exclude items by magic index. A flag in the data is clearer.</li>
+</ul>
+<p>Effort <span class="e">S–M</span> · Benefit <span class="b b-med">med</span></p>
+</div>
+<div class="card">
+<h4>File placement</h4>
+<ul>
+<li><code>components/planspiel/karten.ts</code> is 533 lines of data and logic with no component. Move it to <code>data/planspiel.ts</code>; that also makes A1 easier.</li>
+<li><code>ProduktgruppeInfo.vue</code> sits in <code>ui/</code> but has one consumer and depends on a game type. Move it to <code>components/mehroderweniger/</code>.</li>
+<li>Text helpers in <code>lib/mehrOderWeniger.ts:108-168</code> are general product helpers and belong in <code>data/produkte.ts</code>. <code>ProduktAkkordeon.vue:98</code> has a different function with the same name <code>besonderheiten</code>.</li>
+<li>Einausgaben row types are declared in every component (<code>TableGroup</code> twice). <code>EinAusgabenSankey</code> re-aggregates what the page already computes as <code>tableGroups</code>.</li>
+</ul>
+<p>Effort <span class="e">S</span> · Benefit <span class="b b-lo">low–med</span></p>
+</div>
+</div>
+
+<h2 id="e">E. Dead code and stale comments</h2>
+<p>Stale comments mislead more than missing ones, because a reader trusts them. These are cheap to fix and should go first.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Where</th><th>What</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td class="loc"><code>lib/bildschirm.ts:14</code></td><td>Says the breakpoint also appears as <code>--mm-schmal</code> in <code>main.css</code>. It does not, and custom properties cannot be used in media queries.</td><td>Correct the comment</td></tr>
+<tr><td class="loc"><code>lib/bildschirm.ts:5</code></td><td>Says JS switches to the burger menu. TheHeader does it with CSS.</td><td>Correct the comment</td></tr>
+<tr><td class="loc"><code>assets/main.css:95</code></td><td>Says TheHeader sets <code>--mm-kopf-hoehe</code>. <code>App.vue:20-28</code> sets it.</td><td>Correct the comment</td></tr>
+<tr><td class="loc"><code>router/index.ts:11</code></td><td>“Eine neue Seite braucht nur einen Eintrag hier” is false (see C).</td><td>Fix with route meta</td></tr>
+<tr><td class="loc"><code>ZuschuessePage.vue:42</code></td><td>“wie in GlossarPage.vue” is wrong.</td><td>Remove with A3</td></tr>
+<tr><td class="loc"><code>data/produkte.ts:65</code></td><td><code>PRODUKTBEREICHE</code> is exported but never imported.</td><td>Delete or make it the single source</td></tr>
+<tr><td class="loc"><code>EinAusgabenGruppenDetail.vue:147-158</code></td><td><code>if (!isAusgabe &amp;&amp; !isEinnahme)</code> is always true at that point; the final <code>return undefined</code> is unreachable.</td><td>Reduce to two branches</td></tr>
+<tr><td class="loc"><code>StellenplanPage.vue:760</code></td><td>Ternary on <code>ansicht === 'change'</code> inside a block that only renders when that is true.</td><td>Use <code>deltaFormat</code> directly</td></tr>
+<tr><td class="loc"><code>StellenplanPage.vue:1277-1281</code>, 1002/1007/1268</td><td><code>.stellen-filter &gt; label</code> matches nothing. <code>flex-wrap: wrap</code> is set three times.</td><td>Delete</td></tr>
+<tr><td class="loc"><code>mm-kennzahlen-band</code></td><td>Class used in Stellenplan:606 and Zuschüsse:710, styled nowhere.</td><td>Delete or fold into <code>KennzahlenBand</code></td></tr>
+<tr><td class="loc"><code>StartPage.vue:190</code></td><td><code>ref="heroTextRef"</code> has no counterpart in the script.</td><td>Delete</td></tr>
+<tr><td class="loc"><code>ZuschuessePage.vue:1156-1163</code></td><td><code>.mm-unsichtbar</code> re-implements the global <code>.mm-visually-hidden</code>.</td><td>Use the global class</td></tr>
+<tr><td class="loc"><code>EinAusgabenAufwandsarten.vue:84</code>, <code>EinAusgabenInvestitionen.vue:71</code></td><td>Set chart colours that the theme already sets.</td><td>Delete</td></tr>
+<tr><td class="loc"><code>MuensterhackBadge.vue:79-83</code></td><td>Reduced-motion rule that <code>main.css:101-110</code> already applies globally.</td><td>Delete</td></tr>
+<tr><td class="loc"><code>charts/format.ts:12-16</code></td><td><code>MILLIONEN</code> and <code>ZAHL</code> are identical formatters. <code>JahresergebnisPage.vue:39</code> builds its own <code>Intl.NumberFormat</code>.</td><td>Keep one</td></tr>
+<tr><td class="loc"><code>BaseChart.vue:12-14, 94</code></td><td>Attributes are already forwarded to VChart via <code>$attrs</code>, yet click is re-emitted as <code>chartClick</code>. (That VChart emits <code>click</code> with the ECharts params is inferred from the existing <code>@mouseover</code> use.)</td><td>Use <code>@click</code> at the five call sites</td></tr>
+<tr><td class="loc"><code>eslint.config.ts:7-10</code></td><td>Commented-out block from the scaffold.</td><td>Delete</td></tr>
+</tbody></table></div>
+
+<h2 id="f">F. Naming and consistency</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Where</th><th>Problem</th><th>Suggestion</th><th>Effort</th><th>Benefit</th></tr></thead>
+<tbody>
+<tr><td class="loc"><code>components/einausgaben/*</code>, <code>EinAusgabenPage.vue</code>, Jahresergebnis, Million</td><td>English identifiers (<code>selectedYear</code>, <code>rows</code>, <code>groupCode</code>, <code>onChartClick</code>, <code>buildSankeyGraph</code>) mixed with German ones (<code>Richtung</code>, <code>stadtKnoten</code>). The rest of the code base uses German.</td><td>Rename to German together with the Sankey work in C.</td><td class="e">M</td><td><span class="b b-med">med</span></td></tr>
+<tr><td class="loc"><code>StellenplanPage.vue:17</code></td><td><code>Ansicht = 'map' | 'change'</code> is left over from the replaced treemap (commit <code>ba63279</code>). Same for <code>RangZeile.kind: 'area' | 'group'</code>.</td><td><code>'bestand' | 'veraenderung'</code>, <code>'bereich' | 'gruppe'</code></td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>EinAusgabenPage.vue:46-52</code></td><td>Three typed ternaries pick <code>Ertraege_2026</code> or <code>Ertraege_2027</code>.</td><td><code>row[`Ertraege_${jahr}`]</code>, as <code>MillionPage.vue:52</code> does. Obsolete after A2.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc">“Werte als Tabelle”</td><td><code>&lt;wa-details&gt;</code> on four pages, native <code>&lt;details&gt;</code> with local CSS on both Stellenplan pages. Planspiel uses both.</td><td>Pick one. Optionally a <code>#tabelle</code> slot on <code>ChartCard</code>.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc">Breadcrumbs</td><td>Three hand-written versions: <code>mm-brotkrumen</code> (Überblick), <code>stellen-pfad</code>, <code>icicle-pfad</code>.</td><td>A shared <code>&lt;Pfad&gt;</code>, only when one of them is touched anyway.</td><td class="e">M</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc"><code>EinAusgabenInvestitionen.vue:17, 107-116</code></td><td>Keeps its own Produktbereich selection, while <code>EinAusgabenAufwandsarten</code> receives it from the page. Whether this is intended UX is not known.</td><td>Lift the state into the page, or add a comment that says why.</td><td class="e">S–M</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>lib/mehrOderWeniger.ts</code></td><td><code>MIN_FAKTOR</code>, <code>SPRUNG_FAKTOR</code> exported but used only in the file. The <code>zufall</code> parameter exists for tests that do not exist.</td><td>Un-export; keep <code>zufall</code> only if tests are planned.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+</tbody></table></div>
+
+<h2 id="g">G. Theme, CSS and magic values</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Where</th><th>Problem</th><th>Suggestion</th><th>Effort</th><th>Benefit</th></tr></thead>
+<tbody>
+<tr><td class="loc"><code>StellenplanPage.vue:217, 234</code>, <code>EinAusgabenSankey</code>, <code>GruppenDetail</code>, <code>StellenplanGesamtPage.vue:554</code></td><td><code>#31333d</code> is copied from the theme's <code>TEXT_NORMAL</code> into four files. The chart font stack is copied once. Bezirke uses another dark tone, <code>#1a1c23</code>, three times.</td><td>Export <code>TEXT_NORMAL</code> and <code>SCHRIFT</code> from <code>echartsTheme.ts</code>.</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>UeberblickPage.vue:45</code></td><td>Cycles <code>KATEGORIE_FARBEN[index % length]</code> over 17 Bereiche. The theme comment explicitly forbids this, because colours repeat.</td><td>Use a palette that fits, or colour by a smaller grouping.</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>TheHeader.vue:446/452</code>, <code>StellenplanGesamtPage.vue:619</code></td><td>The breakpoint is 699/700 in the header and <code>max-width: 700px</code> on the page, one pixel off from <code>SCHMAL_BIS = 699</code>.</td><td>Use 699px with the same cross-reference comment.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc"><code>main.css:161</code>, <code>TheHeader.vue:274</code>, <code>TheFooter.vue:39</code></td><td>Page width <code>72rem</code> written three times.</td><td><code>--mm-seitenbreite</code> token.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+<tr><td class="loc"><code>router/index.ts:114-121</code> vs <code>App.vue:20-28</code></td><td>Header height is measured twice: once with a ResizeObserver into <code>--mm-kopf-hoehe</code>, once in the router with a fallback of 64 + 16.</td><td>Read <code>--mm-kopf-hoehe</code> in the router.</td><td class="e">S</td><td><span class="b b-lo">low–med</span></td></tr>
+<tr><td class="loc"><code>BaseChart.vue:52</code>, <code>router/index.ts:119</code>, <code>ProduktAkkordeon.vue:78</code></td><td><code>matchMedia('(prefers-reduced-motion: reduce)')</code> written three times.</td><td><code>wenigerBewegung()</code> in <code>lib/bildschirm.ts</code>.</td><td class="e">S</td><td><span class="b b-lo">low</span></td></tr>
+</tbody></table></div>
+
+<h2 id="keep">Leave as is</h2>
+<p>Two things look complicated but have a documented reason. <code>erlaeuterungen.py</code> keeps a fixed list of PDF pages, because a full scan takes minutes and a check guards the list. <code>tabellennamen.csv</code> (1,888 rows) reproduces the legacy file names byte for byte, which is justified as long as scripts depend on those names. Neither <code>vite.config.ts</code> nor <code>eslint.config.ts</code> needs changes beyond the leftover comment block.</p>
+
+<h2 id="order">Suggested order</h2>
+<p>Each step is small enough for one pull request. Later steps get easier because earlier ones remove copies.</p>
+<ol class="phases">
+<li><h4>Clean-up without behaviour change</h4><p>Section E, plus the data flow table in <code>scripts/README.md</code>. No risk, and the next steps start from accurate comments.</p></li>
+<li><h4>One source per fact</h4><p><code>data/ergebnisplan.ts</code> (A1), one Produktbereich list (A3), <code>data/ruecklagen.ts</code> (A4). Also move <code>karten.ts</code> to <code>data/planspiel.ts</code> here.</p></li>
+<li><h4>Pipeline consolidation</h4><p>Investment columns into <code>planspiel.json</code>, then delete the Gesamtübersicht preprocessing (A2). Move <code>generate-stellenplan.py</code> into <code>agg_stellenplan.py</code>, add <code>agg_zuschuesse_indirekt</code> to the build, check before writing, shared path constants.</p></li>
+<li><h4>Shared frontend modules</h4><p><code>ladeJson</code>, <code>useAnsage</code>, <code>KennzahlenBand</code>, route meta for the header, chart helpers, global CSS classes (section C).</p></li>
+<li><h4>Split the large pages</h4><p>Stellenplan first (largest, most overlap), then Zuschüsse with the aligned source JSON and <code>useQuelle</code>, then Planspiel (section D).</p></li>
+<li><h4>Larger, optional</h4><p>A single build entry point across Python and TS, or porting the two TS scripts to Python. Renaming in <code>einausgaben/</code> together with the Sankey helpers.</p></li>
+</ol>
+<div class="note">The project has no automated tests for the frontend. Steps 2 to 5 change how pages read their data, so each step needs a manual check of the affected pages, or a few snapshot tests of the computed values before the refactor starts.</div>
+
+<h2 id="method">How this review was done</h2>
+<p>Three review agents read the code in parallel: the pages, the remaining Vue code (components, lib, data, router, config), and the Python and TS pipeline. They edited nothing and ran no build. The equality of the CSV and <code>planspiel.json</code> values (A2) was checked with a small node script for 2026. I then spot-checked a sample of the findings myself: the duplicate CSV parser in StartPage, the six <code>ZEILE</code> definitions, the unused <code>PRODUKTBEREICHE</code> export, the missing icon for <code>/mehr-oder-weniger</code>, the false <code>--mm-schmal</code> comment, the unstyled <code>mm-kennzahlen-band</code> class, the three “92 Mio.” texts, the missing <code>plan.md</code> and the build tuple without <code>agg_zuschuesse_indirekt</code>. All of these held. The remaining findings come from the agents' reading and were not re-checked one by one. Line numbers refer to commit <code>2c53291</code>. Items marked as inferred are not verified.</p>
+
+<footer>Simplification review · haushalt-muenster-2026 · 3 November 2026</footer>
+</div>
+</body>
+</html>
