@@ -10,6 +10,7 @@ import BaseChart from '@/components/ui/BaseChart.vue'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
 import { euro, euroKurz, prozent, vzae } from '@/charts/format'
 import { BESOLDUNG_QUELLE } from '@/data/besoldung'
+import { produktbereichName } from '@/data/ergebnisplan'
 import daten from '@/data/stellenplan.json'
 import { TARIF_QUELLEN } from '@/data/tvoed'
 import { hinweisZumWert, jahresentgelt, schaetzung } from '@/lib/entgelt'
@@ -79,10 +80,10 @@ const auswahlZeilen = computed(() =>
   ),
 )
 const bereiche = computed<RangZeile[]>(() =>
-  Object.entries(daten.areas)
-    .map(([code, name]) => ({
+  Object.keys(daten.areas)
+    .map((code) => ({
       code,
-      name,
+      name: produktbereichName(code),
       value: stellen
         .filter((row) => row.year === jahr.value && row.code.startsWith(code))
         .reduce((summe, row) => summe + wert(row), 0),
@@ -175,9 +176,7 @@ const gruppenName = (key: string) =>
     .replace('TVOEDFEST', 'TVöD fest')
 const quelle = 'Haushaltsplan 2026/27, Band 2 · Stellenplan nach Besoldungsgruppen'
 const bereichName = computed(() =>
-  bereich.value === 'all'
-    ? ''
-    : ((daten.areas as Record<string, string>)[bereich.value] ?? 'Produktbereich'),
+  bereich.value === 'all' ? '' : produktbereichName(bereich.value),
 )
 const titel = computed(() =>
   ansicht.value === 'change'
@@ -692,8 +691,8 @@ function zurUebersicht() {
           @change="bereich = auswahlWert($event)"
         >
           <wa-option value="all">Alle Produktbereiche</wa-option>
-          <wa-option v-for="(name, code) in daten.areas" :key="code" :value="code">
-            {{ name }}
+          <wa-option v-for="code in Object.keys(daten.areas)" :key="code" :value="code">
+            {{ produktbereichName(code) }}
           </wa-option>
         </wa-select>
       </div>

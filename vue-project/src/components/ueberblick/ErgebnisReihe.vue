@@ -11,11 +11,9 @@ import BaseChart from '@/components/ui/BaseChart.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import { euro, euroKurz } from '@/charts/format'
 import daten from '@/data/planspiel.json'
+import { produktgruppe, ZEILE, type Jahr } from '@/data/ergebnisplan'
 
 const props = defineProps<{ bereichCode: string; bereichName: string; farbe?: string }>()
-
-const ZEILE_ERGEBNIS = daten.zeilen.indexOf('Jahresergebnis')
-type Jahr = keyof (typeof daten.produktgruppen)[number]['werte']
 
 const gruppen = computed(() =>
   daten.produktgruppen.filter((gruppe) => gruppe.code.startsWith(props.bereichCode)),
@@ -38,7 +36,7 @@ const reihe = computed(() => {
     jahr,
     art,
     wert: gewaehlt.reduce(
-      (summe, gruppe) => summe + (gruppe.werte[jahr as Jahr][ZEILE_ERGEBNIS] ?? 0),
+      (summe, gruppe) => summe + produktgruppe(gruppe.code, jahr as Jahr, ZEILE.jahresergebnis),
       0,
     ),
   }))

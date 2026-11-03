@@ -13,10 +13,9 @@ import ErgebnisReihe from '@/components/ueberblick/ErgebnisReihe.vue'
 import { euro, euroKurz, prozent, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import daten from '@/data/planspiel.json'
+import { PRODUKTBEREICHE, produktgruppe, ZEILE } from '@/data/ergebnisplan'
 
 const JAHR = '2026'
-const ZEILE_AUFWENDUNGEN = daten.zeilen.indexOf('Ordentliche Aufwendungen')
-const ZEILE_ZINSEN = daten.zeilen.indexOf('Zinsen und sonstige Finanzaufwendungen')
 
 /**
  * Aufwendungen 2026 einschließlich Zinsen (Zeilen 17 und 20) in zwei Ebenen: Produktbereiche mit ihren
@@ -27,13 +26,14 @@ const ZEILE_ZINSEN = daten.zeilen.indexOf('Zinsen und sonstige Finanzaufwendunge
  * sie sonst auch verteilen würde). So behalten die Produktgruppen im Drilldown
  * die Farbe ihres Bereichs, obwohl der Bereich dort die Wurzel ist.
  */
-const bereiche = daten.produktbereiche.map((bereich, index) => {
+const bereiche = PRODUKTBEREICHE.map((bereich, index) => {
   const gruppen = daten.produktgruppen
     .filter((gruppe) => gruppe.code.startsWith(bereich.code))
     .map((gruppe) => ({
       name: gruppe.name,
       value:
-        (gruppe.werte[JAHR][ZEILE_AUFWENDUNGEN] ?? 0) + (gruppe.werte[JAHR][ZEILE_ZINSEN] ?? 0),
+        produktgruppe(gruppe.code, JAHR, ZEILE.aufwendungen) +
+        produktgruppe(gruppe.code, JAHR, ZEILE.zinsen),
     }))
     // Gruppen ohne Aufwand (z. B. die eigenwirtschaftliche Abfallwirtschaft)
     // hätten keine Fläche und stünden im Drilldown nur als leere Kachel herum.

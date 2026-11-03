@@ -5,7 +5,8 @@
  * Finanzerträgen), also das, was aus allgemeinen Mitteln wie Steuern bezahlt werden muss.
  */
 import { euro, zahl } from '@/charts/format'
-import { asNumber, gruppenNamen, produkte } from '@/data/einAusgaben'
+import { asNumber, produkte } from '@/data/einAusgaben'
+import { produktbereichName } from '@/data/ergebnisplan'
 import { absaetze, hatInhalt, type Produktgruppe } from '@/data/produkte'
 
 export type Posten = {
@@ -29,7 +30,7 @@ export function posten2026(): Posten[] {
     .map((row) => ({
       code: row.Code,
       bezeichnung: row.Bezeichnung,
-      bereich: gruppenNamen.get(row.Gruppe) ?? row.Gruppe,
+      bereich: produktbereichName(row.Gruppe),
       bedarf: -asNumber(row.Ergebnis_2026),
       bedarf2027: -asNumber(row.Ergebnis_2027),
     }))

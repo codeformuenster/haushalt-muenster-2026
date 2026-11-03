@@ -9,8 +9,8 @@ import EinAusgabenGruppenTabelle from '@/components/einausgaben/EinAusgabenGrupp
 import EinAusgabenAufwandsarten from '@/components/einausgaben/EinAusgabenAufwandsarten.vue'
 import EinAusgabenInvestitionen from '@/components/einausgaben/EinAusgabenInvestitionen.vue'
 import { euroKurz } from '@/charts/format'
-import { asNumber, gruppenNamen as groupMap, produkte, type DataRow } from '@/data/einAusgaben'
-import ergebnisplan from '@/data/planspiel.json'
+import { asNumber, produkte, type DataRow } from '@/data/einAusgaben'
+import { gesamt, produktbereichName, ZEILE } from '@/data/ergebnisplan'
 
 type ViewRow = DataRow & {
   Gruppenbezeichnung: string
@@ -30,8 +30,6 @@ type TableGroup = {
 
 const selectedYear = ref<2026 | 2027>(2026)
 
-/** Zeilen 19, 20 und 26 des Gesamtergebnisplans (Band 1, S. 9) als Index in planspiel.json. */
-const ZEILE = { finanzertraege: 18, zinsen: 19, jahresergebnis: 25 } as const
 // Erste PDF-Seite des Haushaltsquerschnitts Teil 1 (Ergebnisplanung) je Jahr in Band 2.
 const QUERSCHNITT_SEITE = { 2026: 71, 2027: 74 } as const
 // Erste PDF-Seite des Haushaltsquerschnitts Teil 2 (Finanzplanung) je Jahr in Band 2.
@@ -55,7 +53,7 @@ const rows = computed<ViewRow[]>(() => {
     produkte
       .map((row) => ({
         ...row,
-        Gruppenbezeichnung: groupMap.get(row.Gruppe) ?? row.Gruppe,
+        Gruppenbezeichnung: produktbereichName(row.Gruppe),
         ErtraegeNum: asNumber(row[ertraegeField]),
         AufwendungenNum: asNumber(row[aufwendungenField]),
         ErgebnisNum: asNumber(row[ergebnisField]),
@@ -71,11 +69,11 @@ const ordentlichesErgebnis = computed(() =>
 
 /** Finanzerträge, Zinsen und Jahresergebnis der Stadt im gewählten Jahr. */
 const finanzen = computed(() => {
-  const zeilen = ergebnisplan.gesamt[String(selectedYear.value) as '2026' | '2027']
+  const jahr = String(selectedYear.value) as '2026' | '2027'
   return {
-    finanzertraege: zeilen[ZEILE.finanzertraege] ?? 0,
-    zinsen: zeilen[ZEILE.zinsen] ?? 0,
-    jahresergebnis: zeilen[ZEILE.jahresergebnis] ?? 0,
+    finanzertraege: gesamt(jahr, ZEILE.finanzertraege),
+    zinsen: gesamt(jahr, ZEILE.zinsen),
+    jahresergebnis: gesamt(jahr, ZEILE.jahresergebnis),
   }
 })
 
@@ -119,7 +117,7 @@ const selectedGroup = ref<string | null>(null)
 
 const selectedGroupName = computed(() => {
   if (!selectedGroup.value) return ''
-  return groupMap.get(selectedGroup.value) ?? selectedGroup.value
+  return produktbereichName(selectedGroup.value)
 })
 
 /** Auswahl „Produktbereich“: Tastatur-Alternative zum Klick auf einen Sankey-Knoten. */

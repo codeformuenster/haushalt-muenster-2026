@@ -18,6 +18,7 @@ import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenlei
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import { useSchmalerBildschirm } from '@/lib/bildschirm'
+import { produktbereichName } from '@/data/ergebnisplan'
 
 const QUELLE = 'Haushaltsplan 2026/27, Band 2, S. 341–362 (Zuschussbericht)'
 
@@ -38,27 +39,6 @@ const GRAD_FARBE: Record<Grad, string> = {
 
 /** Über diese zwei Stufen kann der Rat mitentscheiden. */
 const VERHANDELBAR: readonly Grad[] = ['freiwillig', 'dem Grunde nach']
-
-/** Klartextnamen zu den PB-Nummern, fest im Code statt aus den Daten. */
-const PRODUKTBEREICHE: Record<string, string> = {
-  '01': 'Innere Verwaltung',
-  '02': 'Sicherheit und Ordnung',
-  '03': 'Schulträgeraufgaben',
-  '04': 'Kultur und Wissenschaft',
-  '05': 'Soziale Leistungen',
-  '06': 'Kinder-, Jugend- und Familienhilfe',
-  '07': 'Gesundheitsdienste',
-  '08': 'Sportförderung',
-  '09': 'Räumliche Planung und Entwicklung/Geoinformationen',
-  '10': 'Bauen und Wohnen',
-  '11': 'Ver- und Entsorgung',
-  '12': 'Verkehrsflächen und -anlagen, ÖPNV',
-  '13': 'Natur- und Landschaftspflege',
-  '14': 'Umweltschutz',
-  '15': 'Wirtschaft und Tourismus',
-  '16': 'Allgemeine Finanzwirtschaft',
-  '17': 'Stiftungen',
-}
 
 interface Posten {
   nr: number
@@ -152,7 +132,7 @@ const nachBereich = computed(() =>
       const teil = alle.value.filter((p) => p.produktbereich === nr)
       return {
         nr,
-        name: PRODUKTBEREICHE[nr] ?? nr,
+        name: produktbereichName(nr),
         gesamt: summe(teil),
         frei: summe(mitGrad(teil, 'freiwillig')),
         grund: summe(mitGrad(teil, 'dem Grunde nach')),
@@ -990,7 +970,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
                 {{ p.empfaenger }}
                 <span class="mm-zweck">{{ p.zweck }}</span>
               </th>
-              <td>{{ p.produktbereich }} {{ PRODUKTBEREICHE[p.produktbereich] }}</td>
+              <td>{{ p.produktbereich }} {{ produktbereichName(p.produktbereich) }}</td>
               <td>
                 <span
                   class="mm-punkt"
