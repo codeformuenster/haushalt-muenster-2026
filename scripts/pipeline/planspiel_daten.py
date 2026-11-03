@@ -222,12 +222,20 @@ def main(daten: Path = typer.Option(DATEN, help="Pfad zum daten/-Ordner.")) -> N
             abweichungen += 1
             typer.echo(f"Abweichung {j} Steuerarten S. 545: Summe {summe}, PG 16 01 Zeile 01 {zeile01[j][0]}")
 
+    # Volle Namen der Produktbereiche aus den Produktsteckbriefen; die Gesamtübersicht kürzt manche
+    # (PB 09). Der Halbgeviertstrich als Ergänzungsstrich („und –anlagen“, PB 12) wird zum Bindestrich.
+    produkte = json.loads((daten / "produkte.json").read_text(encoding="utf-8"))
+    pb_namen = {p["produktbereich"]: p["produktbereich_name"].replace(" –", " -") for p in produkte}
     pb_codes = sorted({pg["code"][:2] for pg in produktgruppen})
+    for pb in pb_codes:
+        if pb not in pb_namen:
+            abweichungen += 1
+            typer.echo(f"Abweichung PB {pb}: kein Name in produkte.json")
     daten_json = {
         "jahre": [{"jahr": j, "art": art} for j, art in PLAN_JAHRE.items()],
         "zeilen": ZEILEN,
         "gesamt": gesamt,
-        "produktbereiche": [{"code": pb, "name": namen[pb]} for pb in pb_codes],
+        "produktbereiche": [{"code": pb, "name": pb_namen.get(pb, pb)} for pb in pb_codes],
         "produktgruppen": produktgruppen,
         "freiwilligeZuschuesse": zuschuesse(daten, nur_freiwillig=True),
         "zuschuesseGesamt": zuschuesse(daten, nur_freiwillig=False),
