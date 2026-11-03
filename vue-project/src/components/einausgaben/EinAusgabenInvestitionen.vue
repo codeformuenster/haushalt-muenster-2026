@@ -7,7 +7,8 @@ import { computed, nextTick, ref } from 'vue'
 import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, euroKurz } from '@/charts/format'
-import { asNumber, gruppenNamen, produkte } from '@/data/einAusgaben'
+import { asNumber, produkte } from '@/data/einAusgaben'
+import { PRODUKTBEREICHE, produktbereichName } from '@/data/ergebnisplan'
 
 const props = defineProps<{ selectedYear: 2026 | 2027 }>()
 
@@ -27,7 +28,7 @@ const gruppen = computed<Balken[]>(() => {
 })
 
 const bereiche = computed<Balken[]>(() =>
-  Array.from(gruppenNamen, ([code, name]) => {
+  PRODUKTBEREICHE.map(({ code, name }) => {
     const teile = gruppen.value.filter((g) => g.code.startsWith(code))
     return {
       code,
@@ -53,7 +54,7 @@ const summen = computed(() => ({
 }))
 
 const titel = computed(() =>
-  bereich.value ? `${bereich.value} ${gruppenNamen.get(bereich.value) ?? ''}` : 'Stadt Münster',
+  bereich.value ? `${bereich.value} ${produktbereichName(bereich.value)}` : 'Stadt Münster',
 )
 
 const beschreibung = computed(
@@ -99,7 +100,7 @@ function onChartClick(params: unknown): void {
     p.componentType === 'yAxis'
       ? String(p.value ?? '').slice(0, 2)
       : balken.value[p.dataIndex ?? -1]?.code
-  if (code && gruppenNamen.has(code)) bereich.value = code
+  if (code && PRODUKTBEREICHE.some((pb) => pb.code === code)) bereich.value = code
 }
 
 function onSelect(event: Event): void {

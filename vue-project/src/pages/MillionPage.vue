@@ -4,7 +4,8 @@ import PageIntro from '@/components/ui/PageIntro.vue'
 import ChartCard from '@/components/ui/ChartCard.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import { euro, euroKurz, prozent } from '@/charts/format'
-import { asNumber, gruppenNamen, produkte } from '@/data/einAusgaben'
+import { asNumber, produkte } from '@/data/einAusgaben'
+import { produktbereichName } from '@/data/ergebnisplan'
 
 type Position = {
   code: string
@@ -49,7 +50,7 @@ const defizitProdukte = computed<Position[]>(() => {
     .map((row) => ({
       code: row.Code,
       bezeichnung: row.Bezeichnung,
-      bereich: gruppenNamen.get(row.Gruppe) ?? row.Gruppe,
+      bereich: produktbereichName(row.Gruppe),
       bedarf: -asNumber(row[`Ergebnis_${jahr}`]),
     }))
     .filter((p) => p.bedarf > 0)

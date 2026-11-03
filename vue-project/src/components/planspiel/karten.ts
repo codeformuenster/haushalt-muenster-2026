@@ -9,48 +9,13 @@
  */
 import daten from '@/data/planspiel.json'
 import { euroKurz, zahl } from '@/charts/format'
+import { gesamt, produktbereich, produktgruppe, ZEILE } from '@/data/ergebnisplan'
 
 /** Nur das Haushaltsjahr 2026 zählt im Spiel. */
 const JAHR = '2026'
 
-/** Index in den Wertelisten: Zeile 01 des Ergebnisplans steht an Stelle 0. */
-export const ZEILE = {
-  steuern: 0,
-  zuwendungen: 1,
-  oeffentlicheEntgelte: 3,
-  privateEntgelte: 4,
-  sonstigeErtraege: 6,
-  ertraege: 9,
-  personal: 10,
-  sachleistungen: 12,
-  abschreibungen: 13,
-  aufwendungen: 16,
-  finanzertraege: 18,
-  zinsen: 19,
-  jahresergebnis: 25,
-} as const
-
 /** Zeilen 01 bis 08 des Ergebnisplans: die Ertragsarten. Zeile 09 ist überall 0. */
 export const ERTRAGSARTEN = daten.zeilen.slice(0, 8)
-
-export const PRODUKTBEREICHE = daten.produktbereiche
-
-/** Betrag einer Zeile im Gesamtergebnisplan 2026. */
-export function gesamt(zeile: number): number {
-  return daten.gesamt[JAHR][zeile] ?? 0
-}
-
-/** Betrag einer Zeile im Teilergebnisplan einer Produktgruppe, 2026. */
-function produktgruppe(code: string, zeile: number): number {
-  return daten.produktgruppen.find((pg) => pg.code === code)?.werte[JAHR][zeile] ?? 0
-}
-
-/** Ordentliche Aufwendungen eines Produktbereichs 2026 (Summe seiner Produktgruppen). */
-export function aufwendungenProduktbereich(code: string): number {
-  return daten.produktgruppen
-    .filter((pg) => pg.code.startsWith(code))
-    .reduce((summe, pg) => summe + (pg.werte[JAHR][ZEILE.aufwendungen] ?? 0), 0)
-}
 
 /** Anteil als gerundete ganze Prozentzahl, z. B. "24 %". */
 function anteil(teil: number, ganzes: number): string {
@@ -90,12 +55,12 @@ export interface Karte {
   quelle: string
 }
 
-const kitaKosten = produktgruppe('0601', ZEILE.aufwendungen)
-const buergeramtPersonal = produktgruppe('0204', ZEILE.personal)
+const kitaKosten = produktgruppe('0601', JAHR, ZEILE.aufwendungen)
+const buergeramtPersonal = produktgruppe('0204', JAHR, ZEILE.personal)
 const buergeramtStellen = daten.stellen['0204'][JAHR]
 /** Durchschnittliche Personalaufwendungen je Vollzeitstelle bei den Bürgerangelegenheiten. */
 const stelleBuergeramt = buergeramtPersonal / buergeramtStellen
-const theaterZuschuss = produktgruppe('0407', ZEILE.aufwendungen)
+const theaterZuschuss = produktgruppe('0407', JAHR, ZEILE.aufwendungen)
 const hundesteuer = daten.hundesteuer[JAHR]
 
 /** Neue Vollzeitstellen im Bürgerbüro. */
@@ -103,13 +68,13 @@ const neueStellen = 10
 
 const aufwendungenGesamt: Vergleich = {
   name: 'Alle ordentlichen Aufwendungen',
-  betrag: gesamt(ZEILE.aufwendungen),
+  betrag: gesamt(JAHR, ZEILE.aufwendungen),
   quelle: 'gesamt-17',
 }
 
 /** Die Kosten (Zeile 17) einer Produktgruppe. */
 function kosten(name: string, code: string): Vergleich {
-  return { name, betrag: produktgruppe(code, ZEILE.aufwendungen), quelle: `pg-${code}-17` }
+  return { name, betrag: produktgruppe(code, JAHR, ZEILE.aufwendungen), quelle: `pg-${code}-17` }
 }
 
 /**
@@ -131,7 +96,7 @@ const schulNutzungsdauer = 60
 /** Angenommener Zinssatz für neue Kredite der Stadt. */
 const zinssatz = 0.03
 /** Geplantes Minus 2026, das die Karte "Kredit aufnehmen" mit einem Kredit deckt. */
-const minus = -gesamt(ZEILE.jahresergebnis)
+const minus = -gesamt(JAHR, ZEILE.jahresergebnis)
 const stadtwerkePlus = anteilVon(
   0.5,
   daten.stadtwerkeAusschuettung[JAHR],
@@ -150,7 +115,11 @@ export const KARTEN: Karte[] = [
     wissen:
       'Den Hebesatz legt der Rat der Stadt fest. Die Grundsteuer zahlen die Eigentümer, Vermieter dürfen sie über die Nebenkosten an Mieter weitergeben.',
     vergleich: [
-      { name: 'Alle Steuern und Abgaben', betrag: gesamt(ZEILE.steuern), quelle: 'gesamt-01' },
+      {
+        name: 'Alle Steuern und Abgaben',
+        betrag: gesamt(JAHR, ZEILE.steuern),
+        quelle: 'gesamt-01',
+      },
     ],
     annahme:
       'Der Grundsteuerertrag steigt im selben Verhältnis wie der Hebesatz. Der Plan nennt ihn nur auf 0,1 Mio. € gerundet.',
@@ -162,9 +131,13 @@ export const KARTEN: Karte[] = [
     titel: 'Gewerbesteuer-Hebesatz anheben',
     text: 'Der Hebesatz der Gewerbesteuer steigt um 5 %.',
     ...anteilVon(0.05, daten.gewerbesteuer[JAHR], 'Gewerbesteuer'),
-    wissen: `Die Gewerbesteuer ist die größte Steuerquelle der Stadt, 2026 rund ${anteil(daten.gewerbesteuer[JAHR], gesamt(ZEILE.ertraege))} aller ordentlichen Erträge. Sie schwankt mit der Wirtschaftslage, und Städte konkurrieren mit ihren Hebesätzen um Betriebe.`,
+    wissen: `Die Gewerbesteuer ist die größte Steuerquelle der Stadt, 2026 rund ${anteil(daten.gewerbesteuer[JAHR], gesamt(JAHR, ZEILE.ertraege))} aller ordentlichen Erträge. Sie schwankt mit der Wirtschaftslage, und Städte konkurrieren mit ihren Hebesätzen um Betriebe.`,
     vergleich: [
-      { name: 'Alle ordentlichen Erträge', betrag: gesamt(ZEILE.ertraege), quelle: 'gesamt-10' },
+      {
+        name: 'Alle ordentlichen Erträge',
+        betrag: gesamt(JAHR, ZEILE.ertraege),
+        quelle: 'gesamt-10',
+      },
     ],
     annahme:
       'Der Gewerbesteuerertrag steigt im selben Verhältnis wie der Hebesatz. Die Gewerbesteuerumlage an Bund und Land steigt dadurch nicht, weil sie sich allein nach dem Messbetrag richtet. Der Plan nennt den Ertrag nur auf 0,1 Mio. € gerundet.',
@@ -175,8 +148,8 @@ export const KARTEN: Karte[] = [
     gruppe: 'einnehmen',
     titel: 'Eintritt in die Bäder erhöhen',
     text: 'Der Eintritt in die städtischen Bäder wird 20 % teurer.',
-    ...anteilVon(0.2, produktgruppe('0802', ZEILE.privateEntgelte), 'Eintrittsgeldern'),
-    wissen: `Die Eintrittsgelder decken nur rund ${anteil(produktgruppe('0802', ZEILE.privateEntgelte), produktgruppe('0802', ZEILE.aufwendungen))} ihrer Kosten. Den Rest zahlt die Stadt aus dem allgemeinen Haushalt.`,
+    ...anteilVon(0.2, produktgruppe('0802', JAHR, ZEILE.privateEntgelte), 'Eintrittsgeldern'),
+    wissen: `Die Eintrittsgelder decken nur rund ${anteil(produktgruppe('0802', JAHR, ZEILE.privateEntgelte), produktgruppe('0802', JAHR, ZEILE.aufwendungen))} ihrer Kosten. Den Rest zahlt die Stadt aus dem allgemeinen Haushalt.`,
     vergleich: [kosten('Kosten der Bäder', '0802')],
     annahme:
       'Die privatrechtlichen Leistungsentgelte der Produktgruppe 08 02 (Bäder) steigen um 20 %. Es kommen gleich viele Besucher wie bisher.',
@@ -193,7 +166,7 @@ export const KARTEN: Karte[] = [
     vergleich: [
       {
         name: 'Abwassergebühren',
-        betrag: produktgruppe('1101', ZEILE.oeffentlicheEntgelte),
+        betrag: produktgruppe('1101', JAHR, ZEILE.oeffentlicheEntgelte),
         quelle: 'pg-1101-04',
       },
     ],
@@ -228,11 +201,11 @@ export const KARTEN: Karte[] = [
     text: 'Kurse der Volkshochschule und Unterricht an der Musikschule werden 20 % teurer.',
     ...anteilVon(
       0.2,
-      produktgruppe('0402', ZEILE.privateEntgelte) +
-        produktgruppe('0403', ZEILE.oeffentlicheEntgelte),
+      produktgruppe('0402', JAHR, ZEILE.privateEntgelte) +
+        produktgruppe('0403', JAHR, ZEILE.oeffentlicheEntgelte),
       'Kurs- und Unterrichtsentgelten',
     ),
-    wissen: `Die Kursentgelte decken rund ${anteil(produktgruppe('0402', ZEILE.privateEntgelte), produktgruppe('0402', ZEILE.aufwendungen))} der Kosten der Volkshochschule, die Gebühren der Westfälischen Schule für Musik rund ${anteil(produktgruppe('0403', ZEILE.oeffentlicheEntgelte), produktgruppe('0403', ZEILE.aufwendungen))}. Höhere Preise können dazu führen, dass weniger Menschen teilnehmen.`,
+    wissen: `Die Kursentgelte decken rund ${anteil(produktgruppe('0402', JAHR, ZEILE.privateEntgelte), produktgruppe('0402', JAHR, ZEILE.aufwendungen))} der Kosten der Volkshochschule, die Gebühren der Westfälischen Schule für Musik rund ${anteil(produktgruppe('0403', JAHR, ZEILE.oeffentlicheEntgelte), produktgruppe('0403', JAHR, ZEILE.aufwendungen))}. Höhere Preise können dazu führen, dass weniger Menschen teilnehmen.`,
     vergleich: [kosten('Kosten der VHS', '0402'), kosten('Kosten der Musikschule', '0403')],
     annahme:
       'Die privatrechtlichen Leistungsentgelte der Produktgruppe 04 02 (Volkshochschule) und die öffentlich-rechtlichen Leistungsentgelte der Produktgruppe 04 03 (Westfälische Schule für Musik) steigen um 20 %. Es kommen gleich viele Teilnehmende wie bisher.',
@@ -245,7 +218,7 @@ export const KARTEN: Karte[] = [
     text: 'Die Stadt kontrolliert häufiger, wie schnell gefahren wird.',
     ...anteilVon(
       0.1,
-      produktgruppe('0203', ZEILE.sonstigeErtraege),
+      produktgruppe('0203', JAHR, ZEILE.sonstigeErtraege),
       'sonstigen Erträgen im Straßenverkehr',
     ),
     wissen:
@@ -280,8 +253,8 @@ export const KARTEN: Karte[] = [
     gruppe: 'sparen',
     titel: 'Wiederbesetzungssperre',
     text: 'Frei werdende Stellen in der Verwaltung bleiben eine Zeit lang unbesetzt.',
-    ...anteilVon(0.02, gesamt(ZEILE.personal), 'Personalaufwand'),
-    wissen: `Personal ist einer der größten Posten: 2026 rund ${anteil(gesamt(ZEILE.personal), gesamt(ZEILE.aufwendungen))} aller ordentlichen Aufwendungen. Bleiben Stellen frei, spart das Geld, aber Aufgaben bleiben liegen oder dauern länger.`,
+    ...anteilVon(0.02, gesamt(JAHR, ZEILE.personal), 'Personalaufwand'),
+    wissen: `Personal ist einer der größten Posten: 2026 rund ${anteil(gesamt(JAHR, ZEILE.personal), gesamt(JAHR, ZEILE.aufwendungen))} aller ordentlichen Aufwendungen. Bleiben Stellen frei, spart das Geld, aber Aufgaben bleiben liegen oder dauern länger.`,
     vergleich: [aufwendungenGesamt],
     annahme:
       'Die Personalaufwendungen der ganzen Stadt sinken dadurch um 2 %. In gebührenfinanzierten Bereichen würden eigentlich die Gebühren sinken, das bleibt hier unberücksichtigt.',
@@ -311,7 +284,7 @@ export const KARTEN: Karte[] = [
       // Die Summe der Produktgruppen steht so auch im Teilergebnisplan des Produktbereichs.
       {
         name: 'Kultur und Wissenschaft gesamt',
-        betrag: aufwendungenProduktbereich('04'),
+        betrag: produktbereich('04', JAHR, ZEILE.aufwendungen),
         quelle: 'pb-04-17',
       },
     ],
@@ -324,7 +297,11 @@ export const KARTEN: Karte[] = [
     gruppe: 'sparen',
     titel: 'Straßenunterhaltung aufschieben',
     text: 'Reparaturen an Straßen und Wegen werden verschoben.',
-    ...anteilVon(0.2, produktgruppe('1201', ZEILE.sachleistungen), 'Sach- und Dienstleistungen'),
+    ...anteilVon(
+      0.2,
+      produktgruppe('1201', JAHR, ZEILE.sachleistungen),
+      'Sach- und Dienstleistungen',
+    ),
     wissen:
       'Wer an der Unterhaltung spart, entlastet den Haushalt sofort. Die Schäden wachsen aber weiter, und die Reparatur wird später meist teurer. Man spricht dann von einem Sanierungsstau.',
     vergleich: [kosten('Kosten der Verkehrsflächen', '1201')],
@@ -338,12 +315,12 @@ export const KARTEN: Karte[] = [
     titel: 'Sozialleistungen kürzen',
     text: 'Die Stadt zahlt weniger Grundsicherung für Arbeitsuchende.',
     wirkung: 0,
-    wissen: `Leistungen wie die Grundsicherung für Arbeitsuchende regelt der Bund im Sozialgesetzbuch. Die Stadt darf die Höhe nicht selbst festlegen. Sie trägt vor allem die Kosten für Unterkunft und Heizung, der Bund erstattet einen großen Teil. 2026 stehen hier ${euroKurz(produktgruppe('0501', ZEILE.aufwendungen))} Aufwendungen rund ${euroKurz(produktgruppe('0501', ZEILE.ertraege))} Erträge gegenüber.`,
+    wissen: `Leistungen wie die Grundsicherung für Arbeitsuchende regelt der Bund im Sozialgesetzbuch. Die Stadt darf die Höhe nicht selbst festlegen. Sie trägt vor allem die Kosten für Unterkunft und Heizung, der Bund erstattet einen großen Teil. 2026 stehen hier ${euroKurz(produktgruppe('0501', JAHR, ZEILE.aufwendungen))} Aufwendungen rund ${euroKurz(produktgruppe('0501', JAHR, ZEILE.ertraege))} Erträge gegenüber.`,
     vergleich: [
       kosten('Kosten der Grundsicherung', '0501'),
       {
         name: 'Erträge, v. a. Erstattungen',
-        betrag: produktgruppe('0501', ZEILE.ertraege),
+        betrag: produktgruppe('0501', JAHR, ZEILE.ertraege),
         quelle: 'pg-0501-10',
       },
     ],
@@ -357,9 +334,9 @@ export const KARTEN: Karte[] = [
     titel: 'Tariferhöhung ablehnen',
     text: 'Die Beschäftigten der Stadt bekommen keine Lohnerhöhung.',
     wirkung: 0,
-    wissen: `Die Löhne der Tarifbeschäftigten handeln Gewerkschaften, Bund und kommunale Arbeitgeberverbände für ganz Deutschland im TVöD aus. Die Besoldung der Beamtinnen und Beamten legt das Land NRW per Gesetz fest. Die Stadt muss beides zahlen, und Personal macht 2026 rund ${anteil(gesamt(ZEILE.personal), gesamt(ZEILE.aufwendungen))} aller ordentlichen Aufwendungen aus.`,
+    wissen: `Die Löhne der Tarifbeschäftigten handeln Gewerkschaften, Bund und kommunale Arbeitgeberverbände für ganz Deutschland im TVöD aus. Die Besoldung der Beamtinnen und Beamten legt das Land NRW per Gesetz fest. Die Stadt muss beides zahlen, und Personal macht 2026 rund ${anteil(gesamt(JAHR, ZEILE.personal), gesamt(JAHR, ZEILE.aufwendungen))} aller ordentlichen Aufwendungen aus.`,
     vergleich: [
-      { name: 'Personalaufwand', betrag: gesamt(ZEILE.personal), quelle: 'gesamt-11' },
+      { name: 'Personalaufwand', betrag: gesamt(JAHR, ZEILE.personal), quelle: 'gesamt-11' },
       aufwendungenGesamt,
     ],
     annahme:
@@ -375,7 +352,7 @@ export const KARTEN: Karte[] = [
     wissen:
       'Brandschutz ist eine Pflichtaufgabe. Nach dem Brandschutzgesetz NRW (BHKG) muss die Stadt eine leistungsfähige Feuerwehr unterhalten. Wie schnell und mit wie vielen Kräften sie am Einsatzort sein soll, legt der Brandschutzbedarfsplan fest, den der Rat beschließt.',
     vergleich: [kosten('Kosten der Feuerwehr', '0209')],
-    annahme: `Die Feuerwehr erfüllt gerade die Vorgaben des Brandschutzbedarfsplans. Kürzen ließe sich erst, wenn der Plan geändert wird. 2026 sind für Brandschutz und Hilfeleistung ${euroKurz(produktgruppe('0209', ZEILE.aufwendungen))} eingeplant.`,
+    annahme: `Die Feuerwehr erfüllt gerade die Vorgaben des Brandschutzbedarfsplans. Kürzen ließe sich erst, wenn der Plan geändert wird. 2026 sind für Brandschutz und Hilfeleistung ${euroKurz(produktgruppe('0209', JAHR, ZEILE.aufwendungen))} eingeplant.`,
     quelle:
       'Haushaltsplan Band 1, S. 163 (PDF), Zeile 17; BHKG NRW, § 3, 2021 (https://recht.nrw.de/lrgv/gesetz/01072021-gesetz-ueber-den-brandschutz-die-hilfeleistung-und-den-katastrophenschutz-bhkg/)',
   },
@@ -384,9 +361,9 @@ export const KARTEN: Karte[] = [
     gruppe: 'ausgeben',
     titel: 'Kita-Beiträge abschaffen',
     text: 'Eltern zahlen keine Beiträge mehr für die Kindertagesbetreuung.',
-    wirkung: -produktgruppe('0601', ZEILE.oeffentlicheEntgelte),
-    rechnung: `= alle Elternbeiträge (${euroKurz(produktgruppe('0601', ZEILE.oeffentlicheEntgelte))})`,
-    wissen: `Die Elternbeiträge decken nur rund ${anteil(produktgruppe('0601', ZEILE.oeffentlicheEntgelte), kitaKosten)} der Kosten der Kindertagesbetreuung. Rund ${anteil(produktgruppe('0601', ZEILE.zuwendungen), kitaKosten)} kommen als Zuwendungen, vor allem vom Land. Rund ${anteil(kitaKosten - produktgruppe('0601', ZEILE.ertraege), kitaKosten)} zahlt die Stadt aus dem allgemeinen Haushalt.`,
+    wirkung: -produktgruppe('0601', JAHR, ZEILE.oeffentlicheEntgelte),
+    rechnung: `= alle Elternbeiträge (${euroKurz(produktgruppe('0601', JAHR, ZEILE.oeffentlicheEntgelte))})`,
+    wissen: `Die Elternbeiträge decken nur rund ${anteil(produktgruppe('0601', JAHR, ZEILE.oeffentlicheEntgelte), kitaKosten)} der Kosten der Kindertagesbetreuung. Rund ${anteil(produktgruppe('0601', JAHR, ZEILE.zuwendungen), kitaKosten)} kommen als Zuwendungen, vor allem vom Land. Rund ${anteil(kitaKosten - produktgruppe('0601', JAHR, ZEILE.ertraege), kitaKosten)} zahlt die Stadt aus dem allgemeinen Haushalt.`,
     vergleich: [kosten('Kosten der Kindertagesbetreuung', '0601')],
     annahme:
       'Die öffentlich-rechtlichen Leistungsentgelte der Produktgruppe 06 01 (Förderung von Kindern in Tagesbetreuung) fallen vollständig weg.',
@@ -397,8 +374,8 @@ export const KARTEN: Karte[] = [
     gruppe: 'ausgeben',
     titel: 'Mehr Geld für Jugendarbeit',
     text: 'Die Kinder- und Jugendarbeit (z. B. Jugendzentren, Ferienangebote) bekommt 10 % mehr.',
-    ...anteilVon(-0.1, produktgruppe('0602', ZEILE.aufwendungen), 'Kosten der Jugendarbeit'),
-    wissen: `Jugendarbeit ist eine Aufgabe der Jugendhilfe nach dem Sozialgesetzbuch. Wie viele Angebote es gibt, entscheidet die Stadt aber weitgehend selbst. 2026 sind dafür rund ${euroKurz(produktgruppe('0602', ZEILE.aufwendungen))} eingeplant.`,
+    ...anteilVon(-0.1, produktgruppe('0602', JAHR, ZEILE.aufwendungen), 'Kosten der Jugendarbeit'),
+    wissen: `Jugendarbeit ist eine Aufgabe der Jugendhilfe nach dem Sozialgesetzbuch. Wie viele Angebote es gibt, entscheidet die Stadt aber weitgehend selbst. 2026 sind dafür rund ${euroKurz(produktgruppe('0602', JAHR, ZEILE.aufwendungen))} eingeplant.`,
     vergleich: [],
     annahme:
       'Die ordentlichen Aufwendungen der Produktgruppe 06 02 (Kinder- und Jugendarbeit) steigen um 10 %.',
@@ -439,9 +416,9 @@ export const KARTEN: Karte[] = [
     gruppe: 'ausgeben',
     titel: 'Stadtbücherei kostenlos',
     text: 'Die Stadtbücherei verlangt keine Gebühren mehr.',
-    wirkung: -produktgruppe('0404', ZEILE.oeffentlicheEntgelte),
-    rechnung: `= alle Gebühren der Stadtbücherei (${euroKurz(produktgruppe('0404', ZEILE.oeffentlicheEntgelte))})`,
-    wissen: `Die Gebühren decken nur rund ${anteil(produktgruppe('0404', ZEILE.oeffentlicheEntgelte), produktgruppe('0404', ZEILE.aufwendungen))} der Kosten der Stadtbücherei. Rund ${anteil(produktgruppe('0404', ZEILE.aufwendungen) - produktgruppe('0404', ZEILE.ertraege), produktgruppe('0404', ZEILE.aufwendungen))} zahlt die Stadt aus dem allgemeinen Haushalt.`,
+    wirkung: -produktgruppe('0404', JAHR, ZEILE.oeffentlicheEntgelte),
+    rechnung: `= alle Gebühren der Stadtbücherei (${euroKurz(produktgruppe('0404', JAHR, ZEILE.oeffentlicheEntgelte))})`,
+    wissen: `Die Gebühren decken nur rund ${anteil(produktgruppe('0404', JAHR, ZEILE.oeffentlicheEntgelte), produktgruppe('0404', JAHR, ZEILE.aufwendungen))} der Kosten der Stadtbücherei. Rund ${anteil(produktgruppe('0404', JAHR, ZEILE.aufwendungen) - produktgruppe('0404', JAHR, ZEILE.ertraege), produktgruppe('0404', JAHR, ZEILE.aufwendungen))} zahlt die Stadt aus dem allgemeinen Haushalt.`,
     vergleich: [kosten('Kosten der Stadtbücherei', '0404')],
     annahme:
       'Die öffentlich-rechtlichen Leistungsentgelte der Produktgruppe 04 04 (Stadtbücherei) fallen vollständig weg. Mehrkosten durch zusätzliche Nutzer sind nicht eingerechnet.',
@@ -454,10 +431,10 @@ export const KARTEN: Karte[] = [
     text: 'Parks und Grünanlagen werden häufiger gepflegt.',
     ...anteilVon(
       -0.1,
-      produktgruppe('1301', ZEILE.aufwendungen),
+      produktgruppe('1301', JAHR, ZEILE.aufwendungen),
       'Kosten für Grün- und Freiflächen',
     ),
-    wissen: `Pflege kostet jedes Jahr wieder Geld. 2026 sind für Grün- und Freiflächen ${euroKurz(produktgruppe('1301', ZEILE.aufwendungen))} eingeplant, rund ${anteil(produktgruppe('1301', ZEILE.personal), produktgruppe('1301', ZEILE.aufwendungen))} davon für Personal.`,
+    wissen: `Pflege kostet jedes Jahr wieder Geld. 2026 sind für Grün- und Freiflächen ${euroKurz(produktgruppe('1301', JAHR, ZEILE.aufwendungen))} eingeplant, rund ${anteil(produktgruppe('1301', JAHR, ZEILE.personal), produktgruppe('1301', JAHR, ZEILE.aufwendungen))} davon für Personal.`,
     vergleich: [],
     annahme:
       'Die ordentlichen Aufwendungen der Produktgruppe 13 01 (Grün- und Freiflächen) steigen um 10 %.',
@@ -468,9 +445,9 @@ export const KARTEN: Karte[] = [
     gruppe: 'ausgeben',
     titel: 'Mehr Geld für die Bezirksvertretungen',
     text: 'Die Bezirksvertretungen bekommen doppelt so viel Geld zur freien Verfügung.',
-    wirkung: -produktgruppe('0101', ZEILE.aufwendungen),
-    rechnung: `= noch einmal ${euroKurz(produktgruppe('0101', ZEILE.aufwendungen))} frei verfügbare Mittel`,
-    wissen: `Münster hat sechs Stadtbezirke mit je einer gewählten Bezirksvertretung. Sie entscheiden über Angelegenheiten ihres Bezirks, etwa die Gestaltung von Grünanlagen oder die Unterstützung örtlicher Vereine. 2026 haben sie zusammen ${euroKurz(produktgruppe('0101', ZEILE.aufwendungen))} zur freien Verfügung.`,
+    wirkung: -produktgruppe('0101', JAHR, ZEILE.aufwendungen),
+    rechnung: `= noch einmal ${euroKurz(produktgruppe('0101', JAHR, ZEILE.aufwendungen))} frei verfügbare Mittel`,
+    wissen: `Münster hat sechs Stadtbezirke mit je einer gewählten Bezirksvertretung. Sie entscheiden über Angelegenheiten ihres Bezirks, etwa die Gestaltung von Grünanlagen oder die Unterstützung örtlicher Vereine. 2026 haben sie zusammen ${euroKurz(produktgruppe('0101', JAHR, ZEILE.aufwendungen))} zur freien Verfügung.`,
     vergleich: [],
     annahme:
       'Die ordentlichen Aufwendungen der Produktgruppe 01 01 (Bezirksvertretungen, frei verfügbare Mittel) verdoppeln sich.',
@@ -486,7 +463,7 @@ export const KARTEN: Karte[] = [
     wissen:
       'Ein Kredit bringt Geld in die Kasse, ist aber kein Ertrag. Das Minus im Ergebnisplan bleibt, und die Zinsen machen es über das Finanzergebnis größer, auch in den folgenden Jahren. In NRW darf die Stadt Kredite nur für Investitionen aufnehmen, für laufende Ausgaben nur Kredite zur Liquiditätssicherung, die Zahlungsengpässe überbrücken sollen.',
     vergleich: [
-      { name: 'Zinsen und Finanzaufwand', betrag: gesamt(ZEILE.zinsen), quelle: 'gesamt-20' },
+      { name: 'Zinsen und Finanzaufwand', betrag: gesamt(JAHR, ZEILE.zinsen), quelle: 'gesamt-20' },
     ],
     annahme: `Die Stadt leiht sich das ganze geplante Minus 2026 von ${euroKurz(minus)} zu ${zahl(zinssatz * 100)} % Zinsen. Gezählt werden die Zinsen eines vollen Jahres. Der Kredit selbst und seine Tilgung stehen nur im Finanzplan und verändern das Jahresergebnis nicht.`,
     quelle:
@@ -503,7 +480,7 @@ export const KARTEN: Karte[] = [
     vergleich: [
       {
         name: 'Alle Abschreibungen der Stadt',
-        betrag: gesamt(ZEILE.abschreibungen),
+        betrag: gesamt(JAHR, ZEILE.abschreibungen),
         quelle: 'gesamt-14',
       },
     ],

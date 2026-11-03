@@ -6,7 +6,7 @@
  * Daten aus src/data/schulden.json (Band 2: Vorbericht S. 27 und 31-32,
  * Übersichten S. 83 und 91, alle Beträge in €), erzeugt von
  * scripts/pipeline/agg_schulden.py. Das Jahresergebnis 2026 kommt aus
- * src/data/ruecklagen.json (Mio. €).
+ * src/data/ruecklagen.json.
  */
 import type { EChartsOption } from 'echarts'
 import { RouterLink } from 'vue-router'
@@ -18,14 +18,13 @@ import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import schulden from '@/data/schulden.json'
-import ruecklagen from '@/data/ruecklagen.json'
+import { imJahr, RUECKLAGEN } from '@/data/ruecklagen'
 
-const MIO = 1_000_000
 const { kredite, beteiligungen, verbindlichkeiten, verpflichtungsermaechtigungen: ve } = schulden
 
 const i2026 = kredite.jahre.indexOf(2026)
 const netto2026 = kredite.netto[i2026] ?? 0
-const jahresergebnis2026 = (ruecklagen.jahresergebnis[ruecklagen.jahre.indexOf(2026)] ?? 0) * MIO
+const jahresergebnis2026 = imJahr(RUECKLAGEN.jahresergebnis, 2026)
 /** Spalte 31.12.2026 der Übersicht über die Verbindlichkeiten. */
 const stichtag2026 = verbindlichkeiten.stichtage.indexOf('31.12.2026')
 const hoechststand = Math.max(...kredite.stand)

@@ -41,7 +41,7 @@ lässt sich im Browser direkt aufrufen, wenn jemand die Zahlen nachprüfen will.
 | `zuschuesse.ts` | Zuschussbericht → `vue-project/public/daten/zuschuesse-2026-2027.json` |
 | `bezirke.ts` | Bezirksbezogene Angaben + Stadtbezirks-Geometrie → `vue-project/public/daten/bezirke-2026-2027.json` und `stadtbezirke.geojson` |
 | `preprocess_gesamtuebersicht.py` | Gesamtübersicht → `vue-project/src/assets/data/…_preprocessed.csv` für Ein- & Ausgaben; aus `preprocessing/` heraus starten |
-| `extract_gesamtuebersicht_gruppen.py` | Gesamtübersicht → Namen der Produktbereiche in `vue-project/src/assets/data/…_gruppen.csv`; aus `preprocessing/` heraus starten |
+| `extract_gesamtuebersicht_gruppen.py` | Gesamtübersicht → Namen der Produktbereiche in `vue-project/src/assets/data/…_gruppen.csv`; aus `preprocessing/` heraus starten. Das Frontend liest die CSV nicht mehr, die Namen kommen aus `planspiel.json` |
 
 ## Eine weitere Seite anbinden
 

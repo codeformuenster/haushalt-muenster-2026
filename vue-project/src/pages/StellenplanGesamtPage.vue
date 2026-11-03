@@ -5,6 +5,7 @@ import PageIntro from '@/components/ui/PageIntro.vue'
 import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import { euroKurz, vzae } from '@/charts/format'
+import { produktbereichName } from '@/data/ergebnisplan'
 import daten from '@/data/stellenplan.json'
 import { schaetzung } from '@/lib/entgelt'
 
@@ -65,15 +66,15 @@ const titelName = (name: string) =>
     .replace(/(^|[\s/-])\p{L}/gu, (treffer) => treffer.toLocaleUpperCase('de-DE'))
 
 const bereiche = computed<Bereich[]>(() =>
-  Object.entries(daten.areas)
-    .map(([code, name]) => {
+  Object.keys(daten.areas)
+    .map((code) => {
       const gruppen = stellen
         .filter((row) => row.year === jahr.value && row.code.startsWith(code))
         .map((row) => ({ code: row.code, name: titelName(row.name), value: wert(row) }))
         .filter((row) => row.value > 0)
       return {
         code,
-        name,
+        name: produktbereichName(code),
         value: gruppen.reduce((summe, gruppe) => summe + gruppe.value, 0),
         gruppen,
       }

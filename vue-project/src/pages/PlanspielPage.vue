@@ -13,22 +13,14 @@ import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import QuelleSeitenleiste, { type Quelle } from '@/components/ui/QuelleSeitenleiste.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { POL_FARBEN } from '@/charts/echartsTheme'
-import {
-  aufwendungenProduktbereich,
-  ERTRAGSARTEN,
-  gesamt,
-  GRUPPEN,
-  KARTEN,
-  PRODUKTBEREICHE,
-  type Vergleich,
-  ZEILE,
-} from '@/components/planspiel/karten'
-import ruecklagen from '@/data/ruecklagen.json'
+import { ERTRAGSARTEN, GRUPPEN, KARTEN, type Vergleich } from '@/components/planspiel/karten'
+import { gesamt, PRODUKTBEREICHE, produktbereich, ZEILE } from '@/data/ergebnisplan'
+import { imJahr, RUECKLAGEN } from '@/data/ruecklagen'
 
-const ertraege = ERTRAGSARTEN.map((name, i) => ({ name, betrag: gesamt(i) }))
+const ertraege = ERTRAGSARTEN.map((name, i) => ({ name, betrag: gesamt('2026', i) }))
 const bereiche = PRODUKTBEREICHE.map((pb) => ({
   ...pb,
-  betrag: aufwendungenProduktbereich(pb.code),
+  betrag: produktbereich(pb.code, '2026', ZEILE.aufwendungen),
 }))
 
 // Kurze Erklärungen zu den Ertragsarten, in der Reihenfolge der Zeilen 01 bis 08.
@@ -47,10 +39,9 @@ const ERTRAG_REGLER = ertraege.map((_, i) => i).filter((i) => i !== 7)
 const BEREICH_REGLER = bereiche.map((_, i) => i).filter((i) => bereiche[i]?.code !== '17')
 
 // Jahresergebnis 2026 laut Plan: ordentliches, Finanz- und außerordentliches Ergebnis (Band 1, S. 9, Zeile 26).
-const START = gesamt(ZEILE.jahresergebnis)
-/** Ausgleichsrücklage am 1. Januar 2026 (Band 2, S. 18), im Plan in Mio. €. */
-const AUSGLEICHSRUECKLAGE =
-  (ruecklagen.ausgleichsruecklageAnfang[ruecklagen.jahre.indexOf(2026)] ?? 0) * 1_000_000
+const START = gesamt('2026', ZEILE.jahresergebnis)
+/** Ausgleichsrücklage am 1. Januar 2026 (Band 2, S. 18). */
+const AUSGLEICHSRUECKLAGE = imJahr(RUECKLAGEN.ausgleichsruecklageAnfang, 2026)
 // Ab hier deckt die Ausgleichsrücklage das Minus allein: Stelle auf dem Fortschrittsbalken.
 const MARKE = Math.min(1, Math.max(0, 1 - AUSGLEICHSRUECKLAGE / -START))
 const GRENZE = 20

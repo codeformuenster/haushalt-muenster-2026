@@ -9,6 +9,7 @@ import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, prozent } from '@/charts/format'
 import daten from '@/data/planspiel.json'
+import { ZEILE } from '@/data/ergebnisplan'
 
 const props = defineProps<{
   selectedYear: 2026 | 2027
@@ -18,13 +19,13 @@ const props = defineProps<{
 
 /** Aufwandsarten in der Reihenfolge des Ergebnisplans, mit kurzer Beschriftung. */
 const ARTEN = [
-  { zeile: 'Personalaufwendungen', label: 'Personal' },
-  { zeile: 'Versorgungsaufwendungen', label: 'Versorgung (Pensionen)' },
-  { zeile: 'Aufwendungen für Sach- und Dienstleistungen', label: 'Sach- und Dienstleistungen' },
-  { zeile: 'Bilanzielle Abschreibungen', label: 'Abschreibungen' },
-  { zeile: 'Transferaufwendungen', label: 'Transfers (Sozialleistungen, Zuschüsse)' },
-  { zeile: 'Sonstige ordentliche Aufwendungen', label: 'Sonstige' },
-].map((art) => ({ ...art, index: daten.zeilen.indexOf(art.zeile) }))
+  { index: ZEILE.personal, label: 'Personal' },
+  { index: ZEILE.versorgung, label: 'Versorgung (Pensionen)' },
+  { index: ZEILE.sachleistungen, label: 'Sach- und Dienstleistungen' },
+  { index: ZEILE.abschreibungen, label: 'Abschreibungen' },
+  { index: ZEILE.transfers, label: 'Transfers (Sozialleistungen, Zuschüsse)' },
+  { index: ZEILE.sonstigeAufwendungen, label: 'Sonstige' },
+]
 
 type Balken = { name: string; werte: number[]; hinweis?: string }
 

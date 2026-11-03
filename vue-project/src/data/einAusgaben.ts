@@ -3,7 +3,6 @@
  * Wird von der Seite „Ein- & Ausgaben“ und von „1 Mio. €“ genutzt.
  */
 import rawData from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv?raw'
-import rawGroups from '@/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_gruppen.csv?raw'
 
 export type DataRow = {
   Code: string
@@ -22,11 +21,6 @@ export type DataRow = {
   AuszInvest_2026: string
   EinzInvest_2027: string
   AuszInvest_2027: string
-}
-
-type GroupRow = {
-  Gruppe: string
-  Gruppenbezeichnung: string
 }
 
 function parseCsv(text: string): string[][] {
@@ -89,8 +83,3 @@ export function asNumber(value: string): number {
 
 /** Alle Produktgruppen, einmal geparst. */
 export const produkte: DataRow[] = toObjects<DataRow>(rawData)
-
-/** Produktbereich-Code (z. B. "01") -> Name (z. B. "Innere Verwaltung"). */
-export const gruppenNamen = new Map(
-  toObjects<GroupRow>(rawGroups).map((g) => [g.Gruppe, g.Gruppenbezeichnung] as const),
-)

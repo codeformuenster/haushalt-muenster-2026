@@ -5,7 +5,8 @@
  *
  * Zahlen 2026/2027 aus src/data/planspiel.json (Gesamtergebnisplan, Band 1, S. 9),
  * die Reihe 2024-2030 aus src/data/ruecklagen.json (Vorbericht, Band 2, S. 18,
- * in Mio. € mit einer Nachkommastelle). Beide erzeugt die Pipeline unter scripts/.
+ * in Mio. € mit einer Nachkommastelle, über src/data/ruecklagen.ts in €). Beide erzeugt die
+ * Pipeline unter scripts/.
  */
 import { computed, ref } from 'vue'
 import type { EChartsOption } from 'echarts'
@@ -16,20 +17,9 @@ import DatenTabelle from '@/components/ui/DatenTabelle.vue'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import { euro, euroKurz, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN, POL_FARBEN } from '@/charts/echartsTheme'
-import plan from '@/data/planspiel.json'
+import { gesamt, ZEILE } from '@/data/ergebnisplan'
 import ruecklagen from '@/data/ruecklagen.json'
-
-/** Index in den Wertelisten von planspiel.json: Zeile 01 steht an Stelle 0. */
-const ZEILE = {
-  ertraege: 9,
-  aufwendungen: 16,
-  ordentlichesErgebnis: 17,
-  finanzertraege: 18,
-  zinsen: 19,
-  finanzergebnis: 20,
-  ausserordentlichesErgebnis: 24,
-  jahresergebnis: 25,
-} as const
+import { imJahr, RUECKLAGEN } from '@/data/ruecklagen'
 
 /** Schwelle nach § 76 Abs. 1 Nr. 2 GO NRW: Verringerung der allgemeinen Rücklage in %. */
 const SCHWELLE_PROZENT = 5
@@ -49,11 +39,11 @@ function onYearSelect(event: Event): void {
 }
 
 const werte = computed(() => {
-  const z = plan.gesamt[String(selectedYear.value) as '2026' | '2027']
-  return (zeile: number) => z[zeile] ?? 0
+  const jahr = String(selectedYear.value) as '2026' | '2027'
+  return (zeile: number) => gesamt(jahr, zeile)
 })
 
-const jahresergebnis2026 = plan.gesamt['2026'][ZEILE.jahresergebnis] ?? 0
+const jahresergebnis2026 = gesamt('2026', ZEILE.jahresergebnis)
 
 // ------------------------------------------------------------ Wasserfall
 
@@ -162,7 +152,6 @@ const wasserfall = computed<EChartsOption>(() => {
 const ART: Record<number, string> = { 2024: 'Ist', 2025: 'Ansatz', 2026: 'Ansatz', 2027: 'Ansatz' }
 const jahre = ruecklagen.jahre.map((jahr) => ({ jahr, art: ART[jahr] ?? 'Planung' }))
 const jahrLabels = jahre.map(({ jahr, art }) => `${jahr}\n${art}`)
-const mio = (reihe: number[]) => reihe.map((wert) => wert * MIO)
 
 const verlauf: EChartsOption = {
   grid: { left: 8, right: 8, top: 40, bottom: 8, containLabel: true },
@@ -194,7 +183,7 @@ const verlauf: EChartsOption = {
         color: '#fff',
         formatter: ({ value }) => EINE_STELLE.format(Number(value) / MIO),
       },
-      data: mio(ruecklagen.jahresergebnis),
+      data: RUECKLAGEN.jahresergebnis,
     },
     {
       type: 'bar',
@@ -202,7 +191,7 @@ const verlauf: EChartsOption = {
       stack: 'ergebnis',
       itemStyle: { color: POL_FARBEN.neutral },
       // Als negativer Teil gestapelt: So weit wäre das Minus ohne die pauschale Kürzung.
-      data: mio(ruecklagen.globalerMinderaufwand).map((wert) => -wert),
+      data: RUECKLAGEN.globalerMinderaufwand.map((wert) => -wert),
     },
   ],
 }
@@ -225,21 +214,20 @@ const deckung: EChartsOption = {
       name: 'aus der Ausgleichsrücklage',
       stack: 'deckung',
       itemStyle: { color: KATEGORIE_FARBEN[2] },
-      data: mio(ruecklagen.entnahmeAusgleichsruecklage).map((wert) => -wert),
+      data: RUECKLAGEN.entnahmeAusgleichsruecklage.map((wert) => -wert),
     },
     {
       type: 'bar',
       name: 'aus der allgemeinen Rücklage',
       stack: 'deckung',
       itemStyle: { color: KATEGORIE_FARBEN[1] },
-      data: mio(ruecklagen.entnahmeAllgemeineRuecklage).map((wert) => -wert),
+      data: RUECKLAGEN.entnahmeAllgemeineRuecklage.map((wert) => -wert),
     },
   ],
 }
 
-const index2026 = ruecklagen.jahre.indexOf(2026)
-const ausgleich2026 = -(ruecklagen.entnahmeAusgleichsruecklage[index2026] ?? 0) * MIO
-const allgemein2026 = -(ruecklagen.entnahmeAllgemeineRuecklage[index2026] ?? 0) * MIO
+const ausgleich2026 = -imJahr(RUECKLAGEN.entnahmeAusgleichsruecklage, 2026)
+const allgemein2026 = -imJahr(RUECKLAGEN.entnahmeAllgemeineRuecklage, 2026)
 
 // ------------------------------------------------------------ Schwelle
 
@@ -432,12 +420,12 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
             <tr v-for="({ jahr, art }, i) in jahre" :key="jahr">
               <th scope="row">{{ jahr }} ({{ art }})</th>
               <td class="mm-zahl">
-                {{ euroKurz((ruecklagen.jahresergebnisVorMinderaufwand[i] ?? 0) * MIO) }}
+                {{ euroKurz(RUECKLAGEN.jahresergebnisVorMinderaufwand[i] ?? 0) }}
               </td>
               <td class="mm-zahl">
-                {{ euroKurz((ruecklagen.globalerMinderaufwand[i] ?? 0) * MIO) }}
+                {{ euroKurz(RUECKLAGEN.globalerMinderaufwand[i] ?? 0) }}
               </td>
-              <td class="mm-zahl">{{ euroKurz((ruecklagen.jahresergebnis[i] ?? 0) * MIO) }}</td>
+              <td class="mm-zahl">{{ euroKurz(RUECKLAGEN.jahresergebnis[i] ?? 0) }}</td>
             </tr>
           </tbody>
         </DatenTabelle>
@@ -484,16 +472,16 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
             <tr v-for="({ jahr, art }, i) in jahre" :key="jahr">
               <th scope="row">{{ jahr }} ({{ art }})</th>
               <td class="mm-zahl">
-                {{ euroKurz(-(ruecklagen.entnahmeAusgleichsruecklage[i] ?? 0) * MIO) }}
+                {{ euroKurz(-(RUECKLAGEN.entnahmeAusgleichsruecklage[i] ?? 0)) }}
               </td>
               <td class="mm-zahl">
-                {{ euroKurz(-(ruecklagen.entnahmeAllgemeineRuecklage[i] ?? 0) * MIO) }}
+                {{ euroKurz(-(RUECKLAGEN.entnahmeAllgemeineRuecklage[i] ?? 0)) }}
               </td>
               <td class="mm-zahl">
-                {{ euroKurz((ruecklagen.ausgleichsruecklageEnde[i] ?? 0) * MIO) }}
+                {{ euroKurz(RUECKLAGEN.ausgleichsruecklageEnde[i] ?? 0) }}
               </td>
               <td class="mm-zahl">
-                {{ euroKurz((ruecklagen.allgemeineRuecklageEnde[i] ?? 0) * MIO) }}
+                {{ euroKurz(RUECKLAGEN.allgemeineRuecklageEnde[i] ?? 0) }}
               </td>
             </tr>
           </tbody>
@@ -547,8 +535,8 @@ const QUELLE_VORBERICHT = 'Haushaltsplan 2026/27, Band 2, Vorbericht, Entwicklun
             <tr v-for="({ jahr, art }, i) in jahre" :key="jahr">
               <th scope="row">{{ jahr }} ({{ art }})</th>
               <td class="mm-zahl">{{ zahl(ruecklagen.inanspruchnahmeProzent[i] ?? 0) }} %</td>
-              <td class="mm-zahl">{{ euroKurz((ruecklagen.schwellenwert[i] ?? 0) * MIO) }}</td>
-              <td class="mm-zahl">{{ euroKurz((ruecklagen.puffer[i] ?? 0) * MIO) }}</td>
+              <td class="mm-zahl">{{ euroKurz(RUECKLAGEN.schwellenwert[i] ?? 0) }}</td>
+              <td class="mm-zahl">{{ euroKurz(RUECKLAGEN.puffer[i] ?? 0) }}</td>
             </tr>
           </tbody>
         </DatenTabelle>

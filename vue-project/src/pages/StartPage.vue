@@ -9,7 +9,7 @@ import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import SpamProtectedEmail from '@/components/ui/SpamProtectedEmail.vue'
 import rawGesamtuebersicht from '../../../daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv?raw'
 import { euroKurz } from '@/charts/format'
-import ergebnisplan from '@/data/planspiel.json'
+import { gesamt, ZEILE } from '@/data/ergebnisplan'
 
 const router = useRouter()
 
@@ -160,9 +160,9 @@ function karte(
   }
 }
 
-/** Summe von Zeilen des Gesamtergebnisplans (Index 0 = Zeile 01) je Jahr. */
+/** Summe von Zeilen des Gesamtergebnisplans je Jahr. */
 function ergebnisZeilen(jahr: '2026' | '2027', zeilen: number[]): number {
-  return zeilen.reduce((summe, zeile) => summe + (ergebnisplan.gesamt[jahr][zeile] ?? 0), 0)
+  return zeilen.reduce((summe, zeile) => summe + gesamt(jahr, zeile), 0)
 }
 
 /** Kennzahl aus dem Gesamtergebnisplan; mehrere Zeilen werden addiert. */
@@ -174,9 +174,9 @@ function ergebnisKarte(titel: string, zeilen: number[], ziel?: string) {
 
 // Zeilen 10 + 19, 17 + 20 und 26: So ergeben Erträge minus Aufwendungen genau das Jahresergebnis.
 const dashboardKarten = [
-  ergebnisKarte('Erträge (mit Finanzerträgen)', [9, 18]),
-  ergebnisKarte('Aufwendungen (mit Zinsen)', [16, 19]),
-  ergebnisKarte('Jahresergebnis', [25], '/jahresergebnis'),
+  ergebnisKarte('Erträge (mit Finanzerträgen)', [ZEILE.ertraege, ZEILE.finanzertraege]),
+  ergebnisKarte('Aufwendungen (mit Zinsen)', [ZEILE.aufwendungen, ZEILE.zinsen]),
+  ergebnisKarte('Jahresergebnis', [ZEILE.jahresergebnis], '/jahresergebnis'),
   karte('Investitionssaldo', 'SaldoInvestitionstaetigkeit'),
   // Fehlbetrag als positiver Bedarf, damit Titel und Vorzeichen zusammenpassen.
   karte('Finanzierungsbedarf (vor Krediten)', 'Finanzmittelueberschuss_fehlbetrag', -1),
