@@ -58,6 +58,9 @@ td.n { color: var(--muted); font-variant-numeric: tabular-nums; width: 2rem; }
 .b-hi { color: var(--hi); background: var(--hi-bg); }
 .b-med { color: var(--med); background: var(--med-bg); }
 .b-lo { color: var(--lo); background: var(--lo-bg); }
+.b-done { color: var(--bg); background: var(--hi); }
+tr.done td { color: var(--muted); }
+ol.phases > li.done::before { content: "✓"; background: var(--hi); }
 .e { font-weight: 700; font-variant-numeric: tabular-nums; }
 .note { background: var(--accent-soft); border-left: 4px solid var(--accent); padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; max-width: 46rem; }
 .warn { background: var(--warn-bg); border-left: 4px solid var(--warn); padding: .75rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; max-width: 46rem; }
@@ -88,6 +91,8 @@ footer { margin-top: 3rem; color: var(--muted); font-size: .88rem; }
   <h1>Simplification review: Münster Money</h1>
   <p class="sub">Branch <code>feat/gesamt</code> at <code>2c53291</code>, 3 November 2026. Scope: <code>vue-project/src</code>, <code>scripts/</code>, <code>preprocessing/</code>, <code>vue-project/scripts/</code>. Goal: code that a new contributor can understand and change safely.</p>
 </header>
+
+<div class="note"><strong>Status.</strong> Steps 1 and 2 of the <a href="#order">suggested order</a> are done (branches <code>refactor/aufraeumen</code> and <code>refactor/eine-quelle</code>, not yet merged). Finished items are marked <span class="b b-done">done</span>. Line numbers in this report refer to commit <code>2c53291</code> and no longer match the branches.</div>
 
 <nav class="toc" aria-label="Contents">
   <ol>
@@ -125,16 +130,16 @@ footer { margin-top: 3rem; color: var(--muted); font-size: .88rem; }
 <div class="table-wrap"><table>
 <thead><tr><th>#</th><th>Change</th><th>Removes</th><th>Effort</th><th>Benefit</th></tr></thead>
 <tbody>
-<tr><td class="n">1</td><td>Write one data flow table in <code>scripts/README.md</code> and link to it from the other three READMEs</td><td>Four partial descriptions, references to a missing <code>plan.md</code></td><td class="e">S</td><td><span class="b b-hi">high</span></td></tr>
-<tr><td class="n">2</td><td>Create <code>data/ergebnisplan.ts</code> with one <code>ZEILE</code> map and accessors for each year</td><td>Six row-index definitions</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr class="done"><td class="n">1</td><td>Write one data flow table in <code>scripts/README.md</code> and link to it from the other three READMEs</td><td>Four partial descriptions, references to a missing <code>plan.md</code></td><td class="e">S</td><td><span class="b b-done">done</span></td></tr>
+<tr class="done"><td class="n">2</td><td>Create <code>data/ergebnisplan.ts</code> with one <code>ZEILE</code> map and accessors for each year</td><td>Six row-index definitions</td><td class="e">S–M</td><td><span class="b b-done">done</span></td></tr>
 <tr><td class="n">3</td><td>Derive Ein-&amp;-Ausgaben, Million, MehrOderWeniger and StartPage from <code>planspiel.json</code></td><td>2 Python scripts, 2 committed CSVs, 2 CSV parsers</td><td class="e">M</td><td><span class="b b-hi">high</span></td></tr>
-<tr><td class="n">4</td><td>Keep one list of Produktbereich names</td><td>Five copies, one of them dead</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
+<tr class="done"><td class="n">4</td><td>Keep one list of Produktbereich names</td><td>Five copies, one of them dead</td><td class="e">S–M</td><td><span class="b b-done">done</span></td></tr>
 <tr><td class="n">5</td><td>Derive the header navigation from route <code>meta</code></td><td>Icon map, two path lists, a missing icon, a false comment</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
 <tr><td class="n">6</td><td>Generate <code>stellenplan.json</code> from <code>agg_stellenplan.py</code> in the build</td><td>The fourth pipeline location</td><td class="e">S–M</td><td><span class="b b-hi">high</span></td></tr>
 <tr><td class="n">7</td><td>Add <code>lib/ladeJson.ts</code></td><td>Seven loader copies</td><td class="e">S</td><td><span class="b b-hi">med–high</span></td></tr>
 <tr><td class="n">8</td><td>Add a <code>&lt;KennzahlenBand&gt;</code> component</td><td>Kennzahlen CSS in four pages</td><td class="e">S</td><td><span class="b b-hi">med–high</span></td></tr>
 <tr><td class="n">9</td><td>Add <code>agg_zuschuesse_indirekt</code> to the build, check before writing everywhere</td><td>A manual step, stale JSON after failed builds</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
-<tr><td class="n">10</td><td>Fix or delete stale comments</td><td>Comments that describe code that no longer exists</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
+<tr class="done"><td class="n">10</td><td>Fix or delete stale comments</td><td>Comments that describe code that no longer exists</td><td class="e">S</td><td><span class="b b-done">done</span></td></tr>
 <tr><td class="n">11</td><td><code>useAnsage()</code> composable for screen-reader announcements</td><td>Five timer copies with four delays</td><td class="e">S</td><td><span class="b b-med">med</span></td></tr>
 <tr><td class="n">12</td><td>Shared Stellenplan module plus two small controls</td><td>Duplicate state and markup across both Stellenplan pages</td><td class="e">M</td><td><span class="b b-hi">high</span></td></tr>
 </tbody></table></div>
@@ -364,8 +369,8 @@ const ZEILE_ERGEBNIS = daten.zeilen.indexOf('Jahresergebnis')</code></pre></div>
 <h2 id="order">Suggested order</h2>
 <p>Each step is small enough for one pull request. Later steps get easier because earlier ones remove copies.</p>
 <ol class="phases">
-<li><h4>Clean-up without behaviour change</h4><p>Section E, plus the data flow table in <code>scripts/README.md</code>. No risk, and the next steps start from accurate comments.</p></li>
-<li><h4>One source per fact</h4><p><code>data/ergebnisplan.ts</code> (A1), one Produktbereich list (A3), <code>data/ruecklagen.ts</code> (A4). Also move <code>karten.ts</code> to <code>data/planspiel.ts</code> here.</p></li>
+<li class="done"><h4>Clean-up without behaviour change <span class="b b-done">done</span></h4><p>Section E, plus the data flow table in <code>scripts/README.md</code>. No risk, and the next steps start from accurate comments.</p><p><strong>Done</strong> on <code>refactor/aufraeumen</code> (<code>ac853e3</code>, <code>ee5ff03</code>). Not done: <code>BaseChart</code>&rsquo;s <code>chartClick</code> stays, because a plain <code>@click</code> might hand the handlers the browser event instead of the chart data. The Jahresergebnis number format stays, because it always shows one decimal place.</p></li>
+<li class="done"><h4>One source per fact <span class="b b-done">done</span></h4><p><code>data/ergebnisplan.ts</code> (A1), one Produktbereich list (A3), <code>data/ruecklagen.ts</code> (A4). Also move <code>karten.ts</code> to <code>data/planspiel.ts</code> here.</p><p><strong>Done</strong> on <code>refactor/eine-quelle</code> (<code>94b021e</code>, <code>5b323b6</code>, <code>ef9609a</code>, plan in <code>docs/plans/2026-11-03-eine-quelle.md</code>). The pipeline writes the full Produktbereich names from <code>daten/produkte.json</code> into <code>planspiel.json</code>, and every page reads them from there. <code>karten.ts</code> stayed in place, because only the game&rsquo;s cards are left in it. The other items in A4 (92 Mio. text, footnote figures, “63 Produktgruppen”, PDF links) are still open.</p></li>
 <li><h4>Pipeline consolidation</h4><p>Investment columns into <code>planspiel.json</code>, then delete the Gesamtübersicht preprocessing (A2). Move <code>generate-stellenplan.py</code> into <code>agg_stellenplan.py</code>, add <code>agg_zuschuesse_indirekt</code> to the build, check before writing, shared path constants.</p></li>
 <li><h4>Shared frontend modules</h4><p><code>ladeJson</code>, <code>useAnsage</code>, <code>KennzahlenBand</code>, route meta for the header, chart helpers, global CSS classes (section C).</p></li>
 <li><h4>Split the large pages</h4><p>Stellenplan first (largest, most overlap), then Zuschüsse with the aligned source JSON and <code>useQuelle</code>, then Planspiel (section D).</p></li>
