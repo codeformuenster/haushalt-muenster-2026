@@ -9,7 +9,7 @@ import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, prozent } from '@/charts/format'
 import daten from '@/data/planspiel.json'
-import { ZEILE } from '@/data/ergebnisplan'
+import { PRODUKTBEREICHE, ZEILE } from '@/data/ergebnisplan'
 
 const props = defineProps<{
   selectedYear: 2026 | 2027
@@ -55,7 +55,7 @@ const balken = computed<Balken[]>(() => {
     ? gruppen
         .filter((g) => g.code.startsWith(props.groupCode ?? ''))
         .map((g) => ({ name: `${g.code} ${g.name}`, werte: g.werte, hinweis: HINWEISE[g.code] }))
-    : daten.produktbereiche.map((b) => ({
+    : PRODUKTBEREICHE.map((b) => ({
         name: `${b.code} ${b.name}`,
         werte: summe(gruppen.filter((g) => g.code.startsWith(b.code)).map((g) => g.werte)),
         hinweis: HINWEISE[b.code],

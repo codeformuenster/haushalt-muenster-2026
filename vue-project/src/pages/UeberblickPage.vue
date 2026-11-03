@@ -13,7 +13,7 @@ import ErgebnisReihe from '@/components/ueberblick/ErgebnisReihe.vue'
 import { euro, euroKurz, prozent, zahl } from '@/charts/format'
 import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import daten from '@/data/planspiel.json'
-import { produktgruppe, ZEILE } from '@/data/ergebnisplan'
+import { PRODUKTBEREICHE, produktgruppe, ZEILE } from '@/data/ergebnisplan'
 
 const JAHR = '2026'
 
@@ -26,7 +26,7 @@ const JAHR = '2026'
  * sie sonst auch verteilen würde). So behalten die Produktgruppen im Drilldown
  * die Farbe ihres Bereichs, obwohl der Bereich dort die Wurzel ist.
  */
-const bereiche = daten.produktbereiche.map((bereich, index) => {
+const bereiche = PRODUKTBEREICHE.map((bereich, index) => {
   const gruppen = daten.produktgruppen
     .filter((gruppe) => gruppe.code.startsWith(bereich.code))
     .map((gruppe) => ({
