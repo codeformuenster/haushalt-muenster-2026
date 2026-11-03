@@ -9,10 +9,6 @@ const EURO = new Intl.NumberFormat('de-DE', {
   maximumFractionDigits: 0,
 })
 
-const MILLIONEN = new Intl.NumberFormat('de-DE', {
-  maximumFractionDigits: 1,
-})
-
 const ZAHL = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
 
 /** 12345678 -> "12.345.678 €" — für Tooltips und Tabellen. */
@@ -22,8 +18,8 @@ export function euro(wert: number): string {
 
 /** 12345678 -> "12,3 Mio. €" — für Achsen und Beschriftungen am Diagramm. */
 export function euroKurz(wert: number): string {
-  if (Math.abs(wert) >= 1_000_000) return `${MILLIONEN.format(wert / 1_000_000)} Mio. €`
-  if (Math.abs(wert) >= 1_000) return `${MILLIONEN.format(wert / 1_000)} Tsd. €`
+  if (Math.abs(wert) >= 1_000_000) return `${ZAHL.format(wert / 1_000_000)} Mio. €`
+  if (Math.abs(wert) >= 1_000) return `${ZAHL.format(wert / 1_000)} Tsd. €`
   return EURO.format(wert)
 }
 

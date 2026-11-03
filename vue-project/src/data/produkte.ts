@@ -56,32 +56,6 @@ export interface Produktbereich {
   anzahlProdukte: number
 }
 
-/**
- * Die 17 Produktbereiche als feste Liste — gleicher Wortlaut wie in
- * produkte.json, aber ohne Ladevorgang. Für alles, was nur die Beschriftung zu
- * einer PB-Nummer braucht (Diagrammachsen, Filter, Tabellen), reicht das; wer
- * die Produkte selbst braucht, nimmt `ladeProduktbereiche()`.
- */
-export const PRODUKTBEREICHE: { nummer: string; name: string }[] = [
-  { nummer: '01', name: 'Innere Verwaltung' },
-  { nummer: '02', name: 'Sicherheit und Ordnung' },
-  { nummer: '03', name: 'Schulträgeraufgaben' },
-  { nummer: '04', name: 'Kultur und Wissenschaft' },
-  { nummer: '05', name: 'Soziale Leistungen' },
-  { nummer: '06', name: 'Kinder-, Jugend- und Familienhilfe' },
-  { nummer: '07', name: 'Gesundheitsdienste' },
-  { nummer: '08', name: 'Sportförderung' },
-  { nummer: '09', name: 'Räumliche Planung und Entwicklung/Geoinformationen' },
-  { nummer: '10', name: 'Bauen und Wohnen' },
-  { nummer: '11', name: 'Ver- und Entsorgung' },
-  { nummer: '12', name: 'Verkehrsflächen und –anlagen, ÖPNV' },
-  { nummer: '13', name: 'Natur- und Landschaftspflege' },
-  { nummer: '14', name: 'Umweltschutz' },
-  { nummer: '15', name: 'Wirtschaft und Tourismus' },
-  { nummer: '16', name: 'Allgemeine Finanzwirtschaft' },
-  { nummer: '17', name: 'Stiftungen' },
-]
-
 /** Platzhalter, mit denen der Haushaltsplan leere Felder füllt. */
 const LEER = ['', 'keine', '---', '-', 'entfällt']
 

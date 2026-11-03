@@ -1,8 +1,8 @@
 /**
  * Bildschirmbreite als reaktiver Wert — für die Fälle, in denen eine
  * Media-Query in CSS nicht reicht, weil JavaScript die Entscheidung treffen
- * muss: die Navigation klappt ins Burger-Menü, ein Balkendiagramm dreht sich
- * von stehenden Säulen auf liegende Balken.
+ * muss, etwa wenn ein Balkendiagramm von stehenden Säulen auf liegende Balken
+ * wechselt.
  *
  * Reines Umschalten von Aussehen gehört weiterhin in CSS. Hier landet nur, was
  * die Struktur ändert.
@@ -11,8 +11,8 @@ import { onBeforeUnmount, readonly, ref, type Ref } from 'vue'
 
 /**
  * Ab hier gilt ein Bildschirm als schmal: Handys hochkant und schmale
- * Fenster. Derselbe Wert steht als `--mm-schmal` in main.css, damit CSS und
- * JavaScript an derselben Stelle umschalten.
+ * Fenster. CSS-Media-Queries, die an derselben Stelle umschalten sollen,
+ * schreiben den Wert von Hand (`max-width: 699px`), z. B. in TheHeader.vue.
  */
 export const SCHMAL_BIS = 699
 

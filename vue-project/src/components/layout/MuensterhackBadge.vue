@@ -76,12 +76,6 @@
   outline-offset: 4px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mm-hack-badge {
-    transition: none;
-  }
-}
-
 @media print {
   .mm-hack-badge {
     display: none;
