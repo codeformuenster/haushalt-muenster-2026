@@ -92,7 +92,7 @@
 
 /* Der Seitenkopf klebt oben. Ohne Abstand würden Elemente, die per Tab den
    Fokus bekommen, darunter verschwinden (WCAG 2.4.11). --mm-kopf-hoehe setzt
-   TheHeader mit seiner tatsächlichen Höhe; --mm-kopf-extra nutzen Seiten mit
+   App.vue mit der tatsächlichen Höhe des Seitenkopfs; --mm-kopf-extra nutzen Seiten mit
    eigenen klebenden Elementen (Planspiel-Ergebnisbox). */
 html {
   scroll-padding-top: calc(var(--mm-kopf-hoehe, 4rem) + var(--mm-kopf-extra, 0px) + 1rem);

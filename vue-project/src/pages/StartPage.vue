@@ -187,7 +187,7 @@ const dashboardKarten = [
   <div class="mm-seite">
     <section class="mm-hero">
       <div class="mm-hero__inhalt">
-        <div ref="heroTextRef" class="mm-hero__text">
+        <div class="mm-hero__text">
           <p class="mm-hero__subhead">Der Haushaltsplan 2026/2027</p>
           <h1>Wofür gibt Münster Geld aus?</h1>
           <p class="mm-hero__lead">

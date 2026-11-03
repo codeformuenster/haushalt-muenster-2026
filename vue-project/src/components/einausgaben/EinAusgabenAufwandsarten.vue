@@ -8,7 +8,6 @@ import { computed } from 'vue'
 import type { EChartsOption } from 'echarts'
 import BaseChart from '@/components/ui/BaseChart.vue'
 import { euro, prozent } from '@/charts/format'
-import { KATEGORIE_FARBEN } from '@/charts/echartsTheme'
 import daten from '@/data/planspiel.json'
 
 const props = defineProps<{
@@ -81,7 +80,6 @@ const beschreibung = computed(() => {
 const option = computed<EChartsOption>(() => {
   const liste = balken.value
   return {
-    color: [...KATEGORIE_FARBEN],
     legend: { top: 0 },
     grid: { left: 8, right: 16, top: 56, bottom: 8, containLabel: true },
     tooltip: {

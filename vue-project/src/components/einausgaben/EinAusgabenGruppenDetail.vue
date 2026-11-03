@@ -144,18 +144,14 @@ const option = computed<EChartsOption>(() => {
 
     if (!istSchmal) return undefined
 
-    if (!isAusgabe && !isEinnahme) {
-      return {
-        position: 'inside' as const,
-        align: 'center' as const,
-        distance: 4,
-        width: 96,
-        overflow: 'break' as const,
-        lineHeight: 12,
-      }
+    return {
+      position: 'inside' as const,
+      align: 'center' as const,
+      distance: 4,
+      width: 96,
+      overflow: 'break' as const,
+      lineHeight: 12,
     }
-
-    return undefined
   }
 
   const nodeData = nodes.map((node) => {

@@ -603,7 +603,7 @@ function zurUebersicht() {
       beschreibung="Wo arbeitet die Stadt? Der Stellenatlas zeigt geplante Stellen in Vollzeitäquivalenten (VZÄ)."
     />
     <p class="mm-visually-hidden" role="status">{{ statusMeldung }}</p>
-    <wa-card class="mm-kennzahlen-band">
+    <wa-card>
       <dl class="mm-kennzahlen">
         <div class="mm-kennzahl">
           <dt>Stadt insgesamt · {{ jahr }}</dt>
@@ -756,9 +756,7 @@ function zurUebersicht() {
             <li v-for="row in topListe" :key="row.code">
               <button type="button" @click="rangWaehlen(row)">
                 <span>{{ row.kind === 'area' ? row.name : `${row.code} · ${row.name}` }}</span>
-                <strong>{{
-                  ansicht === 'change' ? deltaFormat(row.value) : wertFormat(row.value)
-                }}</strong>
+                <strong>{{ deltaFormat(row.value) }}</strong>
               </button>
             </li>
           </ol>
@@ -1002,9 +1000,6 @@ function zurUebersicht() {
   flex-wrap: wrap;
   align-items: end;
   gap: var(--wa-space-s);
-}
-.stellen-filter {
-  flex-wrap: wrap;
 }
 /* Planjahr und Produktbereich bleiben als Paar am rechten Rand. */
 .stellen-filter__rechts {
@@ -1264,20 +1259,12 @@ td .stellen-leise {
     border-top: 1px solid var(--wa-color-surface-border);
     padding: var(--wa-space-m) 0 0;
   }
-  .stellen-filter {
-    flex-wrap: wrap;
-  }
   .stellen-filter__rechts {
     flex: 1 1 100%;
     margin-left: 0;
   }
   .stellen-filter__rechts > wa-select {
     flex: 1 1 8rem;
-  }
-  .stellen-filter > label,
-  .stellen-filter > label:last-child {
-    flex: 1 1 12rem;
-    width: auto;
   }
   .entgelt-kopf {
     align-items: stretch;

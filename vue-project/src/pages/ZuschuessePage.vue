@@ -39,7 +39,7 @@ const GRAD_FARBE: Record<Grad, string> = {
 /** Über diese zwei Stufen kann der Rat mitentscheiden. */
 const VERHANDELBAR: readonly Grad[] = ['freiwillig', 'dem Grunde nach']
 
-/** Klartextnamen zu den PB-Nummern — wie in GlossarPage.vue, nicht aus den Daten. */
+/** Klartextnamen zu den PB-Nummern, fest im Code statt aus den Daten. */
 const PRODUKTBEREICHE: Record<string, string> = {
   '01': 'Innere Verwaltung',
   '02': 'Sicherheit und Ordnung',
@@ -707,7 +707,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
       beschreibung="Die Stadt gibt jedes Jahr Geld an Vereine, Verbände und andere Träger weiter. Für diese Zuschüsse (und nur für sie) sagt der Haushaltsplan selbst, wie stark die Stadt dabei gesetzlich gebunden ist. Deshalb lässt sich hier genau zeigen, worüber der Rat tatsächlich entscheiden kann und worüber nicht."
     />
 
-    <wa-card v-if="posten" class="mm-kennzahlen-band">
+    <wa-card v-if="posten">
       <wa-select class="mm-jahr" label="Haushaltsjahr" :value="jahr" @change="jahrGewaehlt">
         <wa-option v-for="j in JAHRE" :key="j" :value="j">{{ j }}</wa-option>
       </wa-select>
@@ -981,7 +981,7 @@ async function zeigeQuelle(p: Posten): Promise<void> {
               <th scope="col" class="mm-zahl">2026 (€)</th>
               <th scope="col" class="mm-zahl">2027 (€)</th>
               <th scope="col">bis</th>
-              <th scope="col"><span class="mm-unsichtbar">Quelle</span></th>
+              <th scope="col"><span class="mm-visually-hidden">Quelle</span></th>
             </tr>
           </thead>
           <tbody>
@@ -1153,15 +1153,6 @@ async function zeigeQuelle(p: Posten): Promise<void> {
 }
 
 /* Spaltenkopf nur für Screenreader. */
-.mm-unsichtbar {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 .mm-fussnote {
   margin: var(--wa-space-l) 0 0;
   max-width: var(--mm-lesebreite);

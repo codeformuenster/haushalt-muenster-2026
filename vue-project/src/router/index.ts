@@ -7,8 +7,9 @@ import StartPage from '@/pages/StartPage.vue'
  *
  * Geteilte Datei: hier stehen alle Seiten schon drin, damit beim Bauen der
  * einzelnen Seiten niemand mehr diese Datei anfassen muss. `meta.nav` ist die
- * Beschriftung in der Navigation — die Navigation baut sich daraus selbst auf,
- * eine neue Seite braucht also nur einen Eintrag hier.
+ * Beschriftung in der Navigation. Eine neue Seite braucht außerdem ein Icon in
+ * `navIcons` und einen Platz in `NAV_ENTDECKEN` oder `NAV_AUSPROBIEREN` in
+ * TheHeader.vue, sonst erscheint sie nur im Burger-Menü.
  */
 declare module 'vue-router' {
   interface RouteMeta {

@@ -32,6 +32,40 @@ uv run --project scripts scripts/pipeline/<skript>.py --help
 
 `pipeline/rohdaten.py` enthält gemeinsame Hilfsfunktionen (Roh-CSVs finden und lesen, deutsche Zahlen umwandeln) und wird nicht direkt aufgerufen. Ebenso `pipeline/quellen.py` für die beiden `quellen_*`-Skripte: Zeile in einer Roh-CSV finden (mit Zeilennummer), dieselbe Zeile als Rechteck auf der PDF-Seite finden, Seiten als WebP rendern (2 Pixel je PDF-Punkt, Qualität 60) und das JSON schreiben.
 
+## Datenfluss
+
+Die App-Daten entstehen an drei Stellen: in `scripts/pipeline/` (Python), in
+`preprocessing/` (TypeScript und Python) und in `vue-project/scripts/` (Python).
+Die Tabelle zeigt alle Schritte von der Quelle bis zur Seite, die die Daten
+liest. „Build“ heißt: `build_agg_tables.py` führt den Schritt aus. Alle anderen
+Schritte laufen von Hand, in der Reihenfolge der Tabelle. „PDF“ heißt: Der
+Schritt braucht die PDFs unter `daten/pdfs/`.
+
+| Quelle | Skript | Lauf | Ausgabe | Gelesen von |
+|---|---|---|---|---|
+| PDFs, `pipeline/tabellennamen.csv` | `pipeline/extrahiere_tabellen.py` | von Hand, PDF | `daten/raw_table_extraction/*.csv` | alle `agg_*`, `planspiel_daten`, `quellen_*` |
+| Roh-CSVs Band 2, S. 71-80 | `pipeline/agg_gesamtuebersicht.py` | Build | `agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv` | `agg_zuschuesse`, `planspiel_daten`, `check_konsistenz`, `preprocessing/*.py`, `StartPage.vue` |
+| Roh-CSVs Band 2, S. 41-66 | `pipeline/agg_stellenplan.py` | Build | `agg_tables/Stellenplan_2026_2027*.csv` | `planspiel_daten`, `check_konsistenz`, `vue-project/scripts/generate-stellenplan.py` |
+| beide Stellenplan-CSVs | `vue-project/scripts/generate-stellenplan.py` | von Hand | `vue-project/src/data/stellenplan.json` | Stellenplan-Seiten |
+| Roh-CSVs Band 2, S. 349-362, Gesamtübersicht | `pipeline/agg_zuschuesse.py` | Build | `agg_tables/Zuschuesse_Vereine_Verbaende_2026_2027*.csv` | `planspiel_daten`, `preprocessing/zuschuesse.ts` |
+| Zuschuss-CSVs | `preprocessing/zuschuesse.ts` | von Hand | `vue-project/public/daten/zuschuesse-2026-2027.json` | Zuschüsse-Seite, `quellen_zuschuesse` |
+| Roh-CSVs Band 2, S. 147-328 | `pipeline/agg_bezirksvertretungen.py` | Build | `agg_tables/Bezirksvertretungen_Investitionsmassnahmen_2026_2027.csv` | `preprocessing/bezirke.ts` |
+| Bezirke-CSV, `daten/geo/` | `preprocessing/bezirke.ts` | von Hand | `vue-project/public/daten/bezirke-2026-2027.json`, `stadtbezirke.geojson` | Bezirke-Seite |
+| Roh-CSVs Band 2, S. 18, Band 1, S. 9 | `pipeline/agg_ruecklagen.py` | Build | `agg_tables/Ruecklagen_2024_2030.csv`, `vue-project/src/data/ruecklagen.json` | Jahresergebnis, Planspiel, Schulden |
+| Roh-CSVs Band 2, S. 27, 31, 32, 83, 91 | `pipeline/agg_schulden.py` | Build | `vue-project/src/data/schulden.json` | Schulden-Seite |
+| Roh-CSVs Band 1 und 2, `daten/manuell/`, Gesamtübersicht, Stellenplan, Zuschüsse | `pipeline/planspiel_daten.py` | Build | `vue-project/src/data/planspiel.json` | Planspiel, Start, Überblick, Ein- & Ausgaben, Jahresergebnis, `quellen_planspiel`, `erlaeuterungen` |
+| Gesamtübersicht | `preprocessing/preprocess_gesamtuebersicht.py` | von Hand, aus `preprocessing/` heraus | `vue-project/src/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_preprocessed.csv` | `src/data/einAusgaben.ts` (Ein- & Ausgaben, 1 Mio. €, Schätzduell) |
+| Gesamtübersicht | `preprocessing/extract_gesamtuebersicht_gruppen.py` | von Hand, aus `preprocessing/` heraus | `vue-project/src/assets/data/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027_gruppen.csv` | `src/data/einAusgaben.ts` |
+| Roh-CSVs Band 2, S. 363-365 | `pipeline/agg_zuschuesse_indirekt.py` | von Hand | `vue-project/public/daten/zuschuesse-indirekt.json` | Zuschüsse-Seite (indirekte Zuschüsse) |
+| PDF Band 2, Roh-CSVs, Zuschuss-JSON | `pipeline/quellen_zuschuesse.py` | von Hand, PDF | `vue-project/public/quellen/*.webp`, `vue-project/public/daten/zuschuesse-quellen.json` | Zuschüsse-Seite |
+| PDFs, Roh-CSVs, `planspiel.json` | `pipeline/quellen_planspiel.py` | von Hand, PDF | `vue-project/public/quellen/*.webp`, `vue-project/public/daten/planspiel-quellen.json` | Planspiel |
+| PDF Band 1, `planspiel.json` | `pipeline/erlaeuterungen.py` | von Hand, PDF | `vue-project/public/daten/erlaeuterungen.json` | Produktlisten (`ProduktAkkordeon`, `ProduktgruppeInfo`) |
+| Gesamtübersicht, Stellenplan | `check_konsistenz.py` | Build | `daten/pruefberichte/konsistenz.md` | Menschen |
+
+Ein Build allein aktualisiert die Dateien unter `vue-project/public/daten/` nicht.
+Wer etwa `agg_zuschuesse.py` ändert, muss danach `preprocessing/zuschuesse.ts`
+und `quellen_zuschuesse.py` von Hand ausführen.
+
 ## Pipeline
 
 Optional zuerst die Roh-CSVs neu aus den PDFs extrahieren (dauert ca. 3 Minuten):
@@ -46,7 +80,7 @@ Alle Tabellen in `daten/agg_tables/` neu erzeugen und prüfen:
 uv run --project scripts scripts/pipeline/build_agg_tables.py
 ```
 
-Die Reihenfolge ist Gesamtübersicht, Stellenplan, Zuschüsse, Bezirksvertretungen, Rücklagen, Planspiel-Daten; die Zuschüsse brauchen die PG-Bezeichnungen aus der Gesamtübersicht, die Planspiel-Daten Gesamtübersicht, Stellenplan und Zuschüsse. Einzelne Skripte lassen sich auch allein ausführen. Abweichungen der Konsistenzprüfung meldet `build_agg_tables.py`, wertet sie aber nicht als Fehler, weil die bekannten Abweichungen so im PDF stehen (siehe `daten/pruefberichte/befunde.md`).
+Die Reihenfolge ist Gesamtübersicht, Stellenplan, Zuschüsse, Bezirksvertretungen, Rücklagen, Schulden, Planspiel-Daten; die Zuschüsse brauchen die PG-Bezeichnungen aus der Gesamtübersicht, die Planspiel-Daten Gesamtübersicht, Stellenplan und Zuschüsse. Einzelne Skripte lassen sich auch allein ausführen. Abweichungen der Konsistenzprüfung meldet `build_agg_tables.py`, wertet sie aber nicht als Fehler, weil die bekannten Abweichungen so im PDF stehen (siehe `daten/pruefberichte/befunde.md`).
 
 Die Quellenangaben der Zuschüsse-Seite brauchen die lokalen PDFs und laufen deshalb getrennt, nach Änderungen an der Extraktion des Zuschussberichts (und nachdem `vue-project/public/daten/zuschuesse-2026-2027.json` neu erzeugt wurde):
 
