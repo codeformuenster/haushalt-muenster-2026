@@ -239,7 +239,9 @@ Team steht noch aus.
 
 ### Stand
 
-Zwei Seiten lesen echte Daten, aufbereitet von Skripten in `preprocessing/`
+Alle Seiten lesen echte Daten. Welches Skript welche Datei erzeugt und welche
+Seite sie liest, steht im [Datenfluss in scripts/README.md](scripts/README.md#datenfluss).
+Zwei Seiten nutzen Skripte aus `preprocessing/`
 (siehe [preprocessing/README.md](preprocessing/README.md)):
 
 * **Zuschüsse** (`/zuschuesse`) — der Zuschussbericht aus Band 2.

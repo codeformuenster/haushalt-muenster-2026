@@ -7,7 +7,7 @@
  * bereinigt die Extraktionsfehler aus dem PDF-Export und schreibt
  * vue-project/public/daten/zuschuesse-2026-2027.json.
  *
- * Am Ende prüft sich das Skript gegen die Soll-Werte aus plan.md, Abschnitt 5,
+ * Am Ende prüft sich das Skript gegen die Soll-Werte in `pruefungen()`,
  * und bricht mit Exit-Code 1 ab, wenn eine Zahl nicht stimmt. Die Rohdaten in
  * daten/ bleiben unangetastet — Quelle der Wahrheit.
  */
@@ -211,7 +211,7 @@ function pruefungen(posten: Posten[]): void {
   pruefe('verhandelbar — Summe 2026', summe(verhandelbar), 64_654_806)
   pruefe('gebunden — Summe 2026', summe(posten) - summe(verhandelbar), 161_123_815)
 
-  console.log('\nNach Produktbereich (2026, Auszug aus plan.md)')
+  console.log('\nNach Produktbereich (2026, Auszug)')
   const sollPb: Array<[string, number, number, number]> = [
     // [PB, gesamt, freiwillig, dem Grunde nach]
     ['08', 5_086_430, 5_086_430, 0],

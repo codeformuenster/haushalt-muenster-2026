@@ -60,6 +60,9 @@ zwischen VZÄ und dem geschätzten TVöD-Tabellenentgelt.
 
 ### Daten aktualisieren
 
+Wo dieser Schritt in der gesamten Datenaufbereitung steht, zeigt der
+[Datenfluss in scripts/README.md](../scripts/README.md#datenfluss).
+
 ```sh
 python3 scripts/generate-stellenplan.py
 ```

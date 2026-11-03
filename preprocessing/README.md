@@ -1,6 +1,8 @@
 # Preprocessing
 
 Hier wird aus den Rohdaten in `daten/` das, was die Anwendung lädt.
+Welches Skript welche Datei erzeugt und wer sie liest, steht im
+[Datenfluss in scripts/README.md](../scripts/README.md#datenfluss).
 
 **Die Rohdaten bleiben roh.** Bereinigung passiert hier, nicht im Frontend —
 so bleibt `daten/` die unveränderte Quelle der Wahrheit, und die Seiten unter
@@ -16,7 +18,7 @@ node preprocessing/zuschuesse.ts
 node preprocessing/bezirke.ts
 ```
 
-Das Skript prüft sich am Ende gegen die Soll-Werte aus `plan.md`, Abschnitt 5,
+`zuschuesse.ts` prüft sich am Ende gegen Soll-Werte, die im Skript stehen,
 und gegen die zweite CSV (Aggregat nach Produktgruppe). Stimmt eine Zahl nicht,
 bricht es mit Exit-Code 1 ab und schreibt **nichts**.
 
@@ -38,6 +40,8 @@ lässt sich im Browser direkt aufrufen, wenn jemand die Zahlen nachprüfen will.
 | `csv.ts` | CSV-Leser nach RFC 4180, ~80 Zeilen, ohne Abhängigkeit |
 | `zuschuesse.ts` | Zuschussbericht → `vue-project/public/daten/zuschuesse-2026-2027.json` |
 | `bezirke.ts` | Bezirksbezogene Angaben + Stadtbezirks-Geometrie → `vue-project/public/daten/bezirke-2026-2027.json` und `stadtbezirke.geojson` |
+| `preprocess_gesamtuebersicht.py` | Gesamtübersicht → `vue-project/src/assets/data/…_preprocessed.csv` für Ein- & Ausgaben; aus `preprocessing/` heraus starten |
+| `extract_gesamtuebersicht_gruppen.py` | Gesamtübersicht → Namen der Produktbereiche in `vue-project/src/assets/data/…_gruppen.csv`; aus `preprocessing/` heraus starten |
 
 ## Eine weitere Seite anbinden
 
