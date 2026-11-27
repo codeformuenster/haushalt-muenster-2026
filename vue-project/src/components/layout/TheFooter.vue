@@ -1,5 +1,6 @@
 <script setup lang="ts">
 /** Fußzeile für alle Seiten: Datenherkunft und Projektkontext. */
+import { RouterLink } from 'vue-router'
 </script>
 
 <template>
@@ -9,6 +10,7 @@
       2.
     </p>
     <nav aria-label="Weiterführende Links">
+      <RouterLink to="/news">Neuigkeiten</RouterLink>
       <a
         href="https://www.stadt-muenster.de/finanzen/muensters-haushalt/der-haushaltsplan"
         target="_blank"

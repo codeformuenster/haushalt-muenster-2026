@@ -214,6 +214,24 @@ fester Reihenfolge zu verwenden (Serie 1 nimmt Farbe 1 usw.). Die Abstände sind
 so gesetzt, dass benachbarte Farben auch bei Rot-Grün-Sehschwäche unterscheidbar
 bleiben, auf hellem wie dunklem Hintergrund.
 
+### Neuigkeiten
+
+Jede Meldung ist eine Markdown-Datei in `vue-project/src/news/`. Der Dateiname
+wird zur Adresse (`muensterhack-1-preis.md` → `/#/news/muensterhack-1-preis`).
+Beim Build wandelt ein kleines Vite-Plugin (`vite.config.ts`) sie in HTML um.
+Die Startseite zeigt die drei neuesten, `/#/news` alle. Jede Datei beginnt mit
+diesem Kopf; fehlt ein Feld, bricht der Build ab:
+
+```md
+---
+titel: Überschrift der Meldung
+datum: 2026-11-27
+teaser: Ein bis zwei Sätze für die Übersicht.
+---
+
+Text in Markdown. Links auf eigene Seiten mit Hash: [Planspiel](#/planspiel)
+```
+
 ### Fachwörter
 
 Fachwörter im Fließtext lassen sich mit `<GlossarBegriff id="vzae">VZÄ</GlossarBegriff>`

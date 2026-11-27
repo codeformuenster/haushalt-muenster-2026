@@ -7,6 +7,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import heroImageUrl from '@/assets/images/Hero-image.png'
 import GlossarBegriff from '@/components/ui/GlossarBegriff.vue'
 import SpamProtectedEmail from '@/components/ui/SpamProtectedEmail.vue'
+import NewsListe from '@/components/news/NewsListe.vue'
 import rawGesamtuebersicht from '../../../daten/agg_tables/Gesamtuebersicht_Einnahmen_Ausgaben_2026_2027.csv?raw'
 import { euroKurz } from '@/charts/format'
 import ergebnisplan from '@/data/planspiel.json'
@@ -260,6 +261,14 @@ const dashboardKarten = [
           setzt ihn um.
         </p>
       </div>
+    </section>
+
+    <section aria-labelledby="mm-news-titel">
+      <h2 id="mm-news-titel" class="mm-abschnitt-titel">Neuigkeiten</h2>
+      <NewsListe :anzahl="3" />
+      <p class="mm-fliesstext--folge">
+        <RouterLink to="/news">Alle Neuigkeiten</RouterLink>
+      </p>
     </section>
 
     <section>

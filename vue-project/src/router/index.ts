@@ -97,6 +97,19 @@ const router = createRouter({
       meta: { nav: 'Glossar' },
     },
     {
+      path: '/news',
+      name: 'news',
+      component: () => import('@/pages/NewsPage.vue'),
+      meta: { titel: 'Neuigkeiten' },
+    },
+    {
+      // Titel im Browser-Tab setzt die Seite selbst (Titel der Meldung).
+      path: '/news/:slug',
+      name: 'news-artikel',
+      component: () => import('@/pages/NewsArtikelPage.vue'),
+      meta: { titel: 'Neuigkeiten' },
+    },
+    {
       // Unbekannte Adressen landen auf der Startseite statt auf einer leeren Seite.
       path: '/:pfad(.*)*',
       redirect: { name: 'start' },
